@@ -1,0 +1,15 @@
+plugins {
+	id 'org.asciidoctor.convert' version '1.5.3'
+}
+
+group = 'io.github.rscai.microservices'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+	mavenCentral()
+}
+
+
+asciidoctor {
+	attributes 'todir': '${buildDir}/asciidoc/images'
+}

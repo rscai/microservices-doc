@@ -1,0 +1,102 @@
+## 設計
+
+### 架構
+
+[plantuml]
+....
+@startuml
+title Microservices
+actor user
+node PC {
+    component storeFront
+}
+
+boundary APIGateway
+
+node {
+    component productService
+}
+node {
+    component inventoryService
+}
+node {
+    component orderService
+}
+user -> storeFront
+storeFront -> APIGateway: RESTful
+APIGateway --> productService: RESTful
+APIGateway --> orderService: RESTful
+productService --> inventoryService: RESTful
+orderService --> inventoryService: RESTful
+@enduml
+....
+
+### 領域模型
+
+#### Product Models
+
+[plantuml]
+....
+@startuml
+package product <<Folder>> {
+    class Product <<Entity>>
+    class ProductImage <<Entity>>
+    class ProductVariant <<Entity>>
+    Product o-- ProductImage
+    Product o-- ProductVariant
+    ProductVariant "0..*" - "0..*" ProductImage
+    class Collection <<Entity>>
+    Collection "0..*" -- "0..*" Product
+}
+@enduml
+....
+
+[plantuml]
+....
+@startuml
+class Product <<Entity>> {
+    -id: String
+    -title: String
+    -createdAt: Date
+    -updatedAt: Date
+    -images: List<ProductImage>
+    -variants: List<ProductVariant>
+    -tags: List<String>
+}
+class ProductImage <<Entity>> {
+    -id: String
+    -src: String
+    -createdAt: Date
+    -updatedAt: Date
+}
+class ProductVariant <<Entity>> {
+    -id: String
+    -inventoryItemId: String
+    -images: List<ProductImage>
+}
+@enduml
+....
+
+#### Inventory Models
+
+[plantuml]
+....
+@startuml
+package inventory <<Folder>> {
+    class InventoryItem <<Entity>>
+}
+@enduml
+....
+
+#### Order Models
+
+[plantuml]
+....
+@startuml
+package order <<Folder>> {
+    class Order <<Entity>>
+    class Transaction <<Entity>>
+    Order "1" -- "0..*" Transaction
+}
+@enduml
+....
