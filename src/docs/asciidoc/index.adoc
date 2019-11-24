@@ -1,0 +1,4 @@
+= Choose Language
+
+link:zh_TR/main.html[正體中文]
+link:zh_CN/main.html[简体中文]

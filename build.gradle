@@ -1,15 +1,37 @@
 plugins {
-	id 'org.asciidoctor.convert' version '1.5.3'
+	id 'org.asciidoctor.convert' version '1.5.9.1'
+	id 'com.github.jruby-gradle.base' version '1.4.0'
 }
 
+apply plugin: 'java'
+
 group = 'io.github.rscai.microservices'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 
 repositories {
 	mavenCentral()
+	maven { url "http://rubygems-proxy.torquebox.org/releases" }
 }
 
+dependencies {
+    gems 'rubygems:asciidoctor-diagram:1.5.8'
+}
+
+asciidoctorj {
+    version = '1.5.8'
+}
 
 asciidoctor {
-	attributes 'todir': '${buildDir}/asciidoc/images'
+	dependsOn jrubyPrepare
+    requires = ['asciidoctor-diagram']
+    gemPath = jrubyPrepare.outputDir
+	attributes \
+        'build-gradle': file('build.gradle'),
+        'imagesdir': 'images',
+        'toc': 'left',
+        'icons': 'font',
+        'setanchors': '',
+        'idprefix': '',
+        'idseparator': '-',
+        'docinfo1': ''
 }

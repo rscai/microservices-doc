@@ -1,6 +1,7 @@
-## 設計
+設計
+===
 
-### 架構
+== 架構
 
 [plantuml]
 ....
@@ -31,9 +32,9 @@ orderService --> inventoryService: RESTful
 @enduml
 ....
 
-### 領域模型
+== 領域模型
 
-#### Product Models
+=== Catalog Models
 
 [plantuml]
 ....
@@ -77,7 +78,7 @@ class ProductVariant <<Entity>> {
 @enduml
 ....
 
-#### Inventory Models
+=== Inventory Models
 
 [plantuml]
 ....
@@ -88,7 +89,7 @@ package inventory <<Folder>> {
 @enduml
 ....
 
-#### Order Models
+=== Order Models
 
 [plantuml]
 ....

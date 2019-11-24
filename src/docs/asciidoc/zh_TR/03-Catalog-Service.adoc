@@ -1,0 +1,183 @@
+= Catalog Service
+ifndef::imagesdir[:imagesdir: images]
+
+== 學習目標
+
+* 使用Spring Data訪問MongoDB
+* 使用Spring Data REST從Repository構建REST風格web services
+* 使用Spring Test/MockMVC測試REST風格web services
+* 使用Spring REST Docs生成簡潔、準確且結構良好的web services API文檔
+
+== 設計
+
+[plantuml,catalog-design,png]
+....
+package "Catalog Service" {
+    REST - [Repository]
+}
+
+database MongoDB
+
+[Repository] --> MongoDB
+....
+
+Catalog service以REST風格的API向外提供服務，數據全部存儲在MongoDB中，數據訪問層以Repository模式構建。
+
+== 業務模型
+
+Catalog service維護兩個業務模型，Product和ProductImage。
+
+[plantuml, catalog-model, png]
+....
+@startuml
+class Product <<Entity>> {
+    -id: String
+    -title: String
+    -tags: List<String>
+    -images: List<ProductImage>
+    -createdAt: Date
+    -updatedAt: Date
+}
+
+class ProductImage <<Entity>> {
+    -id: String
+    -src: String
+    -createdAt: Date
+    -updatedAt: Date
+}
+
+Product "0..1" *- "1..*" ProductImage: images
+@enduml
+....
+
+== REST API
+
+=== Product
+
+|===
+|操作|URL|HTTP Method
+
+|創建新Product
+|/products
+|POST
+
+|更新Product
+|/products/<productId>
+|PUT
+
+|更新與ProductImage之間的關聯
+|/products/<productId>/images
+|PUT
+
+|移除Product
+|/products/<productId>
+|DELETE
+
+|讀取單個Product
+|/products/<productId>
+|GET
+
+|分頁讀取所有Product
+|/products?page=<pageIndex>&size=<pageSize>
+|GET
+
+|讀取Product關聯的ProductImage
+|/products/<productId>/images
+|GET
+|===
+
+=== ProductImage
+
+|===
+|操作|URL|HTTP Method
+
+|創建新ProductImage
+|/productImages
+|POST
+
+|更新ProductImage
+|/productImages/<productImageId>
+|PUT
+
+|移除ProductImage
+|/productImages/<productImageId>
+|DELETE
+
+|讀取單個ProductImage
+|/productImages/<productImageId>
+|GET
+
+|分頁讀取所有ProductImage
+|/productImages?page=<pageIndex>&size=<pageSize>
+|GET
+|===
+
+== 實現
+
+=== 業務模型
+
+==== Product
+
+.Product.java
+[source,java]
+----
+@Getter
+@Setter
+@Document
+public class Product {
+
+  @Id
+  private String id;
+  private String title;
+  private List<String> tags;
+  @DBRef
+  private List<ProductImage> images;
+  private Date createdAt;
+  private Date updatedAt;
+}
+----
+
+利用Lombok編譯期生成getter/setter方法，減少重復的模板代碼。
+
+* @Getter
+* @Setter
+
+使用Spring Data MongoDB提供的注解描述java類與MongoDB集合、java字段與MongoDB字段之間的映射關系。Spring Data MongoDB會根據映射關系生成對應的Repository實現。
+
+* @Document
+* @Id
+* @DBRef
+
+[ditaa]
+....
+class Product {           {
+    +------------------+     +---------------+
+    |@Id               |     |"id": "1564789"|
+    |private String id;|---->+---------------+
+    +------------------+
+}
+....
+
+==== ProductImage
+
+.ProductImage.java
+[source,java]
+----
+@Getter
+@Setter
+@Document
+public class Product {
+
+  @Id
+  private String id;
+  private String title;
+  private List<String> tags;
+  @DBRef
+  private List<ProductImage> images;
+  private Date createdAt;
+  private Date updatedAt;
+}
+----
+
+=== Repository
+
