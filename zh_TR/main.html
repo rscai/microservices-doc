@@ -439,15 +439,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#簡介"> 簡介</a></li>
 <li><a href="#工具安裝與設置">工具安裝與設置</a></li>
-<li><a href="#架構概覧">架構概覧</a>
-<ul class="sectlevel2">
+<li><a href="#架構概覧">架構概覧</a></li>
 <li><a href="#catalog-service">Catalog Service</a>
-<ul class="sectlevel3">
+<ul class="sectlevel2">
 <li><a href="#學習目標">學習目標</a></li>
 <li><a href="#設計">設計</a></li>
 <li><a href="#業務模型">業務模型</a></li>
-<li><a href="#rest-api">REST API</a></li>
-<li><a href="#實現">實現</a></li>
+<li><a href="#rest-api">REST API</a>
+<ul class="sectlevel3">
+<li><a href="#product">Product</a></li>
+<li><a href="#productimage">ProductImage</a></li>
+</ul>
+</li>
+<li><a href="#實現">實現</a>
+<ul class="sectlevel3">
+<li><a href="#業務模型-2">業務模型</a></li>
+<li><a href="#repository">Repository</a></li>
 </ul>
 </li>
 </ul>
@@ -478,10 +485,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p>TBD</p>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="catalog-service"><a class="link" href="#catalog-service">Catalog Service</a></h2>
+<div class="sectionbody">
 <div class="sect2">
-<h3 id="catalog-service"><a class="link" href="#catalog-service">Catalog Service</a></h3>
-<div class="sect3">
-<h4 id="學習目標"><a class="link" href="#學習目標">學習目標</a></h4>
+<h3 id="學習目標"><a class="link" href="#學習目標">學習目標</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -499,8 +509,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </div>
 </div>
-<div class="sect3">
-<h4 id="設計"><a class="link" href="#設計">設計</a></h4>
+<div class="sect2">
+<h3 id="設計"><a class="link" href="#設計">設計</a></h3>
 <div class="imageblock">
 <div class="content">
 <img src="images/catalog-design.png" alt="catalog design" width="258" height="233">
@@ -510,8 +520,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Catalog service以REST風格的API向外提供服務，數據全部存儲在MongoDB中，數據訪問層以Repository模式構建。</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="業務模型"><a class="link" href="#業務模型">業務模型</a></h4>
+<div class="sect2">
+<h3 id="業務模型"><a class="link" href="#業務模型">業務模型</a></h3>
 <div class="paragraph">
 <p>Catalog service維護兩個業務模型，Product和ProductImage。</p>
 </div>
@@ -521,10 +531,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="rest-api"><a class="link" href="#rest-api">REST API</a></h3>
 <div class="sect3">
-<h4 id="rest-api"><a class="link" href="#rest-api">REST API</a></h4>
-<div class="sect4">
-<h5 id="product"><a class="link" href="#product">Product</a></h5>
+<h4 id="product"><a class="link" href="#product">Product</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -577,8 +587,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tbody>
 </table>
 </div>
-<div class="sect4">
-<h5 id="productimage"><a class="link" href="#productimage">ProductImage</a></h5>
+<div class="sect3">
+<h4 id="productimage"><a class="link" href="#productimage">ProductImage</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -622,25 +632,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </table>
 </div>
 </div>
+<div class="sect2">
+<h3 id="實現"><a class="link" href="#實現">實現</a></h3>
 <div class="sect3">
-<h4 id="實現"><a class="link" href="#實現">實現</a></h4>
+<h4 id="業務模型-2"><a class="link" href="#業務模型-2">業務模型</a></h4>
 <div class="sect4">
-<h5 id="業務模型-2"><a class="link" href="#業務模型-2">業務模型</a></h5>
-<div class="sect5">
-<h6 id="product-2"><a class="link" href="#product-2">Product</a></h6>
+<h5 id="product-2"><a class="link" href="#product-2">Product</a></h5>
 <div class="listingblock">
 <div class="title">Product.java</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Getter
-@Setter
-@Document
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Getter <i class="conum" data-value="1"></i><b>(1)</b>
+@Setter <i class="conum" data-value="2"></i><b>(2)</b>
+@Document <i class="conum" data-value="3"></i><b>(3)</b>
 public class Product {
 
-  @Id
+  @Id <i class="conum" data-value="4"></i><b>(4)</b>
   private String id;
   private String title;
   private List&lt;String&gt; tags;
-  @DBRef
+  @DBRef <i class="conum" data-value="5"></i><b>(5)</b>
   private List&lt;ProductImage&gt; images;
   private Date createdAt;
   private Date updatedAt;
@@ -650,40 +660,50 @@ public class Product {
 <div class="paragraph">
 <p>利用Lombok編譯期生成getter/setter方法，減少重復的模板代碼。</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>@Getter</p>
-</li>
-<li>
-<p>@Setter</p>
-</li>
-</ul>
-</div>
 <div class="paragraph">
 <p>使用Spring Data MongoDB提供的注解描述java類與MongoDB集合、java字段與MongoDB字段之間的映射關系。Spring Data MongoDB會根據映射關系生成對應的Repository實現。</p>
 </div>
-<div class="ulist">
-<ul>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
-<p>@Document</p>
-</li>
-<li>
-<p>@Id</p>
-</li>
-<li>
-<p>@DBRef</p>
-</li>
-</ul>
+<p>@Getter <code>lombok.Getter</code> 在編譯期為所有字段生成Getter訪問器。比如針對字段`private String id`，其生成了相當與以下源代碼的Getter訪問器：</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String getId() {
+    return this.id;
+}</code></pre>
 </div>
+</div>
+</li>
+<li>
+<p>@Setter <code>lombok.Setter</code> 在編譯期為所有字段生成Setter訪問器。比如針對字段`private String id`，其生成了相當與以下代碼的Setter訪問器：</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public void setId(String id) {
+    this.id = id;
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>@Document <code>org.springframework.data.mongodb.core.mapping.Document</code> @Document 將一個Java類映射到MongoDB的某個Collection。在MongoDB中，Collection是Document的集合。在Java中，Class是Object的模板，"從某個Class實例出來的Object"是一個Object的集合。所以，在Java Class/Object與MongoDB Collection/Document映射關系中，Class對應Collection，Object對應Document。而Object中的字段對應Document中的字段。</p>
 <div class="imageblock">
 <div class="content">
-<img src="images/diag-7fa9871285351bb70993cc5894e3444e.png" alt="diag 7fa9871285351bb70993cc5894e3444e" width="500" height="140">
+<img src="images/diag-6a64f855599da504ff3b560cf8a9ee20.png" alt="diag 6a64f855599da504ff3b560cf8a9ee20" width="1563" height="397">
 </div>
 </div>
+</li>
+<li>
+<p>@Id <code>org.springframework.data.annotation.Id</code></p>
+</li>
+<li>
+<p>@DBRef <code>org.springframework.data.mongodb.core.mapping.DBRef</code></p>
+</li>
+</ol>
 </div>
-<div class="sect5">
-<h6 id="productimage-2"><a class="link" href="#productimage-2">ProductImage</a></h6>
+</div>
+<div class="sect4">
+<h5 id="productimage-2"><a class="link" href="#productimage-2">ProductImage</a></h5>
 <div class="listingblock">
 <div class="title">ProductImage.java</div>
 <div class="content">
@@ -705,10 +725,9 @@ public class Product {
 </div>
 </div>
 </div>
-<div class="sect4">
-<h5 id="repository"><a class="link" href="#repository">Repository</a></h5>
+<div class="sect3">
+<h4 id="repository"><a class="link" href="#repository">Repository</a></h4>
 
-</div>
 </div>
 </div>
 </div>
@@ -716,7 +735,7 @@ public class Product {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-11-24 07:49:24 UTC
+Last updated 2019-11-26 13:39:21 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/github.min.css">

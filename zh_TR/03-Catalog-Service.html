@@ -616,16 +616,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Product.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Getter
-@Setter
-@Document
+<pre class="highlight"><code class="language-java" data-lang="java">@Getter <i class="conum" data-value="1"></i><b>(1)</b>
+@Setter <i class="conum" data-value="2"></i><b>(2)</b>
+@Document <i class="conum" data-value="3"></i><b>(3)</b>
 public class Product {
 
-  @Id
+  @Id <i class="conum" data-value="4"></i><b>(4)</b>
   private String id;
   private String title;
   private List&lt;String&gt; tags;
-  @DBRef
+  @DBRef <i class="conum" data-value="5"></i><b>(5)</b>
   private List&lt;ProductImage&gt; images;
   private Date createdAt;
   private Date updatedAt;
@@ -635,36 +635,46 @@ public class Product {
 <div class="paragraph">
 <p>利用Lombok編譯期生成getter/setter方法，減少重復的模板代碼。</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>@Getter</p>
-</li>
-<li>
-<p>@Setter</p>
-</li>
-</ul>
-</div>
 <div class="paragraph">
 <p>使用Spring Data MongoDB提供的注解描述java類與MongoDB集合、java字段與MongoDB字段之間的映射關系。Spring Data MongoDB會根據映射關系生成對應的Repository實現。</p>
 </div>
-<div class="ulist">
-<ul>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
-<p>@Document</p>
-</li>
-<li>
-<p>@Id</p>
-</li>
-<li>
-<p>@DBRef</p>
-</li>
-</ul>
+<p>@Getter <code>lombok.Getter</code> 在編譯期為所有字段生成Getter訪問器。比如針對字段`private String id`，其生成了相當與以下源代碼的Getter訪問器：</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public String getId() {
+    return this.id;
+}</code></pre>
 </div>
+</div>
+</li>
+<li>
+<p>@Setter <code>lombok.Setter</code> 在編譯期為所有字段生成Setter訪問器。比如針對字段`private String id`，其生成了相當與以下代碼的Setter訪問器：</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public void setId(String id) {
+    this.id = id;
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>@Document <code>org.springframework.data.mongodb.core.mapping.Document</code> @Document 將一個Java類映射到MongoDB的某個Collection。在MongoDB中，Collection是Document的集合。在Java中，Class是Object的模板，"從某個Class實例出來的Object"是一個Object的集合。所以，在Java Class/Object與MongoDB Collection/Document映射關系中，Class對應Collection，Object對應Document。而Object中的字段對應Document中的字段。</p>
 <div class="imageblock">
 <div class="content">
-<img src="images/diag-7fa9871285351bb70993cc5894e3444e.png" alt="diag 7fa9871285351bb70993cc5894e3444e" width="500" height="140">
+<img src="images/diag-6a64f855599da504ff3b560cf8a9ee20.png" alt="diag 6a64f855599da504ff3b560cf8a9ee20" width="1563" height="397">
 </div>
+</div>
+</li>
+<li>
+<p>@Id <code>org.springframework.data.annotation.Id</code></p>
+</li>
+<li>
+<p>@DBRef <code>org.springframework.data.mongodb.core.mapping.DBRef</code></p>
+</li>
+</ol>
 </div>
 </div>
 <div class="sect3">
@@ -699,7 +709,7 @@ public class Product {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-11-24 07:49:24 UTC
+Last updated 2019-11-26 13:39:21 UTC
 </div>
 </div>
 </body>
