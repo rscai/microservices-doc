@@ -12,6 +12,7 @@ ifndef::imagesdir[:imagesdir: images]
 
 [plantuml,catalog-design,png]
 ....
+@startuml
 package "Catalog Service" {
     REST - [Repository]
 }
@@ -19,6 +20,7 @@ package "Catalog Service" {
 database MongoDB
 
 [Repository] --> MongoDB
+@enduml
 ....
 
 Catalog service以REST風格的API向外提供服務，數據全部存儲在MongoDB中，數據訪問層以Repository模式構建。
@@ -121,16 +123,16 @@ Product "0..1" *- "1..*" ProductImage: images
 .Product.java
 [source,java]
 ----
-@Getter
-@Setter
-@Document
+@Getter <1>
+@Setter <2>
+@Document <3>
 public class Product {
 
-  @Id
+  @Id <4>
   private String id;
   private String title;
   private List<String> tags;
-  @DBRef
+  @DBRef <5>
   private List<ProductImage> images;
   private Date createdAt;
   private Date updatedAt;
@@ -139,24 +141,50 @@ public class Product {
 
 利用Lombok編譯期生成getter/setter方法，減少重復的模板代碼。
 
-* @Getter
-* @Setter
-
 使用Spring Data MongoDB提供的注解描述java類與MongoDB集合、java字段與MongoDB字段之間的映射關系。Spring Data MongoDB會根據映射關系生成對應的Repository實現。
 
-* @Document
-* @Id
-* @DBRef
+. @Getter `lombok.Getter` 在編譯期為所有字段生成Getter訪問器。比如針對字段`private String id`，其生成了相當與以下源代碼的Getter訪問器：
++
+[source,java]
+----
+public String getId() {
+    return this.id;
+}
+----
 
-[ditaa]
+. @Setter `lombok.Setter` 在編譯期為所有字段生成Setter訪問器。比如針對字段`private String id`，其生成了相當與以下代碼的Setter訪問器：
++
+[source,java]
 ....
-class Product {           {
-    +------------------+     +---------------+
-    |@Id               |     |"id": "1564789"|
-    |private String id;|---->+---------------+
-    +------------------+
+public void setId(String id) {
+    this.id = id;
 }
 ....
+
+. @Document `org.springframework.data.mongodb.core.mapping.Document` @Document 將一個Java類映射到MongoDB的某個Collection。在MongoDB中，Collection是Document的集合。在Java中，Class是Object的模板，"從某個Class實例出來的Object"是一個Object的集合。所以，在Java Class/Object與MongoDB Collection/Document映射關系中，Class對應Collection，Object對應Document。而Object中的字段對應Document中的字段。
++
+[plantuml]
+....
+digraph d {
+    rankdir=LR
+    l [shape=record, label="<a>@Document\lpublic class Product \{\l|<b>  @Id\l  private String id;\l|<c>  private String title;\l|<d>  private List\<String\> tags;\l|<e>  @DBRef\l  private List\<ProductImage\> images;|<f>  private Date createdAt;\l|<g>  private Date updatedAt;\l|\}\l"]
+
+    m [shape=record, label="<a>object product:Product \{\l|<b>id = \"5db3a5385cb95ce6e56a9248\"\l|<c>title = \"iMac\"\l|<d>tags = [\"mac\", \"apple\"]\l|<e>images = [objectA, objectB]\l|<f>createdAt = 2019-10-26T01:45:28.703Z\l|<g>updatedAt = 2019-11-03T09:31:00.103Z\l|\}\l"]
+
+    r [shape=record, label="<a>\{\l|<b>	\"_id\" : ObjectId(\"5db3a5385cb95ce6e56a9248\"),\l|<c>	\"title\" : \"iMac\",\l|<d>	\"tags\" : [\l		\"mac\",\l		\"apple\"\l	],\l|<e>	\"images\" : [\l		DBRef(\"productImage\", ObjectId(\"5dabf9ab5cb95c4dad891a95\")),\l		DBRef(\"productImage\", ObjectId(\"5dabf9a05cb95c4dad891a94\")),\l	],\l|<f>	\"createdAt\" : ISODate(\"2019-10-26T01:45:28.703Z\"),\l|<g>	\"updatedAt\" : ISODate(\"2019-11-03T09:31:00.103Z\"),\l|	\"_class\" : \"io.github.rscai.microservices.catalog.model.Product\"\l\}\l"]
+
+    l:b -> m:b -> r:b
+    l:c -> m:c -> r:c
+    l:d -> m:d -> r:d
+    l:e -> m:e -> r:e
+    l:f -> m:f -> r:f
+    l:g -> m:g -> r:g
+}
+....
+
+. @Id `org.springframework.data.annotation.Id` 
+. @DBRef `org.springframework.data.mongodb.core.mapping.DBRef`
+
 
 ==== ProductImage
 

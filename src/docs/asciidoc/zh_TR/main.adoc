@@ -19,7 +19,7 @@ TBD
 TBD
 
 
-:leveloffset: 2
+:leveloffset: 1
 
 include::03-Catalog-Service.adoc[]
 
