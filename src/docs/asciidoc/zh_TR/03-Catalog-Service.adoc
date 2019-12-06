@@ -1,33 +1,18 @@
 = Catalog Service
+:icons: font
 ifndef::imagesdir[:imagesdir: images]
 
-== 學習目標
+== 目標
+本章中，我們將基於Spring Boot開發提供RESTful API的Catalog微服務。我們將學習：
 
 * 使用Spring Data訪問MongoDB
-* 使用Spring Data REST從Repository構建REST風格web services
-* 使用Spring Test/MockMVC測試REST風格web services
-* 使用Spring REST Docs生成簡潔、準確且結構良好的web services API文檔
+* 使用Spring Data REST從Repository構建RESTful API
+* 使用Spring Test/MockMVC測試RESTFul API
+* 使用Spring REST Docs生成簡潔、準確且結構良好的RESTFul API文檔
 
-== 設計
+== 特性
 
-[plantuml,catalog-design,png]
-....
-@startuml
-package "Catalog Service" {
-    REST - [Repository]
-}
-
-database MongoDB
-
-[Repository] --> MongoDB
-@enduml
-....
-
-Catalog service以REST風格的API向外提供服務，數據全部存儲在MongoDB中，數據訪問層以Repository模式構建。
-
-== 業務模型
-
-Catalog service維護兩個業務模型，Product和ProductImage。
+Catalog微服務負責維護Product和ProductImage兩個業務模型實體。
 
 [plantuml, catalog-model, png]
 ....
@@ -52,12 +37,141 @@ Product "0..1" *- "1..*" ProductImage: images
 @enduml
 ....
 
-== REST API
+* Product，可被獨立增刪改查的業務實體，其可關聯一至多個ProductImage
+* ProductImage，可被獨立增刪改查的業務實體，其可被零至一個Product關聯。如若關聯其的Product被移除，不會影嚮ProductImage實體的狀態。
 
-=== Product
+Catalog微服務需支持特性：
+
+. 創建新的ProductImage
+. 更新ProductImage
+. 移除ProductImage
+. 分頁查詢所有ProductImage
+. 讀取單個ProductImage
+. 創建新的Product
+. 更新Product
+. 移除Product
+. 分頁查詢所有ProductImage
+. 讀取單個Product
+
+== 設計
+
+Catalog微服務採用分層架構，自上往下分為：
+
+* 展示層。以RESTFul風格向外曝露Catalog支持的領域模型和操作，以JSON格式接受和迴應領域模型內容。
+* 業務邏輯層，處理應用相關的業務邏輯，比如填充createdAt和updatedAt。
+* 數據訪問層，處理Java object和具體存儲實體之間的映射轉換，實現橧刪改查等存儲訪問操作。
+
+[plantuml,catalog-design,png]
+....
+@startuml
+package "Catalog Service" {
+    REST - [Presentation Layer]
+    [Presentation Layer] --> [Business Logic Layer]: <<call>>
+    [Business Logic Layer] --> [Data Access Layer]: <<call>>
+}
+
+database datastore
+
+[Data Access Layer] --> datastore
+@enduml
+....
+
+這𥚃我們採用Spring Data REST實現展現層；供助Spring Data REST開放的實體事件擴展機制，實現業務邏輯；數據存儲方案選用MongoDB；數據訪問層採用Spring Data MongoDB實現。
+
+=== 理解 REST
+
+[quote, Representational State Transfer, https://en.wikipedia.org/wiki/Representational_state_transfer]
+____
+代表性狀態轉移（REST）是一種軟件體系結構樣式，它定義了一組用於創建Web服務的約束。 符合REST體系結構樣式的Web服務（稱為RESTful Web服務）提供Internet上計算機系統之間的互操作性。 RESTful Web服務允許請求系統通過使用統一且預定義的無狀態操作集來訪問和操縱Web資源的文本表示。 其他類型的Web服務（例如SOAP Web服務）公開其自己的任意操作集。
+____
+
+RESTFul Web服務有以下特性：
+
+* 以資源為中心，領域模型在RESTFul API中表現為資源，所有的業務操作都表現為對資源的操作。
+* 重用HTTP請求方法。以HTTP請求方法表逹對資源的操作。HTTP協議中定義了九種請求方法：
++
+|===
+|Method|Description
+
+|GET
+|GET方法請求指定資源的表示形式。 使用GET的請求應僅檢索數據。
+
+|HEAD
+|HEAD方法請求的響應與GET請求的響應相同，但沒有響應主體。
+
+|POST
+|POST方法用於將實體提交給指定的資源，通常會導致狀態更改或對服務器產生副作用。
+
+|PUT
+|PUT方法用請求有效負載替換目標資源的所有當前表示形式。
+
+|DELETE
+|DELETE方法刪除指定的資源。
+
+|CONNECT
+|CONNECT方法建立到由目標資源標識的服務器的隧道。
+
+|OPTIONS
+|OPTIONS方法用於描述目標資源的通信選項。
+
+|TRACE
+|TRACE方法沿到目標資源的路徑執行消息環回測試。
+
+|PATCH
+|PATCH方法用於對資源進行部分修改。
+|===
++
+RESTFul 主要重用其中的POST、DELETE、PUT和GET來分別表逹增、刪、改和查操作。
+* 重用HTTP嚮應狀態碼。重用HTTP嚮應狀態碼來表逹請求的處理結果。HTTP協議定義了五類嚮應狀態碼
++
+.. 信息性的嚮應（100-199）
+.. 成功的嚮應（200-299）
+.. 重定向（300-399）
+.. 客戶端錯誤（400-499）
+.. 服務端錯誤（500-599）
++
+常用的嚮應狀態碼有：
++
+|===
+|Code|說明
+
+|200 OK
+|該請求已成功。
+
+|201 Created
+|請求成功，並因此創建了新資源。 這通常是在POST請求或某些PUT請求之後發送的響應。當使用POST請求訪問RESTFul API創建新資源實體後，應返迴嚮應狀態碼200。
+
+|204 No Content
+|沒有要發送的內容，但標頭可能有用。 用戶代理可以使用新的代理更新該資源的緩存頭。當使用PUT請求訪問RESTFul API更新資源實體且未在嚮應報文中包含更新後的實體，應使用嚮應狀態碼204。
+
+|400 Bad Request
+|由於語法無效，服務器無法理解該請求。
+
+|401 Unauthorized
+|儘管HTTP標準指定“未經授權”，但從語義上講，此響應表示“未經驗證”。 也就是說，客戶端必須對自己進行身份驗證才能獲得請求的響應。
+
+|403 Forbidden
+|客戶端無權訪問內容； 也就是說，它是未經授權的，因此服務器拒絕提供所請求的資源。 與401不同，服務器知道客戶端的身份。
+
+|404 Not Found
+|服務器找不到請求的資源。 在瀏覽器中，這意味著無法識別URL。 在API中，這也可能意味著端點有效，但是資源本身不存在。 服務器也可以發送此響應而不是403，以隱藏來自未授權客戶端的資源。 由於此響應代碼在網絡上經常出現，因此可能是最著名的響應代碼。
+
+|405 Method Not Allowed
+|服務器知道該請求方法，但已被禁用，無法使用。比如針對祗讀資源的寫請求（POST、DELETE、PUT），RESTFul API可以嚮應此狀態碼。
+
+|415 Unsupported Media Type
+|服務器不支持所請求數據的媒體格式，因此服務器拒絕了該請求。
+
+|500 Internal Server Error
+|服務器遇到了不知道如何處理的情況。任何業務邏輯的錯誤都不應該嚮應該狀態碼。祗有真正無法處理或恢復的失效，比如依賴服務不可用等，才可以嚮應該狀態碼。
+|===
+
+==== Product RESTFul Web API
+
+REST Web服務以資源為中心，把領域模型Product直接映射為資源product，所以資源product的根URL就為`/products`。因為從語義上講，對資源根URL的操作，如GET、POST，都是作用於資源集合而非單個資源實體，所以使用復數形式更為恰當。（很多人認為使用單數形式是最佳實踐，因為英文名詞的復數形式規則並不統一且大部份人英文不好，硬用復數形式容易出現拚寫錯誤）
 
 |===
-|操作|URL|HTTP Method
+|操作|URL|HTTP方法
 
 |創建新Product
 |/products
@@ -88,10 +202,10 @@ Product "0..1" *- "1..*" ProductImage: images
 |GET
 |===
 
-=== ProductImage
+==== ProductImage RESTFul API
 
 |===
-|操作|URL|HTTP Method
+|操作|URL|HTTP方法
 
 |創建新ProductImage
 |/productImages
@@ -114,11 +228,330 @@ Product "0..1" *- "1..*" ProductImage: images
 |GET
 |===
 
+=== 理解 JSON
+
+[quote,介紹JSON,https://www.json.org/json-zh.html]
+____
+JSON(JavaScript Object Notation) 是一種輕量級的數據交換格式。易於人閱讀和編寫。同時也易於機器解析和生成。它基於JavaScript Programming Language, Standard ECMA-262 3rd Edition - December 1999的一個子集。 JSON採用完全獨立於語言的文本格式，但是也使用了類似於C語言家族的習慣（包括C, C++, C#, Java, JavaScript, Perl, Python等）。這些特性使JSON成為理想的數據交換語言。
+
+JSON建構於兩種結構：
+
+* “名稱/值”對的集合（A collection of name/value pairs）。不同的語言中，它被理解為對象（object），紀錄（record），結構（struct），字典（dictionary），哈希表（hash table），有鍵列表（keyed list），或者關聯數組（associative array）。
+* 值的有序列表（An ordered list of values）。在大部分語言中，它被理解為數組（array）。
+____
+
+JSON是一種面嚮字符的、編程語言獨立的、易於人和機器讀寫的數據交換格式。使用JSON作為RESTFul Web服務與消費者之間交換實體內容的數據格格，可以最大限度地提升Web服務的兼容性。但需要注意，JSON是面嚮文本的數據交換格式，所有類型的數據都必須被編碼為文本形式，所以JSON並不適用二進制數據的交換，比如圖像、音頻、視頻。
+
+[NOTE]
+====
+關於JSON的規範定義，請參閱 http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf[ECMA-404 The JSON Data Interchange Standard]
+====
+
+=== 理解 Hypermedia-Driven
+
+TBD
+
+=== 理解 Spring Data REST
+
+[quote,https://spring.io/projects/spring-data-rest]
+____
+Spring Data REST是Spring Data的一部份，其致力於簡化在Spring Data repository之上構建**超媒體驅動「hypermedia-driven」** REST web微務。
+
+Spring Data REST 構建於 Spring Data repository 之上，分析你的應用領域模型且曝露超媒體驅動HTTP資源。
+____
+
+Spring Framework 本身提供了Spring MVC。借助Spring MVC，可以快速構造RESTFul web服務。再加上Spring HATEOAS，就可以構建超媒體驅動的RESTFul web服務了。但是RESTFul web服務是以資源為中心，其為每類資源實現一組有限的動作，如POS創建、PUT更新、DELETE移除。直接使用Spring MVC構建RESTFul web服務會造成很多模板代碼。Spring Data REST就是為了避免使用Spring MVC構建RESTFul web服務時產生冗餘模板代碼而被創造出來。Spring Data REST分析應用中的repository，分揀出領域模型和增刪改查方法，分別曝露為相應的RESTFul URLs.
+
+Spring Data REST 開放出了八個實體事件，應用開發者可以注入自定義的事件監聽器以實現業務邏輯處理。Spring Data REST會釋放出以下八種事件：
+
+* `BeforeCreateEvent`
+* `AfterCreateEvent`
+* `BeforeSaveEvent`
+* `AfterSaveEvent`
+* `BeforeDeleteEvent`
+* `AfterDeleteEvent`
+* `BeforeLinkSaveEvent`
+* `AfterLinkSaveEvent`
+* `BeforeLinkDeleteEvent`
+* `AfterLinkDeleteEvent`
+
+==== `BeforeCreateEvent` and `AfterCreateEvent`
+
+Spring Data REST在創建實體實例時，會釋放出`BeforeCreateEvent`和`AfterCreateEvent`。
+
+.RepositoryEntityController.java
+[source, java]
+----
+...
+private ResponseEntity<ResourceSupport> createAndReturn(Object domainObject, RepositoryInvoker invoker,
+		PersistentEntityResourceAssembler assembler, boolean returnBody) {
+
+	publisher.publishEvent(new BeforeCreateEvent(domainObject)); <1>
+	Object savedObject = invoker.invokeSave(domainObject);
+	publisher.publishEvent(new AfterCreateEvent(savedObject)); <2>
+
+	...
+}
+...
+----
+
+. 在調用repository方法將創建的實體持久化至存儲服務之前，釋放出事件`BeforeCreateEvent`
+. 在調用repository方法將創建的實體持久化至存儲服務之後，釋放出事件`AfterCreateEvent`
+
+POST和PUT請求都有可能觸發實體的創建。POST在REST語義中就是創建新實體，所以POST請求肯定會觸發實體創建。
+
+.RepositoryEntityController.java
+[source, java]
+----
+...
+@ResponseBody
+@RequestMapping(value = BASE_MAPPING, method = RequestMethod.POST)
+public ResponseEntity<ResourceSupport> postCollectionResource(RootResourceInformation resourceInformation,
+		PersistentEntityResource payload, PersistentEntityResourceAssembler assembler,
+		@RequestHeader(value = ACCEPT_HEADER, required = false) String acceptHeader)
+		throws HttpRequestMethodNotSupportedException {
+
+	resourceInformation.verifySupportedMethod(HttpMethod.POST, ResourceType.COLLECTION);
+
+	return createAndReturn(payload.getContent(), resourceInformation.getInvoker(), assembler,
+			config.returnBodyOnCreate(acceptHeader)); <1>
+}
+...
+----
+
+PUT請求在REST語義中是更新實體，但若要求更新的目標實體不存在，則更新操作就自動轉化為創建操作。所以，當使用PUT請求更新不存在的實體時，會觸發實體創建。
+
+.RepositoryEntityController.java
+[source, java]
+----
+...
+@RequestMapping(value = BASE_MAPPING + "/{id}", method = RequestMethod.PUT)
+public ResponseEntity<? extends ResourceSupport> putItemResource(RootResourceInformation resourceInformation,
+		PersistentEntityResource payload, @BackendId Serializable id, PersistentEntityResourceAssembler assembler,
+		ETag eTag, @RequestHeader(value = ACCEPT_HEADER, required = false) String acceptHeader)
+		throws HttpRequestMethodNotSupportedException {
+
+	...
+
+	return payload.isNew() ? createAndReturn(objectToSave, invoker, assembler, config.returnBodyOnCreate(acceptHeader))
+			: saveAndReturn(objectToSave, invoker, PUT, assembler, config.returnBodyOnUpdate(acceptHeader)); <1>
+}
+...
+----
+
+. 若請求創建的實體是新建的即目標實體不存在，則更新請求轉化為創建操作。
+
+==== `BeforeSaveEvent` and `AfterSaveEvent`
+
+Spring Data REST在更新實體時會釋放出`BeforeSaveEvent`和`AfterSaveEvent`。
+
+.RepositoryEntityController.java
+[source, java]
+----
+...
+private ResponseEntity<ResourceSupport> saveAndReturn(Object domainObject, RepositoryInvoker invoker,
+		HttpMethod httpMethod, PersistentEntityResourceAssembler assembler, boolean returnBody) {
+
+	publisher.publishEvent(new BeforeSaveEvent(domainObject)); <1>
+	Object obj = invoker.invokeSave(domainObject);
+	publisher.publishEvent(new AfterSaveEvent(obj)); <2>
+
+	...
+}
+...
+----
+
+. 在調用repository方法將更新的實體持久化至存儲服務之前，釋放出事件`BeforeSaveEvent`
+. 在調用repository方法將更新的實體持久化至存儲服務之後，釋放出事件`AfterCreateEvent`
+
+PUT和PATCH請求都會觸發實體更新操作。
+
+.RepositoryEntityController.java
+[source, java]
+----
+...
+@RequestMapping(value = BASE_MAPPING + "/{id}", method = RequestMethod.PUT)
+public ResponseEntity<? extends ResourceSupport> putItemResource(RootResourceInformation resourceInformation,
+		PersistentEntityResource payload, @BackendId Serializable id, PersistentEntityResourceAssembler assembler,
+		ETag eTag, @RequestHeader(value = ACCEPT_HEADER, required = false) String acceptHeader)
+		throws HttpRequestMethodNotSupportedException {
+
+    ...
+
+	return payload.isNew() ? createAndReturn(objectToSave, invoker, assembler, config.returnBodyOnCreate(acceptHeader))
+			: saveAndReturn(objectToSave, invoker, PUT, assembler, config.returnBodyOnUpdate(acceptHeader)); <1>
+}
+...
+----
+
+. 當請求更新的目標實體存在時，PUT請求觸發更新操作。
+
+.RepositoryEntityController.java
+[source, java]
+----
+...
+@RequestMapping(value = BASE_MAPPING + "/{id}", method = RequestMethod.PATCH)
+public ResponseEntity<ResourceSupport> patchItemResource(RootResourceInformation resourceInformation,
+		PersistentEntityResource payload, @BackendId Serializable id, PersistentEntityResourceAssembler assembler,
+		ETag eTag, @RequestHeader(value = ACCEPT_HEADER, required = false) String acceptHeader)
+		throws HttpRequestMethodNotSupportedException, ResourceNotFoundException {
+
+	...
+
+	return saveAndReturn(domainObject, resourceInformation.getInvoker(), PATCH, assembler,
+			config.returnBodyOnUpdate(acceptHeader)); <1>
+}
+...
+----
+
+. PATCH請求祗能觸發實體更新。
+
+==== `BeforeDeleteEvent` 和 `AfterDeleteEvent`
+
+Spring Data REST在移除實體時會釋放出事件`BeforeDeleteEvent`和`AfterDeleteEvent`。
+
+.RepositoryEntityController.java
+[source, java]
+----
+...
+@RequestMapping(value = BASE_MAPPING + "/{id}", method = RequestMethod.DELETE) // <1>
+public ResponseEntity<?> deleteItemResource(RootResourceInformation resourceInformation, @BackendId Serializable id,
+		ETag eTag) throws ResourceNotFoundException, HttpRequestMethodNotSupportedException {
+
+	...
+	
+	return domainObj.map(it -> {
+
+		PersistentEntity<?, ?> entity = resourceInformation.getPersistentEntity();
+
+		eTag.verify(entity, it);
+
+		publisher.publishEvent(new BeforeDeleteEvent(it)); // <2>
+		invoker.invokeDeleteById(entity.getIdentifierAccessor(it).getIdentifier());
+		publisher.publishEvent(new AfterDeleteEvent(it)); // <3>
+
+		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+
+	}).orElseThrow(() -> new ResourceNotFoundException());
+}
+...
+----
+
+. 針對實體的DELETE請求會觸發實體移除操作。
+. 在將實體從存儲服務中移除之前，釋放出事件`BeforeDeleteEvent`。
+. 在將實體從存儲服務中移除之後，釋放出事件`AfterDeleteEvent`。
+
+==== `BeforeLinkSaveEvent` 和 `AfterLinkSaveEvent`
+
+Spring Data REST在創建和變更實體關聯時會釋放出`BeforeLinkSaveEvent`和`AfterLinkSaveEvent`。
+
+.RepositoryPropertyReferenceController.java
+[source, java]
+----
+...
+@RequestMapping(value = BASE_MAPPING, method = { PATCH, PUT, POST }, // <1>
+		consumes = { MediaType.APPLICATION_JSON_VALUE, SPRING_DATA_COMPACT_JSON_VALUE, TEXT_URI_LIST_VALUE })
+public ResponseEntity<? extends ResourceSupport> createPropertyReference(RootResourceInformation resourceInformation,
+		HttpMethod requestMethod, @RequestBody(required = false) Resources<Object> incoming, @BackendId Serializable id,
+		@PathVariable String property) throws Exception {
+
+	...
+
+	Function<ReferencedProperty, ResourceSupport> handler = prop -> {
+
+        ...
+
+		publisher.publishEvent(new BeforeLinkSaveEvent(prop.accessor.getBean(), prop.propertyValue)); // <2>
+		Object result = invoker.invokeSave(prop.accessor.getBean());
+		publisher.publishEvent(new AfterLinkSaveEvent(result, prop.propertyValue)); // <3>
+
+		return null;
+	};
+
+	doWithReferencedProperty(resourceInformation, id, property, handler, requestMethod);
+
+	return ControllerUtils.toEmptyResponse(HttpStatus.NO_CONTENT);
+}
+...
+----
+
+. PATCH、PUT或POST請求鏈接（LINK）類型的實體屬性都會觸發實體鏈接屬性的創建或變更。
+. 在將鏈接屬性變更持久化至存儲服務之前，釋放出`BeforeLinkSaveEvent`。
+. 在將鏈接屬性變更持久化至存儲服務之後，釋放出`AfterLinkSaveEvent`。
+
+==== `BeforeLinkDelete` 和 `AfterLinkDelete`
+
+Spring Data REST在移除實體之間的關聯（LINK）時，會釋放出`BeforeLinkDeleteEvent`和`AfterLinkDeleteEvent`。
+
+.RepositoryPropertyReferenceController.java
+[source, java]
+----
+...
+@RequestMapping(value = BASE_MAPPING, method = DELETE) // <1>
+public ResponseEntity<? extends ResourceSupport> deletePropertyReference(RootResourceInformation repoRequest,
+		@BackendId Serializable id, @PathVariable String property) throws Exception {
+
+	Function<ReferencedProperty, ResourceSupport> handler = prop -> prop.mapValue(it -> {
+
+		...
+
+		publisher.publishEvent(new BeforeLinkDeleteEvent(prop.accessor.getBean(), prop.propertyValue)); // <2>
+		Object result = repoRequest.getInvoker().invokeSave(prop.accessor.getBean());
+		publisher.publishEvent(new AfterLinkDeleteEvent(result, prop.propertyValue)); // <3>
+
+		return (ResourceSupport) null;
+
+	}).orElse(null);
+
+	doWithReferencedProperty(repoRequest, id, property, handler, HttpMethod.DELETE);
+
+	return ControllerUtils.toEmptyResponse(HttpStatus.NO_CONTENT);
+}
+....
+----
+
+. 目標為鏈接類型的實體屬性的DELETE請求會觸發實體關聯移除操作。
+. 在將實體關聯移除持久化至存儲服務之前，釋放出事件`BeforeLinkDeleteEvent`。
+. 在將實體關聯移除持久化至存儲服務之後，釋放出事件`AfterLinkDeleteEvent`。
+
+==== 注入事件處理器
+
+應用開發者可以自定義事件處理器，再使用注解將自定義事件處理器注刪為事件監聽器。Spring Data REST提供了十個注解分別對應上述十個實體事件：
+
+* `@HandleBeforCreate`
+* `@HandleAfterCreate`
+* `@HandleBeforeSave`
+* `@HandleAfterSave`
+* `@HandleBeforeDelete`
+* `@HandleAfterDelete`
+* `@HandleBeforeLinkSave`
+* `@HandleAfterLinkSave`
+* `@HandleBeforeLinkDelete`
+* `@HandleAfterLinkDelete`
+
+=== 理解 MongoDB
+
+
+=== 理解 Spring Data MongoDB
+
+[quote,https://spring.io/projects/spring-data]
+____
+Spring Data的任務是為數據訪問提供一個熟悉且一致的基於Spring的編程模型，同時仍保留基礎數據存儲的特殊特徵。
+____
+
+[quote,https://spring.io/projects/spring-data-mongodb]
+____
+Spring Data MongoDB是Spring Data項目的一部分，該項目旨在為新數據存儲提供熟悉且一致的基於Spring的編程模型，同時保留特定於存儲的功能。
+
+Spring Data MongoDB項目提供了與MongoDB文檔數據庫的集成。 Spring Data MongoDB的關鍵功能區域是一個以POJO為中心的模型，該模型用於與MongoDB DBCollection進行交互並輕鬆編寫存儲庫樣式的數據訪問層。
+____
+
+
 == 實現
 
-=== 業務模型
+=== Product
 
-==== Product
+==== 實體模型
 
 .Product.java
 [source,java]
@@ -143,7 +576,7 @@ public class Product {
 
 使用Spring Data MongoDB提供的注解描述java類與MongoDB集合、java字段與MongoDB字段之間的映射關系。Spring Data MongoDB會根據映射關系生成對應的Repository實現。
 
-. @Getter `lombok.Getter` 在編譯期為所有字段生成Getter訪問器。比如針對字段`private String id`，其生成了相當與以下源代碼的Getter訪問器：
+. `lombok.Getter`。Lombok會在編譯期掃描類，為以@Getter注解標注的類中所有成員字段生成getter訪問器。比如針對字段`private String id`，其生成了相當與以下源代碼的Getter訪問器：
 +
 [source,java]
 ----
@@ -151,8 +584,21 @@ public String getId() {
     return this.id;
 }
 ----
++
+為了使使用Gradle構建項目也可處理Lombok注解、生成相應訪問器，我們需要在`build.gradle`中顯式引入Lombok插件：
++
+.build.gradle
+[source,groovy]
+----
+plugins {
+	...
+	id "io.freefair.lombok" version "4.1.5" <1>
+	...
+}
+...
+----
 
-. @Setter `lombok.Setter` 在編譯期為所有字段生成Setter訪問器。比如針對字段`private String id`，其生成了相當與以下代碼的Setter訪問器：
+. `lombok.Setter`。Lombok會在編譯期掃描類，為以@Setter注解標注的類中所有成員字段生成Setter訪問器。比如針對字段`private String id`，其生成了相當與以下代碼的Setter訪問器：
 +
 [source,java]
 ....
@@ -181,12 +627,114 @@ digraph d {
     l:g -> m:g -> r:g
 }
 ....
++
+其實例object映射為MongoDB中的一個docuemnt。object中的每一個屬性映射為document中的一個字段。
 
 . @Id `org.springframework.data.annotation.Id` 
 . @DBRef `org.springframework.data.mongodb.core.mapping.DBRef`
 
+Spring Data MongoDB提供的映射注解：
 
-==== ProductImage
+|===
+|注解|說明
+
+|@Id
+|
+
+|@MongoId
+|
+
+|@Document
+|
+
+|@DBRef
+|
+
+|@Indexed
+|
+|===
+
+==== Repository
+
+`Repository`是Spring Data抽象的中心接口。應用開始者以`Repository`子接口的形式聲明模型Repository及其需支持的數據訪問方法，Spring Data的具體數據存儲模塊將會為生成相應的實現類。由於這些實現類祗含模板代碼，所以自動生成可以大幅減少應用開發者重復工作。
+
+Spring Data MongoDB 是Spring Data的一部份，其目的是提供相似且一致的基於Spring的MongoDB訪問編程模型。
+
+.ProductRepository
+[source,java]
+----
+@RepositoryRestResource(collectionResourceRel = "products", path = "products")
+public interface ProductRepository extends MongoRepository<Product, String> { <1>
+
+}
+----
+
+. 為模型Product創建專屬的ProductRepository接口，繼承至`org.springframework.data.mongodb.repository.MongoRepository`. `MongoRepository`繼承了接口`PagingAndSortingRepository`，Spring Data MongoDB會其生成一個支持增刪改查及分頁排序的MongoDB訪問實現類。
++
+[plantuml]
+----
+@startuml
+interface Repository<T, ID>
+interface CrudRepository<T, ID> {
+    save<S extends T>(entity: S): S
+    saveAll<S extends T>(entities: Iterable< S>): Iterable<S>
+    findById(id: ID): Optional<T>
+    existsById(id: ID): boolean
+    findAll(): Iterable<T>
+    findAllById(Iterable<ID> ids): Iterable<T>
+    count(): long
+    deleteById(id: ID)
+    delete(entity: T)
+    deleteAll(entities: Iteable<? extends T>)
+    deleteAll()
+}
+interface PagingAndSortingRepository<T, ID> {
+    findAll(sort: Sort): Iterable<T>
+    findAll(pageable: Pageable): Page<T>
+}
+Repository <|-- CrudRepository
+CrudRepository <|-- PagingAndSortingRepository
+
+interface QueryByExampleExecutor<T> {
+    findOne<S extends T>(example: Example< S>): Optional<S>
+    findAll<S extends T>(example: Example< S>): Iterable<S>
+    findAll<S extends T>(example: Example< S>, sort: Sort): Iterable<S>
+    findAll<S extends T>(example: Example< S>, pageable: Pageable): Page<S>
+    count<S extends T>(example: Example< S>): long
+    exists<S extends T>(example: Example< S>): boolean
+}
+interface MongoRepository<T, ID> {
+    saveAll<S extends T>(entities: Iterable< S>): List<S>
+    findAll(): List<T>
+    findAll(sort: Sort): List<T>
+    insert<S extends T>(entity: S): S
+    insert<S extends T>(entities: Iterable< S>): List<S>
+    findAll<S extends T>(example: Example< S>): List<S>
+    findAll<S extends T>(example: Example< S>, sort: Sort): List<S>
+}
+PagingAndSortingRepository <|-- MongoRepository
+QueryByExampleExecutor <|-- MongoRepository
+@enduml
+----
+
+==== RESTful API
+
+Spring Data REST 是Spring Data的一部份，旨於簡化在Spring Data repository上構建hypermedia-driven REST web services。
+
+.ProductRepository
+[source,java]
+----
+@RepositoryRestResource(collectionResourceRel = "products", path = "products") <1>
+public interface ProductRepository extends MongoRepository<Product, String> { <1>
+
+}
+----
+
+. `@RepositoryRestResource` 宣告`ProductRepository`的數據訪問方法需被曝露為RESTful介面。RESTFul風格的API是以resource為中心，repository所專屬的模型就對應為RESTFul中的resource。`@RepositoryRestResource`充許應用開發者自定義模型所對應的resource在URL中及在內容體中的名字。本例中，resource Product的根RESTFul URL定義為`products/`。在HATEOAS標準的內容體中，Product集合會被命名為`products`。
+
+=== ProductImage
+
+==== 模型
 
 .ProductImage.java
 [source,java]
@@ -207,5 +755,25 @@ public class Product {
 }
 ----
 
-=== Repository
+==== Repository
 
+.ProductImageRepository
+[source,java]
+----
+@RepositoryRestResource(collectionResourceRel = "productImages", path = "productImages")
+public interface ProductImageRepository extends MongoRepository<ProductImage, String> { <1>
+
+}
+----
+
+. 為模型ProductImage創建專屬的ProductImageRepository，繼承至`org.springframework.data.mongodb.repository.MongoRepository`。
+
+==== RESTful API
+
+
+
+== 參考
+
+. https://docs.spring.io/spring-data/commons/docs/current/reference/html/[Spring Data Commons - Reference Documentation]
+. https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/[Spring Data MongoDB - Reference Documentation]
+. https://docs.spring.io/spring-data/rest/docs/current/reference/html/[Spring Data REST Reference Guide]
