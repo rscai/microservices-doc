@@ -1,0 +1,21 @@
+Fundamentals
+============
+ifndef::imagesdir[:imagesdir: images]
+
+== Spring Boot
+
+=== Auto Configuration
+
+=== MVC
+
+== Spring Data
+
+=== Spring Data Commons
+
+=== Spring Data REST
+
+== Spring REST Docs
+
+== Service Discovery
+
+== Spring Cloud Gateway
