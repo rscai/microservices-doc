@@ -867,8 +867,8 @@ digraph d {
 ....
 +
 其實例object映射為MongoDB中的一個docuemnt。object中的每一個屬性映射為document中的一個字段。比如，object中的字段 `id` 映射為Mongo document中的字段 `id` ；object中的字段 `title` 映射為Mongo document中的字段 `title` ；object中的字段 `tags` 映射為Mongo document中的字段 `tags` 。
-<3> 使用注解 `org.springframework.data.annotation.Id` 將對象中的字段`id`映射為文檔的主鍵 `id` 。
-<4> 使用注解 `org.springframework.data.mongodb.core.mapping.DBRef` 將對象中的字段 `images` 映射為一組 `com.mongodb.DBRef` 。 `com.mongodb.DBRef` 是指嚮另一個文檔的引用。 `@DBRef` 可用以標注簡單字段或集合字段。
+<4> 使用注解 `org.springframework.data.annotation.Id` 將對象中的字段`id`映射為文檔的主鍵 `id` 。
+<5> 使用注解 `org.springframework.data.mongodb.core.mapping.DBRef` 將對象中的字段 `images` 映射為一組 `com.mongodb.DBRef` 。 `com.mongodb.DBRef` 是指嚮另一個文檔的引用。 `@DBRef` 可用以標注簡單字段或集合字段。
 
 Spring Data MongoDB提供的映射注解：
 
@@ -1602,8 +1602,7 @@ private static ResponseFieldsSnippet responseFields(FieldDescriptor... descripto
 
 最後，編寫asciidoc文檔並在其中引用截取的片斷。
 
-.product.adoc
-[source, asciidoc]
+.product.adoc 
 ----
 == Create
 
@@ -1611,19 +1610,19 @@ Endpoint `products`.
 
 === Request
 
-include::{snippets}/product/create/http-request.adoc[]
+\include::{snippets}/product/create/http-request.adoc[]
 
 *Request Fields:*
 
-include::{snippets}/product/create/request-fields.adoc[]
+\include::{snippets}/product/create/request-fields.adoc[]
 
 === Response
 
-include::{snippets}/product/create/http-response.adoc[]
+\include::{snippets}/product/create/http-response.adoc[]
 
 *Response Fields:*
 
-include::{snippets}/product/create/response-fields.adoc[]
+\include::{snippets}/product/create/response-fields.adoc[]
 ----
 
 經Asciidoctor渲染後的樣例：
