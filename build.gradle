@@ -1,6 +1,7 @@
 plugins {
-	id 'org.asciidoctor.convert' version '1.5.9.1'
-	id 'com.github.jruby-gradle.base' version '1.4.0'
+	//id 'org.asciidoctor.convert' version '1.5.9.1'
+	//id 'com.github.jruby-gradle.base' version '1.4.0'
+    id 'org.asciidoctor.jvm.convert' version '2.4.0'
 }
 
 apply plugin: 'java'
@@ -13,25 +14,37 @@ repositories {
 	maven { url "http://rubygems-proxy.torquebox.org/releases" }
 }
 
-dependencies {
-    gems 'rubygems:asciidoctor-diagram:1.5.8'
-}
+//dependencies {
+    //gems 'rubygems:asciidoctor-diagram:1.5.8'
+//}
 
 asciidoctorj {
     version = '1.5.8'
+    modules {
+       diagram.version '1.5.8'
+    }
 }
 
 asciidoctor {
-	dependsOn jrubyPrepare
-    requires = ['asciidoctor-diagram']
-    gemPath = jrubyPrepare.outputDir
+    baseDirFollowsSourceDir()
+	//dependsOn jrubyPrepare
+    //requires = ['asciidoctor-diagram']
+    //gemPath = jrubyPrepare.outputDir
 	attributes \
         'build-gradle': file('build.gradle'),
-        'imagesdir': 'images',
         'toc': 'left',
         'icons': 'font',
+        'source-highlighter': 'highlightjs',
         'setanchors': '',
         'idprefix': '',
         'idseparator': '-',
         'docinfo1': ''
+    resources {
+        from('src/docs/asciidoc/zh_TR/images') {
+            include '*.*'
+            exclude 'images/**/notThisOne.png'
+        }
+
+        into './zh_TR/images'
+    }
 }

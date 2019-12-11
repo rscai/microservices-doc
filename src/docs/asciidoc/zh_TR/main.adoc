@@ -5,6 +5,7 @@
 :toc: left
 :toclevels: 3
 :sectlinks:
+:includedir: zh_TR/
 
 ==  簡介
 
@@ -21,6 +22,6 @@ TBD
 
 :leveloffset: 1
 
-include::03-Catalog-Service.adoc[]
+include::{includedir}/03-Catalog-Service.adoc[]
 
 :leveloffset: 0
