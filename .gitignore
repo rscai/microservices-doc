@@ -68,4 +68,3 @@ fabric.properties
 
 ### Asciidoctor
 /src/docs/asciidoc/**/.asciidoctor/
-/src/docs/asciidoc/**/*.png
