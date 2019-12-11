@@ -92,10 +92,15 @@ ____
 ____
 使用javac（以及netbeans，maven，gradle和大多數其他構建系統）時，lombok作為註釋處理器運行。
 
-Lombok在classpath中，且javac將在它可以找到的類路徑上加載每個`META-INF/services/javax.annotation.processing.Processor`文件，讀取每一行並加載該類，然後將其作為註釋處理器執行。`lombok.jar`有此文件，它將`lombok.launch.AnnotationProcessorHider$AnnotationProcessor`列為條目。
+Lombok在classpath中，且javac將在它可以找到的類路徑上加載每個 `META-INF/services/javax.annotation.processing.Processor` 文件，讀取每一行並加載該類，然後將其作為註釋處理器執行。 `lombok.jar` 有此文件，它將`lombok.launch.AnnotationProcessorHider$AnnotationProcessor`列為條目。
 ____
 
 Lombok實現為注解處理器「Annotation Processor」，在編譯期被Java編譯器調用，掃描代碼，讀取Lombok注解及關鍵詞標注的類，並執行相應的代碼轉換。
+
+[NOTE]
+====
+Lombok官方網站 https://projectlombok.org/[Lombok Project]
+====
 
 === 理解 REST
 
@@ -187,7 +192,7 @@ RESTFul 主要重用其中的POST、DELETE、PUT和GET來分別表逹增、刪�
 
 ==== Product RESTFul Web API
 
-REST Web服務以資源為中心，把領域模型Product直接映射為資源product，所以資源product的根URL就為`/products`。因為從語義上講，對資源根URL的操作，如GET、POST，都是作用於資源集合而非單個資源實體，所以使用復數形式更為恰當。（很多人認為使用單數形式是最佳實踐，因為英文名詞的復數形式規則並不統一且大部份人英文不好，硬用復數形式容易出現拚寫錯誤）
+REST Web服務以資源為中心，把領域模型Product直接映射為資源product，所以資源product的根URL就為 `/products` 。因為從語義上講，對資源根URL的操作，如GET、POST，都是作用於資源集合而非單個資源實體，所以使用復數形式更為恰當。（很多人認為使用單數形式是最佳實踐，因為英文名詞的復數形式規則並不統一且大部份人英文不好，硬用復數形式容易出現拚寫錯誤）
 
 |===
 |操作|URL|HTTP方法
@@ -299,9 +304,9 @@ Spring Data REST 開放出了八個實體事件，應用開發者可以注入自
 * `BeforeLinkDeleteEvent`
 * `AfterLinkDeleteEvent`
 
-==== `BeforeCreateEvent` and `AfterCreateEvent`
+==== `BeforeCreateEvent` 和 `AfterCreateEvent`
 
-Spring Data REST在創建實體實例時，會釋放出`BeforeCreateEvent`和`AfterCreateEvent`。
+Spring Data REST在創建實體實例時，會釋放出 `BeforeCreateEvent` 和 `AfterCreateEvent`。
 
 .RepositoryEntityController.java
 [source, java]
@@ -318,8 +323,8 @@ private ResponseEntity<ResourceSupport> createAndReturn(Object domainObject, Rep
 }
 ...
 ----
-<1> 在調用repository方法將創建的實體持久化至存儲服務之前，釋放出事件`BeforeCreateEvent`
-<2> 在調用repository方法將創建的實體持久化至存儲服務之後，釋放出事件`AfterCreateEvent`
+<1> 在調用repository方法將創建的實體持久化至存儲服務之前，釋放出事件 `BeforeCreateEvent` 。
+<2> 在調用repository方法將創建的實體持久化至存儲服務之後，釋放出事件 `AfterCreateEvent` 。
 
 POST和PUT請求都有可能觸發實體的創建。POST在REST語義中就是創建新實體，所以POST請求肯定會觸發實體創建。
 
@@ -363,9 +368,9 @@ public ResponseEntity<? extends ResourceSupport> putItemResource(RootResourceInf
 ----
 <1> 若請求創建的實體是新建的即目標實體不存在，則更新請求轉化為創建操作。
 
-==== `BeforeSaveEvent` and `AfterSaveEvent`
+==== `BeforeSaveEvent` 和 `AfterSaveEvent`
 
-Spring Data REST在更新實體時會釋放出`BeforeSaveEvent`和`AfterSaveEvent`。
+Spring Data REST在更新實體時會釋放出 `BeforeSaveEvent` 和 `AfterSaveEvent` 。
 
 .RepositoryEntityController.java
 [source, java]
@@ -382,8 +387,8 @@ private ResponseEntity<ResourceSupport> saveAndReturn(Object domainObject, Repos
 }
 ...
 ----
-<1> 在調用repository方法將更新的實體持久化至存儲服務之前，釋放出事件`BeforeSaveEvent`
-<2> 在調用repository方法將更新的實體持久化至存儲服務之後，釋放出事件`AfterCreateEvent`
+<1> 在調用repository方法將更新的實體持久化至存儲服務之前，釋放出事件 `BeforeSaveEvent` 。
+<2> 在調用repository方法將更新的實體持久化至存儲服務之後，釋放出事件 `AfterCreateEvent` 。
 
 PUT和PATCH請求都會觸發實體更新操作。
 
@@ -428,7 +433,7 @@ public ResponseEntity<ResourceSupport> patchItemResource(RootResourceInformation
 
 ==== `BeforeDeleteEvent` 和 `AfterDeleteEvent`
 
-Spring Data REST在移除實體時會釋放出事件`BeforeDeleteEvent`和`AfterDeleteEvent`。
+Spring Data REST在移除實體時會釋放出事件 `BeforeDeleteEvent` 和 `AfterDeleteEvent` 。
 
 .RepositoryEntityController.java
 [source, java]
@@ -457,12 +462,12 @@ public ResponseEntity<?> deleteItemResource(RootResourceInformation resourceInfo
 ...
 ----
 <1> 針對實體的DELETE請求會觸發實體移除操作。
-<2> 在將實體從存儲服務中移除之前，釋放出事件`BeforeDeleteEvent`。
-<3> 在將實體從存儲服務中移除之後，釋放出事件`AfterDeleteEvent`。
+<2> 在將實體從存儲服務中移除之前，釋放出事件 `BeforeDeleteEvent` 。
+<3> 在將實體從存儲服務中移除之後，釋放出事件 `AfterDeleteEvent` 。
 
 ==== `BeforeLinkSaveEvent` 和 `AfterLinkSaveEvent`
 
-Spring Data REST在創建和變更實體關聯時會釋放出`BeforeLinkSaveEvent`和`AfterLinkSaveEvent`。
+Spring Data REST在創建和變更實體關聯時會釋放出 `BeforeLinkSaveEvent` 和 `AfterLinkSaveEvent` 。
 
 .RepositoryPropertyReferenceController.java
 [source, java]
@@ -494,12 +499,12 @@ public ResponseEntity<? extends ResourceSupport> createPropertyReference(RootRes
 ...
 ----
 <1> PATCH、PUT或POST請求鏈接（LINK）類型的實體屬性都會觸發實體鏈接屬性的創建或變更。
-<2> 在將鏈接屬性變更持久化至存儲服務之前，釋放出`BeforeLinkSaveEvent`。
-<3> 在將鏈接屬性變更持久化至存儲服務之後，釋放出`AfterLinkSaveEvent`。
+<2> 在將鏈接屬性變更持久化至存儲服務之前，釋放出 `BeforeLinkSaveEvent` 。
+<3> 在將鏈接屬性變更持久化至存儲服務之後，釋放出 `AfterLinkSaveEvent` 。
 
 ==== `BeforeLinkDelete` 和 `AfterLinkDelete`
 
-Spring Data REST在移除實體之間的關聯（LINK）時，會釋放出`BeforeLinkDeleteEvent`和`AfterLinkDeleteEvent`。
+Spring Data REST在移除實體之間的關聯（LINK）時，會釋放出 `BeforeLinkDeleteEvent` 和 `AfterLinkDeleteEvent` 。
 
 .RepositoryPropertyReferenceController.java
 [source, java]
@@ -528,8 +533,8 @@ public ResponseEntity<? extends ResourceSupport> deletePropertyReference(RootRes
 ...
 ----
 <1> 目標為鏈接類型的實體屬性的DELETE請求會觸發實體關聯移除操作。
-<2> 在將實體關聯移除持久化至存儲服務之前，釋放出事件`BeforeLinkDeleteEvent`。
-<3> 在將實體關聯移除持久化至存儲服務之後，釋放出事件`AfterLinkDeleteEvent`。
+<2> 在將實體關聯移除持久化至存儲服務之前，釋放出事件 `BeforeLinkDeleteEvent` 。
+<3> 在將實體關聯移除持久化至存儲服務之後，釋放出事件 `AfterLinkDeleteEvent` 。
 
 ==== 注入事件處理器
 
@@ -593,9 +598,9 @@ database HBase
 @enduml
 ....
 
-Spring Data提供的核心接口就是`Repository`。應用開發者祗需聲明專用於領域模型的、繼承`Repository`的倉庫接口，針對特定存儲服務實現的Spring Data模塊（如Spring Data MongoDB）會構造相應的倉庫實現Bean。
+Spring Data提供的核心接口就是 `Repository` 。應用開發者祗需聲明專用於領域模型的、繼承 `Repository` 的倉庫接口，針對特定存儲服務實現的Spring Data模塊（如Spring Data MongoDB）會構造相應的倉庫實現Bean。
 
-Spring Data除了`Repository`之外，還提供了其它倉庫接口。這些倉庫口提供了常用的數據訪問操作:
+Spring Data除了 `Repository` 之外，還提供了其它倉庫接口。這些倉庫口提供了常用的數據訪問操作:
 
 * `org.springframework.data.repository.CrudRepository` 提供了基本的增刪改查操作
 * `org.springframework.data.repository.PagingAndSortingRepository` 添加了分頁和排序功能
@@ -623,19 +628,19 @@ interface PagingAndSortingRepository<T, ID> {
     findAll(pageable: Pageable): Page<T>
 }
 interface QueryByExampleExecutor<T> {
-    findOne<S extends T>(example: Example<S>): Optional<S>
-    findlAll<S extends T>(example: Example<S>): Iterable<S>
-    findAll<S extends T>(example: Example>S>, sort: Sort): Iterable<S>
-    findAll<S extends T>(example: Example<S>, pageable: Pageable)
-    count<S extends T>(example: Example<S>): long
-    exists<S extends T>(example: Example<S>): boolean
+    findOne<S extends T>(example: Example< S>): Optional<S>
+    findlAll<S extends T>(example: Example< S>): Iterable<S>
+    findAll<S extends T>(example: Example< S>, sort: Sort): Iterable<S>
+    findAll<S extends T>(example: Example< S>, pageable: Pageable)
+    count<S extends T>(example: Example< S>): long
+    exists<S extends T>(example: Example< S>): boolean
 }
 Repository <|-- CrudRepository
 CrudRepository <|-- PagingAndSortingRepository
 @enduml
 ....
 
-Spring Data MongoDB在Spring Data Commons提供的倉庫接口基礎上，還擴展了`org.springframework.data.mongodb.repository.MongoRepository`。
+Spring Data MongoDB在Spring Data Commons提供的倉庫接口基礎上，還擴展了 `org.springframework.data.mongodb.repository.MongoRepository` 。
 
 [plantuml, spring-data-mongodb-repository, png]
 ....
@@ -669,7 +674,7 @@ ____
 Spring MVC測試框架提供了一流的支持，可使用可與JUnit，TestNG或任何其他測試框架一起使用的流暢API測試Spring MVC代碼。 它基於spring-test模塊的Servlet API mock objects構建，因此不使用正在運行的Servlet容器。
 ____
 
-Spring MVC Test框架通過`DispatcherServlet`與Spring MVC代碼直接通信，無需運行Servlet容器。且測試代碼與被測試代碼（服務端代碼）運行在同一個JVM中，所以不僅可以驗證服務端代碼的輸出還可以驗證服務端代碼的內部狀態，即支持服務端代碼的白盒測試。
+Spring MVC Test框架通過 `DispatcherServlet` 與Spring MVC代碼直接通信，無需運行Servlet容器。且測試代碼與被測試代碼（服務端代碼）運行在同一個JVM中，所以不僅可以驗證服務端代碼的輸出還可以驗證服務端代碼的內部狀態，即支持服務端代碼的白盒測試。
 
 [plantuml, spring-mvc-architecture, png]
 ....
@@ -677,30 +682,29 @@ Spring MVC Test框架通過`DispatcherServlet`與Spring MVC代碼直接通信，
 node ClientSide {
     [browser]
 }
-[browser] -> HTTP: request/response
 node ServerSide {
     frame ServletContainer {
-        HTTP - [dispatcherServlet]
+        [dispatcherServlet] - HTTP
         [dispatcherServlet] --> [controller]: dispatch request
     }
 }
-
+[browser] -> HTTP
 @enduml
 ....
 
-在生產環境中，`dispatcherServlet`和`controller`都運行在`Servlet`容器中（Spring Boot應用是內嵌Servlet容器），並通過Servlet容器嚮外曝露HTTP服務。客户端應用（Web瀏器、原生應用等）通過HTTP協議訪問Servlet容器，Servlet容器將請求轉化為`HttpServletRequest`交由`dispatcherServlet`；`dispatcherServlet`再分發給對應的controller。
+在生產環境中， `dispatcherServlet` 和 `controller` 都運行在 `Servlet` 容器中（Spring Boot應用是內嵌Servlet容器），並通過Servlet容器嚮外曝露HTTP服務。客户端應用（Web瀏器、原生應用等）通過HTTP協議訪問Servlet容器，Servlet容器將請求轉化為 `HttpServletRequest` 交由 `dispatcherServlet` ； `dispatcherServlet` 再分發給對應的 `controller` 。
 
 [plantuml, mockmvc-archotecture, png]
 ....
 @startuml
 frame JVM {
-    [mockMvc] - [dispatcherServlet]
+    [mockMvc] -> [dispatcherServlet]: call
     [dispatcherServlet] --> [controller]: dispatch request
 }
 @endnuml
 ....
 
-Spring MVC Test框架則通過MockMvc（Servlet API mock objects）直接與`dispatcherServlet`通信。我們的測試目標是應用上下文配置和controller及其調用的其它Beans，Servlet容器並不是我們的測試目標（因為它們的代碼不是我們寫的）。使用這種測試方法可以最大限度地排除第三方代碼，僅關注於應用代碼的測試。
+Spring MVC Test框架則通過MockMvc（Servlet API mock objects）直接與 `dispatcherServlet` 通信。我們的測試目標是應用上下文配置和 `controller` 及其調用的其它Beans，Servlet容器並不是我們的測試目標（因為它們的代碼不是我們寫的）。使用這種測試方法可以最大限度地排除第三方代碼，僅關注於應用代碼的測試。
 
 === 理解 Spring REST Docs
 
@@ -732,11 +736,11 @@ digraph d {
 }
 ....
 
-Spring REST Docs可以從由Spring MVC Test框架、Spring WebFlux's `WebTestClient`和REST Assured 3編寫的測試中截取HTTP請求和响應片斷。
+Spring REST Docs可以從由Spring MVC Test框架、Spring WebFlux's `WebTestClient` 和REST Assured 3編寫的測試中截取HTTP請求和响應片斷。
 
 應用開發者編寫asciidoc文檔（以.adoc, .asciidoc, .ad, .asc山大弓火後綴的），引用Spring REST Docs在測試階段截取的片斷。Asciidoctor讀取asciidoc文檔和請求响應片斷，轉換生成HTML格式的可閱讀文檔（Asciidoctor還支持其它輸出格式，如PDF、EPUB等）。
 
-作為Spring REST Docs的核心，其提供了豐富的HTTP請求响應片斷截取和注釋功能。所有這些截取注釋功能都實現為`org.springframework.restdocs.snippet.Snippet`的實現類，應用開發者通過構造方法穫取這些Snippet實現類實例。
+作為Spring REST Docs的核心，其提供了豐富的HTTP請求响應片斷截取和注釋功能。所有這些截取注釋功能都實現為 `org.springframework.restdocs.snippet.Snippet` 的實現類，應用開發者通過構造方法穫取這些Snippet實現類實例。
 
 [plantuml, http-message, png]
 ....
@@ -772,15 +776,15 @@ HTTP報文分為請求（request）報文和响應（response）報文。請求�
 Spring REST Docs為請求行，頭和消息體分別提供了Snippet。這些Snippet的構造方法被組織為三個類：
 
 * `org.springframework.restdocs.request.RequestDocumentation` 包含用於截取請求行中各個部份的Snippet的構造方法。
-* `org.springframework.restdocs.headers.HeaderDocumentation`包含用於截取請求頭和响應頭的Snippet的構造方法。
-* `org.springframework.restdocs.payload.PayloadDocumentation`包含用於截取請求消息體和响應消息體的Snippet的構造方法。
+* `org.springframework.restdocs.headers.HeaderDocumentation` 包含用於截取請求頭和响應頭的Snippet的構造方法。
+* `org.springframework.restdocs.payload.PayloadDocumentation` 包含用於截取請求消息體和响應消息體的Snippet的構造方法。
 
-除此之外，Spring REST Docs還為Hypermedia-Driven RESTFul Web服務提供了專用的Snippets。這些專用Snippets的構造方法被組織為類`org.springframework.restdocs.hypermedia.HypermediaDocumentation`。
+除此之外，Spring REST Docs還為Hypermedia-Driven RESTFul Web服務提供了專用的Snippets。這些專用Snippets的構造方法被組織為類 `org.springframework.restdocs.hypermedia.HypermediaDocumentation` 。
 
 [NOTE]
-----
+====
 關於Spring REST Docs完整的資料，請參閱官方文檔 https://docs.spring.io/spring-restdocs/docs/current/reference/html5/[Spring REST Docs]
-----
+====
 
 == 實現
 
@@ -810,7 +814,7 @@ public class Product {
   private Date updatedAt;
 }
 ----
-<1> `lombok.Getter`。Lombok會在編譯期掃描類，為以@Getter注解標注的類中所有成員字段生成getter訪問器。比如針對字段`private String id`，其生成了相當與以下源代碼的Getter訪問器：
+<1> Lombok會在編譯期掃描類，為以 `lombok.Getter` 注解標注的類中所有成員字段生成getter訪問器。比如針對字段 `private String id` ，其生成了相當與以下源代碼的Getter訪問器：
 +
 [source,java]
 ----
@@ -819,7 +823,7 @@ public String getId() {
 }
 ----
 +
-為了使使用Gradle構建項目也可處理Lombok注解、生成相應訪問器，我們需要在`build.gradle`中顯式引入Lombok插件：
+為了使使用Gradle構建項目也可處理Lombok注解、生成相應訪問器，我們需要在 `build.gradle` 中顯式引入Lombok插件：
 +
 .build.gradle
 [source,groovy]
@@ -832,7 +836,7 @@ plugins {
 ...
 ----
 
-<2> `lombok.Setter`。Lombok會在編譯期掃描類，為以@Setter注解標注的類中所有成員字段生成Setter訪問器。比如針對字段`private String id`，其生成了相當與以下代碼的Setter訪問器：
+<2> Lombok會在編譯期掃描類，為以 `lombok.Setter` 注解標注的類中所有成員字段生成Setter訪問器。比如針對字段 `private String id` ，其生成了相當與以下代碼的Setter訪問器：
 +
 [source,java]
 ....
@@ -841,7 +845,7 @@ public void setId(String id) {
 }
 ....
 
-<3> 注解`org.springframework.data.mongodb.core.mapping.Document`將一個Java類映射到MongoDB的某個Collection。在MongoDB中，Collection是Document的集合。在Java中，Class是Object的模板，"從某個Class實例出來的Object"是一個Object的集合。所以，在Java Class/Object與MongoDB Collection/Document映射關系中，Class對應Collection，Object對應Document。而Object中的字段對應Document中的字段。
+<3> 注解 `org.springframework.data.mongodb.core.mapping.Document` 將一個Java類映射到MongoDB的某個Collection。在MongoDB中，Collection是Document的集合。在Java中，Class是Object的模板，"從某個Class實例出來的Object"是一個Object的集合。所以，在Java Class/Object與MongoDB Collection/Document映射關系中，Class對應Collection，Object對應Document。而Object中的字段對應Document中的字段。
 +
 [plantuml]
 ....
@@ -862,9 +866,9 @@ digraph d {
 }
 ....
 +
-其實例object映射為MongoDB中的一個docuemnt。object中的每一個屬性映射為document中的一個字段。比如，object中的字段`id`映射為Mongo document中的字段`id`；object中的字段`title`映射為Mongo document中的字段`title`；object中的字段`tags`映射為Mongo document中的字段`tags`。
-<3> @Id `org.springframework.data.annotation.Id` 將對象中的字段`id`映射為文檔的主鍵`id`。
-<4> @DBRef `org.springframework.data.mongodb.core.mapping.DBRef` 將對象中的字段`images`映射為一組`com.mongodb.DBRef`。`com.mongodb.DBRef`是指嚮另一個文檔的引用。`@DBRef`可用以標注簡單字段或集合字段。
+其實例object映射為MongoDB中的一個docuemnt。object中的每一個屬性映射為document中的一個字段。比如，object中的字段 `id` 映射為Mongo document中的字段 `id` ；object中的字段 `title` 映射為Mongo document中的字段 `title` ；object中的字段 `tags` 映射為Mongo document中的字段 `tags` 。
+<3> 使用注解 `org.springframework.data.annotation.Id` 將對象中的字段`id`映射為文檔的主鍵 `id` 。
+<4> 使用注解 `org.springframework.data.mongodb.core.mapping.DBRef` 將對象中的字段 `images` 映射為一組 `com.mongodb.DBRef` 。 `com.mongodb.DBRef` 是指嚮另一個文檔的引用。 `@DBRef` 可用以標注簡單字段或集合字段。
 
 Spring Data MongoDB提供的映射注解：
 
@@ -877,7 +881,7 @@ Spring Data MongoDB提供的映射注解：
 
 |@MongoId
 |字段
-|指明該字段是主鍵，與@Id不同的是其接受一個可選的參數`FieldType`用以自定義變換。
+|指明該字段是主鍵，與@Id不同的是其接受一個可選的參數 `FieldType` 用以自定義變換。
 
 |@Document
 |類
@@ -885,7 +889,7 @@ Spring Data MongoDB提供的映射注解：
 
 |@DBRef
 |字段
-|指明該字段會被映射為`com.mongodb.DBRef`。
+|指明該字段會被映射為 `com.mongodb.DBRef` 。
 
 |@Indexed
 |字段
@@ -929,12 +933,12 @@ Spring Data MongoDB提供的映射注解：
 
 |@Version
 |字段
-|指明該字段將作為樂觀鎖定「Optimistic Locking」機制中的版本屬性，在保存變更之前都會先檢查版本值是否為所期望的。其初始值為`0`，每次變更都會自動加`1`。
+|指明該字段將作為樂觀鎖定「Optimistic Locking」機制中的版本屬性，在保存變更之前都會先檢查版本值是否為所期望的。其初始值為 `0` ，每次變更都會自動加 `1` 。
 |===
 
 ==== 倉庫Repository
 
-`Repository`是Spring Data抽象的中心接口。應用開發者以`Repository`子接口的形式聲明模型Repository及其需支持的數據訪問方法，Spring Data的具體數據存儲模塊（本例中是Spring Data MongoDB）將會為其生成相應的實現類。由於這些實現類僅包含模板代碼，所以自動生成可以大幅減少應用開發者重復工作。
+`Repository` 是Spring Data抽象的中心接口。應用開發者以 `Repository` 子接口的形式聲明模型Repository及其需支持的數據訪問方法，Spring Data的具體數據存儲模塊（本例中是Spring Data MongoDB）將會為其生成相應的實現類。由於這些實現類僅包含模板代碼，所以自動生成可以大幅減少應用開發者重復工作。
 
 .ProductRepository
 [source,java]
@@ -944,11 +948,11 @@ public interface ProductRepository extends MongoRepository<Product, String> { //
 
 }
 ----
-<1> 為模型Product創建專屬的ProductRepository接口，繼承至`org.springframework.data.mongodb.repository.MongoRepository`. `MongoRepository`繼承了接口`PagingAndSortingRepository`，Spring Data MongoDB會其生成一個支持增刪改查及分頁排序的MongoDB訪問實現類。因為`ProductRepository`除了繼承的方法聲明外，沒有聲明其它方法，所以Spring Data MongoDB就會直接使用通用的實現類`org.springframework.data.mongodb.repository.support.SimpleMongoRepository<T, ID>`做為其實現。
+<1> 為模型 `Product` 創建專屬的 `ProductRepository` 接口，繼承至 `org.springframework.data.mongodb.repository.MongoRepository` . `MongoRepository` 繼承了接口 `PagingAndSortingRepository` ，Spring Data MongoDB會其生成一個支持增刪改查及分頁排序的MongoDB訪問實現類。因為 `ProductRepository` 除了繼承的方法聲明外，沒有聲明其它方法，所以Spring Data MongoDB就會直接使用通用的實現類 `org.springframework.data.mongodb.repository.support.SimpleMongoRepository<T, ID>` 做為其實現。
 
 ==== RESTful Web服務
 
-Spring Data REST 是Spring Data的一部份，旨於簡化在Spring Data倉庫上構建hypermedia-driven REST Web服務。應用開發者僅需在依賴中引入`spring-boot-starter-data-rest`，再聲明領域模型的倉庫，Spring Data REST就會將其發佈為 Hypermedia-Driven REST Web服務。
+Spring Data REST 是Spring Data的一部份，旨於簡化在Spring Data倉庫上構建hypermedia-driven REST Web服務。應用開發者僅需在依賴中引入 `spring-boot-starter-data-rest` ，再聲明領域模型的倉庫，Spring Data REST就會將其發佈為 Hypermedia-Driven REST Web服務。
 
 .build.gradle
 [source, groovy]
@@ -961,7 +965,7 @@ dependencies {
 }
 ...
 ----
-<1> 將`spring-boot-starter-data-rest`引入至`implemenation`範圍依賴。
+<1> 將 `spring-boot-starter-data-rest` 引入至 `implemenation` 範圍依賴。
 
 .ProductRepository
 [source,java]
@@ -971,7 +975,7 @@ public interface ProductRepository extends MongoRepository<Product, String> {
 
 }
 ----
-<1> `@RepositoryRestResource` 宣告`ProductRepository`的數據訪問方法需被曝露為RESTful介面。RESTFul風格的API是以resource為中心，repository所專屬的模型就對應為RESTFul中的resource。`@RepositoryRestResource`充許應用開發者自定義模型所對應的resource在URL中及在內容體中的名字。本例中，resource Product的根RESTFul URL定義為`products/`。在HATEOAS標準的內容體中，Product集合會被命名為`products`，例如：
+<1> `@RepositoryRestResource` 宣告 `ProductRepository` 的數據訪問方法需被曝露為RESTful介面。RESTFul風格的API是以resource為中心，repository所專屬的模型就對應為RESTFul中的resource。 `@RepositoryRestResource` 充許應用開發者自定義模型所對應的resource在URL中及在內容體中的名字。本例中，resource Product的根RESTFul URL定義為 `products/` 。在HATEOAS標準的內容體中，Product集合會被命名為 `products` ，例如：
 +
 [source, json]
 ----
@@ -994,25 +998,25 @@ public interface ProductRepository extends MongoRepository<Product, String> {
 }
 ----
 
-Spring Data REST有四種倉庫檢測策略，用以檢測哪些倉庫應被曝露為REST Web服務。其默認的檢測策略是曝露所有公共的倉庫接口（除了通過注解顯式標注不曝露的倉庫），但我推薦使用`ANNOTATION`檢測策略，僅曝露以注解`@RepositoryRestResource`顯式標注的倉庫。以下是Spring Data REST提供的四種倉庫檢測策略：
+Spring Data REST有四種倉庫檢測策略，用以檢測哪些倉庫應被曝露為REST Web服務。其默認的檢測策略是曝露所有公共的倉庫接口（除了通過注解顯式標注不曝露的倉庫），但我推薦使用 `ANNOTATION` 檢測策略，僅曝露以注解 `@RepositoryRestResource` 顯式標注的倉庫。以下是Spring Data REST提供的四種倉庫檢測策略：
 
 |===
 |名穪|描述
 
 |DEFAULT
-|曝露所有公共的倉庫但通過注解`@RestResource`和`@RepositoryRestResource`中的`exported`旗標顯式標記不曝露的倉庫除外。
+|曝露所有公共的倉庫但通過注解 `@RestResource` 和 `@RepositoryRestResource` 中的 `exported` 旗標顯式標記不曝露的倉庫除外。
 
 |ALL
 |曝露所有倉庫，不考慮其可見性或被顯式標記為不曝露。
 
 |ANNOTATED
-|僅曝露被注解`@RestResource`或`@RepositoryRestResource`標記的，且其`exported`旗標不為`false`的倉庫。
+|僅曝露被注解 `@RestResource` 或 `@RepositoryRestResource` 標記的，且其 `exported` 旗標不為 `false` 的倉庫。
 
 |VISIBILITY
 |僅曝露公共的且被注解標記的倉庫。
 |===
 
-Spring Data REST的檢測策略可以通過聲明一個`RepositoryRestConfigurer`Bean來自定義。
+Spring Data REST的檢測策略可以通過聲明一個 `RepositoryRestConfigurer` Bean來自定義。
 
 　.RepositoryRestConfig.java
 [source, java]
@@ -1033,9 +1037,9 @@ public class RepositoryRestConfig {
   }
 }
 ----
-<1> `@Configurition`聲明該類為配置類。
-<2> 在Spring上下文中聲明個類型為RepositoryRestConfigurer`的Bean。
-<3> 構造一個子類，並覆寫方法`configureRepositoryRestConfiguration`，自定義倉庫檢測策略為`ANNOTATED`。
+<1> `@Configurition` 聲明該類為配置類。
+<2> 在Spring上下文中聲明個類型為 `RepositoryRestConfigurer` 的Bean。
+<3> 構造一個子類，並覆寫方法 `configureRepositoryRestConfiguration` ，自定義倉庫檢測策略為 `ANNOTATED` 。
 
 ==== 測試
 
@@ -1079,12 +1083,12 @@ public class ProductTest {
   ...
 }
 ----
-<1> 使用JUnit注解`org.junit.runner.RunWith`指明使用Spring擴展的JUnit Runner`org.springframework.test.context.junit4.SpringRunner`。`SpringRunner`會初始化Spring上下文，從而可以在測試代碼中使用依賴注入、模組掃描等Spring特性。默認的JUnit Runner並不會初始化Spring上下文。
-<2> 使用注解`org.springframework.boot.test.context.SpringBootTest`聲明測試用Spring上下文。`@SpringBootTest`可以指定上下文配置類，這點我們使用生產代碼相同的應用入口類配置測試上下文。
-<3> 使用注解`org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc`聲明配置MockMvc，然後就可以在測試代碼中注入MockMvc Bean了。
-<4> 使用注解`org.springframework.beans.factory.annotation.Autowired`聲明注入MockMvc。
-<5> 使用注解`org.springframework.beans.factory.annotation.Autowired`聲明注入ObjectMapper。MockMvc是以包裝了HTTP請求和响應的`HttpServletRequest`和`HttpServletResponse`的形式與DispatcherServlet通信的，所以需要構造和解析JSON格式的請求體和响應體。在測試代碼中使用與被測試代碼相同皂JSON序列化和反序列化實現可以避免編解碼不一致的麻煩。
-<6> 使用注解`org.springframework.beans.factory.annotation.Autowired`聲明注入`ProductImageRepository`。在領域模型中，Product關聯ProductImage，所以有些測試用例需要預置ProductImage數據。直接使用`ProductImageRepository`是最直接簡單的預置ProductImage數據的方法。
+<1> 使用JUnit注解 `org.junit.runner.RunWith` 指明使用Spring擴展的JUnit Runner `org.springframework.test.context.junit4.SpringRunner` 。 `SpringRunner` 會初始化Spring上下文，從而可以在測試代碼中使用依賴注入、模組掃描等Spring特性。默認的JUnit Runner並不會初始化Spring上下文。
+<2> 使用注解 `org.springframework.boot.test.context.SpringBootTest` 聲明測試用Spring上下文。 `@SpringBootTest` 可以指定上下文配置類，這點我們使用生產代碼相同的應用入口類配置測試上下文。
+<3> 使用注解 `org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc` 聲明配置MockMvc，然後就可以在測試代碼中注入MockMvc Bean了。
+<4> 使用注解 `org.springframework.beans.factory.annotation.Autowired` 聲明注入MockMvc。
+<5> 使用注解 `org.springframework.beans.factory.annotation.Autowired` 聲明注入ObjectMapper。MockMvc是以包裝了HTTP請求和响應的 `HttpServletRequest` 和 `HttpServletResponse` 的形式與DispatcherServlet通信的，所以需要構造和解析JSON格式的請求體和响應體。在測試代碼中使用與被測試代碼相同皂JSON序列化和反序列化實現可以避免編解碼不一致的麻煩。
+<6> 使用注解 `org.springframework.beans.factory.annotation.Autowired` 聲明注入 `ProductImageRepository` 。在領域模型中，Product關聯ProductImage，所以有些測試用例需要預置ProductImage數據。直接使用 `ProductImageRepository` 是最直接簡單的預置ProductImage數據的方法。
 
 然後，預置ProductImage數據。
 
@@ -1117,9 +1121,9 @@ public class ProductTest {
   }
 ...
 ----
-<1> 使用注解`org.junit.Before`聲明在執行每個測試方法之前都預置一遍數據。
-<2> 構造預置的ProductImage對象。
-<3> 調用ProductImageRepository方法，將預置ProductImage對象持久化至數據庫
+<1> 使用注解 `org.junit.Before` 聲明在執行每個測試方法之前都預置一遍數據。
+<2> 構造預置的 `ProductImage` 對象。
+<3> 調用 `ProductImageRepository` 方法，將預置 `ProductImage` 對象持久化至數據庫
 
 再然後，通過MockMvc嚮測試目標發送模擬RESTFul HTTP請求並校驗响應。
 
@@ -1169,9 +1173,9 @@ public void testCreateAndGet() throws Exception {
 }
 ...
 ----
-<1> 使用`org.springframework.test.web.servlet.request.MockMvcRequestBuilders`提供的構造方法構造`MockHttpServletRequestBuilder`，MockMvc的perform方法會從中構造請求實例並發送給DispatcherServlet模擬HTTP請求。（後續為了從測試中生成API文檔，我們會換用兼容的`org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders`提供的構造器方法。`RestDocumentationRequestBuilders`構造方法僅添加了文檔描述功能，HTTP協議相關的部份，如HTTP頭、响應碼等，依舊與`MockMvcRequestBuilders`的構造器相同。）
+<1> 使用 `org.springframework.test.web.servlet.request.MockMvcRequestBuilders` 提供的構造方法構造 `MockHttpServletRequestBuilder` ，MockMvc的perform方法會從中構造請求實例並發送給DispatcherServlet模擬HTTP請求。（後續為了從測試中生成API文檔，我們會換用兼容的 `org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders` 提供的構造器方法。 `RestDocumentationRequestBuilders` 構造方法僅添加了文檔描述功能，HTTP協議相關的部份，如HTTP頭、响應碼等，依舊與 `MockMvcRequestBuilders` 的構造器相同。）
 +
-`MockMvcRequestBuilders`提供了對應HTTP協議中定義的九種請求方法中的八種構造方法。
+`MockMvcRequestBuilders` 提供了對應HTTP協議中定義的九種請求方法中的八種構造方法。
 +
 [plantuml, MockMvcRequestBuilders, png]
 ....
@@ -1195,7 +1199,7 @@ abstract class MockMvcRequestBuilders {
 @enduml
 ....
 +
-可以發現所有的構造方法都是返回同類型的構造器`MockHttpServletRequestBuilder`，測試代碼在穫取到`MockHttpServletRequestBuilder`實例後，可以繼續設置請求。`MockHttpServletRequestBuilder`提供了很多方法以供設置HTTP請求，這𥚃僅羅列常用的，具體請參閱源代碼：
+可以發現所有的構造方法都是返回同類型的構造器 `MockHttpServletRequestBuilder` ，測試代碼在穫取到 `MockHttpServletRequestBuilder` 實例後，可以繼續設置請求。 `MockHttpServletRequestBuilder` 提供了很多方法以供設置HTTP請求，這𥚃僅羅列常用的，具體請參閱源代碼：
 +
 |===
 |方法|可設置HTTP請求內容
@@ -1210,7 +1214,7 @@ abstract class MockMvcRequestBuilders {
 content(String content)
 |請求體
 |===
-<2> MockMvc的perform方法從構造器中創建mock請求例發送給DispatcherServlet，並將DispatcherServlet的响應包裝成`org.springframework.test.web.servlet.ResultActions`。測試代碼可以通過`ResultActions`提供的`andExpect`方法校驗响應結果；通過`andDo`方法附加一些操作，如打印响應內容等；通過`andReturn`方法讀取响應內容以做進一步操作。
+<2> MockMvc的perform方法從構造器中創建mock請求例發送給DispatcherServlet，並將DispatcherServlet的响應包裝成 `org.springframework.test.web.servlet.ResultActions` 。測試代碼可以通過 `ResultActions` 提供的 `andExpect` 方法校驗响應結果；通過 `andDo` 方法附加一些操作，如打印响應內容等；通過 `andReturn` 方法讀取响應內容以做進一步操作。
 +
 [plantuml, ResultActions, png]
 ....
@@ -1223,11 +1227,11 @@ interface ResultActions {
 @enduml
 ....
 +
-Spring MVC Test框架提供了豐富的ResultMatcher供應用開發者檢驗MVC响應的各個部份。所有這些ResultMatcher都通過`org.springframework.test.web.servlet.result.MockMvcResultMatchers`的構造方法穫取。`StatusResultMatchers`是由`MockMvcResultMatchers`提供的一個結果檢驗器，通過方法`status()`穫取，用於檢驗响應狀態碼。POST請求意在創建新的實體，在成功創建新實體後RESTFul Web服務應响應狀態碼`200 Created`。
-<3> `JsonPathResultMatchers`是由`MockMvcResultMatchers`提供的一個結果檢驗器，通過方法`jsonPath(String expression, Matcher<T> matcher)`穫取，用於檢驗JSON格式的响應體。`JsonPathResultMatchers`按JSON路徑表逹式從响應體解析出內容，再搭配Hamcrest的檢驗器就可以檢驗JSON格式响應體的任意部份。
-<4> 新創建Product實體的唯一標識是由MongoDB生成的，且以自身鏈接的一部份的形式在响應體中返回。（Hypermedia-Driven的RESTFul Web服務在展現實體內容的响應體中包含指hlvlhbr甚它實體或集合的鏈接，其中就包括指嚮自身的鏈接。RESTFul風格的資源URL形式為`/<resources>/<id>`，所以解析單一資源URL最後一部份就可以得到資源唯一標識。）通過`ResultActions`的`andReturn`方法穫取包含所有响應信息的對象，再從中讀取响應體，再從响應體中解析出自身鏈接，最後從自身鏈接中解析出新創建Product實體的唯一標識。
+Spring MVC Test框架提供了豐富的ResultMatcher供應用開發者檢驗MVC响應的各個部份。所有這些ResultMatcher都通過 `org.springframework.test.web.servlet.result.MockMvcResultMatchers` 的構造方法穫取。 `StatusResultMatchers` 是由 `MockMvcResultMatchers` 提供的一個結果檢驗器，通過方法 `status()` 穫取，用於檢驗响應狀態碼。POST請求意在創建新的實體，在成功創建新實體後RESTFul Web服務應响應狀態碼 `200 Created` 。
+<3> `JsonPathResultMatchers` 是由 `MockMvcResultMatchers` 提供的一個結果檢驗器，通過方法 `jsonPath(String expression, Matcher<T> matcher)` 穫取，用於檢驗JSON格式的响應體。 `JsonPathResultMatchers` 按JSON路徑表逹式從响應體解析出內容，再搭配Hamcrest的檢驗器就可以檢驗JSON格式响應體的任意部份。
+<4> 新創建Product實體的唯一標識是由MongoDB生成的，且以自身鏈接的一部份的形式在响應體中返回。（Hypermedia-Driven的RESTFul Web服務在展現實體內容的响應體中包含指hlvlhbr甚它實體或集合的鏈接，其中就包括指嚮自身的鏈接。RESTFul風格的資源URL形式為 `/<resources>/<id>` ，所以解析單一資源URL最後一部份就可以得到資源唯一標識。）通過 `ResultActions` 的 `andReturn` 方法穫取包含所有响應信息的對象，再從中讀取响應體，再從响應體中解析出自身鏈接，最後從自身鏈接中解析出新創建Product實體的唯一標識。
 +
-Spring Data REST對實體內容的編碼遵循Hypertext Application Language（HAL）約定。按照HAL，表示實體的JSON中應包含object類型的屬性`_links`，而`_links`應包含一個名為`self`的object類型屬性，`self`應包含名為`href`文本類型的屬性，`href`即該實體的自身鏈接。JSON路徑`/_links/self/href`應能解析出實體的自身鏈接。創建Product實體响應體樣例：
+Spring Data REST對實體內容的編碼遵循Hypertext Application Language（HAL）約定。按照HAL，表示實體的JSON中應包含object類型的屬性 `_links` ，而 `_links` 應包含一個名為 `self` 的object類型屬性， `self` 應包含名為 `href` 文本類型的屬性， `href` 即該實體的自身鏈接。JSON路徑 `/_links/self/href` 應能解析出實體的自身鏈接。創建Product實體响應體樣例：
 +
 [source, json]
 ----
@@ -1249,7 +1253,7 @@ Spring Data REST對實體內容的編碼遵循Hypertext Application Language（H
   }
 }
 ----
-<5> 使用`org.springframework.test.web.servlet.request.MockMvcRequestBuilders`的`get`構造方法構造get請求構造器。MockMvc從中構造get請求實例並發送給DispatcherServlet。再使用Spring MVC Test框架提供的結果檢驗器檢驗結果。
+<5> 使用 `org.springframework.test.web.servlet.request.MockMvcRequestBuilders` 的 `get` 構造方法構造get請求構造器。MockMvc從中構造get請求實例並發送給DispatcherServlet。再使用Spring MVC Test框架提供的結果檢驗器檢驗結果。
 
 其它Product應用編程接口測試與此相似，這𥚃就不再贅述，請參閱源碼。
 
@@ -1267,9 +1271,9 @@ dependencies {
 }
 ...
 ----
-<1> 在`de.flapdoodle.embed.mongo`引入Gradle的testImplementation範圍依賴。
+<1> 在 `de.flapdoodle.embed.mongo` 引入Gradle的testImplementation範圍依賴。
 
-spring-boot-autoconfigure担供了嵌入式MongoDB支持，當`de.flapdoodle.embed.mongo`被添加到classpath，`org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration`就會被激活，自動配置嵌入式MongoDB。
+spring-boot-autoconfigure担供了嵌入式MongoDB支持，當 `de.flapdoodle.embed.mongo` 被添加到classpath， `org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration` 就會被激活，自動配置嵌入式MongoDB。
 
 .EmbeddedMongoAutoConfiguration.java
 [source, java]
@@ -1325,13 +1329,13 @@ bootJar { // <7>
 }
 ...
 ----
-<1> 引入Asciidoctor的Gradle插件`org.asciidoctor.convert`，其會引入Gradle task `asciidoctor`。
-<2> 將`spring-restdocs-asciidoctor`引入至Gradle的asciidoctor範圍依賴，asciidoctor範圍是Asciidoctor插入擴展的，僅對Asciidoctor插件起效。
-<3> 將spring-restdocs-mockmvc引入Gradle的testImplementation範圍依賴，版本由Spring Boot Gradle插入統一控制。
-<4> 聲明變量`snippetsDir`為Spring REST Docs輸出HTTP請求响應片斷的根目錄。
-<5> 設置測試任務的輸出目錄為`snippetsDir`。Spring REST Docs是做為測試的一部份被執行的，其輸出根目錄即測試的輸出相錄即`snippetsDir`。
-<6> 配置Gradle任務asciidoctor，將`snippetsDir`添加為輸入目錄，Asciidoc文檔就可以引用Spring REST Docs截取的HTTP請求响應片斷了；並該任務asciidoctor依賴任務test，因為任務asciidoctor所需的請求响應片斷是在任務test中產生的，所以任務asciidoctor必須在任務test之後執行。任務asciidoctor是由Asciidoctor插件提供的。
-<7> 配置Gradle任務bootJar，使其依賴任務asciidoctor，並將經asciidoctor轉換後的HTML格式文檔打包至flatjar中，置於路徑`static/docs`。Spring Boot默認將`static/docs`下的內容以靜態文件的形式發佈至URL`/docs/`。
+<1> 引入Asciidoctor的Gradle插件 `org.asciidoctor.convert` ，其會引入Gradle task `asciidoctor` 。
+<2> 將 `spring-restdocs-asciidoctor` 引入至Gradle的asciidoctor範圍依賴，asciidoctor範圍是Asciidoctor插入擴展的，僅對Asciidoctor插件起效。
+<3> 將 `spring-restdocs-mockmvc` 引入Gradle的 `testImplementation` 範圍依賴，版本由Spring Boot Gradle插入統一控制。
+<4> 聲明變量 `snippetsDir` 為Spring REST Docs輸出HTTP請求响應片斷的根目錄。
+<5> 設置測試任務的輸出目錄為 `snippetsDir` 。Spring REST Docs是做為測試的一部份被執行的，其輸出根目錄即測試的輸出相錄即 `snippetsDir` 。
+<6> 配置Gradle任務asciidoctor，將 `snippetsDir` 添加為輸入目錄，Asciidoc文檔就可以引用Spring REST Docs截取的HTTP請求响應片斷了；並該任務 `asciidoctor` 依賴任務 `test` ，因為任務 `asciidoctor` 所需的請求响應片斷是在任務 `test` 中產生的，所以任務 `asciidoctor` 必須在任務 `test` 之後執行。任務 `asciidoctor` 是由Asciidoctor插件提供的。
+<7> 配置Gradle任務 `bootJar`，使其依賴任務 `asciidoctor` ，並將經 `asciidoctor` 轉換後的HTML格式文檔打包至 `flatjar` 中，置於路徑 `static/docs` 。Spring Boot默認將 `static/docs` 下的內容以靜態文件的形式發佈至URL `/docs/` 。
 
 然後，在測試中激活Spring REST Docs配置。
 
@@ -1346,9 +1350,9 @@ bootJar { // <7>
 public class ProductTest {
 ...
 ----
-<1> 使用注解`org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs`激活Spring REST Docs自動配置。
+<1> 使用注解 `org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs` 激活Spring REST Docs自動配置。
 
-再然後，用`org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders`提供的mock請求構造方法替換`org.springframework.test.web.servlet.request.MockMvcRequestBuilders`的mock請求構造方法。`RestDocumentationRequestBuilders`構造方法返回與`MockMvcRequestBuilders`構造方法相同的`MockHttpServletRequestBuilder`。不同的是，`RestDocumentationRequestBuilders`往`MockHttpServletRequestBuilder`中添加了請求屬性`ATTRIBUTE_NAME_URL_TEMPLATE`，使其可以從mock請求的URL模格中解析出實參。
+再然後，用 `org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders` 提供的mock請求構造方法替換 `org.springframework.test.web.servlet.request.MockMvcRequestBuilders` 的mock請求構造方法。 `RestDocumentationRequestBuilders` 構造方法返回與 `MockMvcRequestBuilders` 構造方法相同的 `MockHttpServletRequestBuilder` 。不同的是， `RestDocumentationRequestBuilders` 往 `MockHttpServletRequestBuilder` 中添加了請求屬性 `ATTRIBUTE_NAME_URL_TEMPLATE` ，使其可以從mock請求的URL模格中解析出實參。
 
 .RestDocumentationRequestBuilders.java
 [source, java]
@@ -1361,7 +1365,7 @@ public static MockHttpServletRequestBuilder get(String urlTemplate,
 }
 ...
 ----
-<1> `RestDocumentationRequestBuilders`在每個接受URL模板的構造方法中都將URL模格注冊為請求屬性，以備`PathParametersSnippet`從穫取請求URL中的參數化部份，如資源唯一標識等。
+<1> `RestDocumentationRequestBuilders` 在每個接受URL模板的構造方法中都將URL模格注冊為請求屬性，以備 `PathParametersSnippet` 從穫取請求URL中的參數化部份，如資源唯一標識等。
 
 .PathParametersSnippet.java
 [source, java]
@@ -1376,7 +1380,7 @@ private String extractUrlTemplate(Operation operation) {
 }
 ...
 ----
-<1> `PathParametersSnippet`從請求屬性中讀取URL模板。
+<1> `PathParametersSnippet` 從請求屬性中讀取URL模板。
 
 再然後，在測試中截取請求响應片斷並注釋。
 
@@ -1409,11 +1413,11 @@ public void testCreateAndGet() throws Exception {
 }
 ...
 ----
-<1> 使用`org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document(String identifier, Snippet... snippets)`方法構造一個`org.springframework.restdocs.mockmvc.RestDocumentationResultHandler`實例。`RestDocumentationResultHandler`實現了接口`org.springframework.test.web.servlet.ResultHandler`，可以作為`org.springframework.test.web.servlet.ResultActions.andDo(ResultHandler handler)`的參數，完美地嵌入MockMvc測試。
+<1> 使用 `org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document(String identifier, Snippet... snippets)` 方法構造一個 `org.springframework.restdocs.mockmvc.RestDocumentationResultHandler` 實例。 `RestDocumentationResultHandler` 實現了接口 `org.springframework.test.web.servlet.ResultHandler` ，可以作為 `org.springframework.test.web.servlet.ResultActions.andDo(ResultHandler handler)` 的參數，完美地嵌入MockMvc測試。
 +
-. 參數`identitifer`指明截取片斷的輸出住置。`document("product/create"`將把該測試過程中截取的片斷輸出至`$snippetsDir/product/create`。
-. `document`接受零至多個Snippet。
-<2> 構造專用於Hypermedia的`org.springframework.restdocs.hypermedia.LinksSnippet`。本例為了在多個測試中重用Product的LinksSnippet，而使用自定義構造方法構造Product的LinksSnippet。
+. 參數 `identitifer` 指明截取片斷的輸出住置。 `document("product/create"` 將把該測試過程中截取的片斷輸出至 `$snippetsDir/product/create` 。
+. `document` 接受零至多個Snippet。
+<2> 構造專用於Hypermedia的 `org.springframework.restdocs.hypermedia.LinksSnippet` 。本例為了在多個測試中重用 `Product` 的 `LinksSnippet` ，而使用自定義構造方法構造 `Product` 的 `LinksSnippet`。
 +
 .ProductTest
 [source, java]
@@ -1427,7 +1431,7 @@ private static LinksSnippet links(LinkDescriptor... descriptors) {
 ...
 ----
 +
-RESTFul Web服務是以資源為中心的，Hypermedia-Driven RESTFul Web服務當然依舊是以資源為中心的，資源實例的結構是相對穏定的。再加上HAL定義了一些通用的鏈接，所以Product的鏈接結構在任何場景下都是相同的。所以我們就可以使用同一構造方法為不同場景構造LinksSnippet。LinksSnippet由一系列的`org.springframework.restdocs,hypermedia.LinkDescriptor`組成，每一個`LinkDescriptor`截取和注釋一個鏈接。上述LinksSnippet截取的片斷樣例（asciidoc格式的，且包含了注釋）：
+RESTFul Web服務是以資源為中心的，Hypermedia-Driven RESTFul Web服務當然依舊是以資源為中心的，資源實例的結構是相對穏定的。再加上HAL定義了一些通用的鏈接，所以 `Product` 的鏈接結構在任何場景下都是相同的。所以我們就可以使用同一構造方法為不同場景構造 `LinksSnippet` 。 `LinksSnippet` 由一系列的 `org.springframework.restdocs,hypermedia.LinkDescriptor` 組成，每一個 `LinkDescriptor` 截取和注釋一個鏈接。上述 `LinksSnippet` 截取的片斷樣例（asciidoc格式的，且包含了注釋）：
 +
 .links.adoc
 [source, asciidoc]
@@ -1462,7 +1466,7 @@ RESTFul Web服務是以資源為中心的，Hypermedia-Driven RESTFul Web服務�
 |related images
 
 |===
-<3> 構造`org.springframework.restdocs.payload.RequestFieldsSnippet`，以截取和注釋請求消息體。因同一類資源在不同場景下結構相同，所以這𥚃也通過自定義構造方法重用請求消息體Snippet。
+<3> 構造 `org.springframework.restdocs.payload.RequestFieldsSnippet` ，以截取和注釋請求消息體。因同一類資源在不同場景下結構相同，所以這𥚃也通過自定義構造方法重用請求消息體 `Snippet`。
 +
 .ProductTest.java
 [source, java]
@@ -1480,7 +1484,7 @@ private static RequestFieldsSnippet requestFields(FieldDescriptor... descriptors
 ...
 ----
 +
-`RequestFieldsSnippets`由一系列`org.springframework.restdocs.payload.FieldDescriptor`組成，每個`FieldDescriptor`截取和注釋請求消息體的一部份。上述RequestFieldsSnippet截取的片斷樣例（asciidoc格式且包含注釋）：
+`RequestFieldsSnippets` 由一系列 `org.springframework.restdocs.payload.FieldDescriptor` 組成，每個 `FieldDescriptor` 截取和注釋請求消息體的一部份。上述 `RequestFieldsSnippet` 截取的片斷樣例（asciidoc格式且包含注釋）：
 +
 .request-fields.adoc
 [source, asciidoc]
@@ -1521,7 +1525,7 @@ private static RequestFieldsSnippet requestFields(FieldDescriptor... descriptors
 |links of referred ProductImage
 
 |===
-<4> 構造`org.springframework.restdocs.payload.ResponseFieldsSnippet`截取和注釋响應消息體。這𥚃依舊通過自定構造方法重用响應消息體Snippet。
+<4> 構造 `org.springframework.restdocs.payload.ResponseFieldsSnippet` 截取和注釋响應消息體。這𥚃依舊通過自定構造方法重用响應消息體 `Snippet` 。
 +
 .ProductTest.java
 [source, java]
@@ -1538,7 +1542,7 @@ private static ResponseFieldsSnippet responseFields(FieldDescriptor... descripto
 ...
 ----
 +
-`ResponseFieldsSnippet`由一系列`org.springframework.restdocs.payload.FieldDescriptor`組成。每個`FieldDescriptor`截取和注釋响應消息體的一部份。上述ResponseFieldSnippet截取的片斷樣例（asciidoc格式且包含注釋）：
+`ResponseFieldsSnippet` 由一系列 `org.springframework.restdocs.payload.FieldDescriptor` 組成。每個 `FieldDescriptor` 截取和注釋响應消息體的一部份。上述 `ResponseFieldSnippet` 截取的片斷樣例（asciidoc格式且包含注釋）：
 +
 .response-fields.adoc
 [source, asciidoc]
@@ -1683,7 +1687,7 @@ public interface ProductImageRepository extends MongoRepository<ProductImage, St
 ----
 <1> 用注解 `org.springframework.data.rest.core.annotation.RepositoryRestResource` 宣告 `ProductImageRepository` 的數據訪問方法需被曝露為RESTFul Web服務。RESTFul Web服務是以資源為中心的， `ProductImageRepository` 所專屬於的領域模型 `ProductImage` 就對應為RESTFul中的資源。 `@RepositoryRestResource` 允許應用闕發者自定義模型所對應資源名穪。本例中，資源的名穪為`product`。
 
-=== 測試
+==== 測試
 
 我們集求JUnit和Spring MVC Test框架，實現應用編程接口測試。
 
@@ -1758,6 +1762,10 @@ public void testSaveAndGetOne() throws Exception {
 ==== API 文檔
 
 使用Spring REST Docs從應用編程接口測試中生成API文檔。
+
+== 總結
+
+本章我們使用Spring Data REST從Spring Data倉庫上創建領域模型 `Product` 和 `ProductImage` 的Hypermedia-Driven RESTFul Web服務，使用Spring Data MongoDB生成領域模型 `Product` 和 `ProductImage` 的MongoDB訪問倉庫實現，使用Spring MVC Test框架測試應用編程接口，使用Spring REST Docs從測試中生成準確、易讀的API文檔。
 
 == 參考
 
