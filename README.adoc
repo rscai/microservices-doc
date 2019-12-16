@@ -1,0 +1,24 @@
+= Build Microservices by Spring Boot and Spring Cloud
+
+== Live Preview Asciidoc
+
+Install asciidoctor, guard and livereload:
+
+[source, bash]
+....
+gem install asciidoctor gaurd guard-shell guard-livereload yajl-ruby
+....
+
+Run Guard on base directory:
+
+[source, bash]
+....
+guard start
+....
+
+Install Chrome LiveReload extension.
+
+[NOTE]
+====
+Official document of Live Preview asciidoc https://asciidoctor.org/docs/editing-asciidoc-with-live-preview/[Editing AsciDoc with Live preview]
+====
