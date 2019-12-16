@@ -68,3 +68,7 @@ fabric.properties
 
 ### Asciidoctor
 /src/docs/asciidoc/**/.asciidoctor/
+
+## Emacs temporary files
+*~
+.#*
