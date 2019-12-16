@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
-<title>Choose Language</title>
+<title>服務發現「Service Discovery」</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -431,17 +431,578 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article">
+<body class="article toc2 toc-left">
 <div id="header">
-<h1>Choose Language</h1>
+<h1>服務發現「Service Discovery」</h1>
 <div class="details">
 <span id="revnumber">version 0.0.1</span>
 </div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#目標">目標</a></li>
+<li><a href="#理解服務發現service-discovery">理解服務發現「Service Discovery」</a></li>
+<li><a href="#理解eureka">理解Eureka</a>
+<ul class="sectlevel2">
+<li><a href="#協議">協議</a></li>
+</ul>
+</li>
+<li><a href="#實現">實現</a>
+<ul class="sectlevel2">
+<li><a href="#創建eureka服務端">創建Eureka服務端</a></li>
+<li><a href="#注冊服務-2">注冊服務</a></li>
+<li><a href="#發現服務-2">發現服務</a></li>
+</ul>
+</li>
+<li><a href="#總結">總結</a></li>
+</ul>
+</div>
 </div>
 <div id="content">
+<div class="sect1">
+<h2 id="目標">目標</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>理解服務注冊與發現「Service Registry and Discovery」模式</p>
+</li>
+<li>
+<p>使用Eureka實現服務注冊與發現</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="理解服務發現service-discovery">理解服務發現「Service Discovery」</h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p><a href="zh_TR/main.html">正體中文</a>
-<a href="zh_CN/main.html">简体中文</a></p>
+<p>服務發現（有時穪為服務注冊「Service Registry」或服務注冊與發現「Service Registry and Discovery」是微服務架構中常用的模式。</p>
+</div>
+<div class="paragraph">
+<p>由於微服務架構的固有特性，生產環境中的服務都是不斷地變化的，服務實例也是不斷地被創建和銷毁的。消費者服務需要一種機制去實時地發現可用的服務實例，服務注冊與發現就是其中一種解決方案。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/service-registry-discovery.png" alt="service registry discovery" width="489" height="162">
+</div>
+</div>
+<div class="paragraph">
+<p>服務注冊維護着服務實例的元數據（包含服務名穪、實例的主機地址、監聽的端口等）。服務實例啟動時主動嚮服務注冊注冊自身元數據，在停止時主動嚮服務注冊注銷自身元數據。</p>
+</div>
+<div class="paragraph">
+<p>消費者服務通過服務名穪從服務注冊穫取可用的服務實例信息，然後直接與服務實例通信。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="理解eureka">理解Eureka</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Eureka是由Netflix捐贈給開源社區的基於Spring Boot的服務注冊與發現實現。</p>
+</div>
+<div class="paragraph">
+<p>Eureka服務端提供服務注冊服務，其沒有將服務元數據持久化至磁盤。而且也沒有必要將服務元數據持久化，因為服務實例的狀態是隨時變化的，持久化的狀態毫無意義。</p>
+</div>
+<div class="paragraph">
+<p>Eureka服務端提供了單獨「Standalone」和結對「Peer」兩種運行模式。默認情況下，Eureka服務端運行在結對模式。以下Spring Boot應用配置文件配置一組兩節點結對的Eureka服務端：</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">spring:
+  profiles: peer1
+eureka:
+  instance:
+    hostname: peer1
+  client:
+    serviceUrl:
+      defaultZone: https://peer2/eureka/
+---
+spring:
+  profiles: peer2
+eureka:
+  instance:
+    hostname: peer2
+  client:
+    serviceUrl:
+      defaultZone: https://peer1/eureka/</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>當Eureka服務端以profile <code>peer1</code> 運行在結點 <code>peer1</code> 時，將自己做為客戶端注冊至 <code>peer2</code>；當Eureka服務端以profile <code>peer2</code> 運行在結點 <code>peer2</code> 時，將自己做為客戶端注冊至 <code>peer1</code>。<code>peer1</code> 和 <code>peer2</code> 實時同步注冊務元數據，當其中一個實例重啟時，會從另一個實例同步元數據，從而實現高可用性「High Availability」。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/two-peer-aware-eureka-server.png" alt="two peer aware eureka server" width="444" height="127">
+</div>
+</div>
+<div class="paragraph">
+<p>結對模式也可用於多於兩個Eureka服務端實例結對。以下Spring Boot應用配置文件配置了一組三節點Eureka服務端結對：</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">eureka:
+  client:
+    serviceUrl:
+      defaultZone: https://peer1/eureka/,https://peer2/eureka,https://peer3/eureka
+---
+spring:
+  profiles: peer1
+eureka:
+  instance:
+    hostname: peer1
+
+---
+spring:
+  profiles: peer2
+eureka:
+  instance:
+    hostname: peer2
+
+---
+spring:
+  profiles: peer3
+eureka:
+  instance:
+    hostname: peer3</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>當以profile <code>peer1</code>、<code>peer2</code> 和 <code>peer3</code> 分別運行三個Eureka服務端實例在三個主機上時，它們各自將自身注冊至三個Eureka服務端。任一實例都實時與其它兩個實例同步元數據。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/three-peer-aware-eureka-server.png" alt="three peer aware eureka server" width="387" height="243">
+</div>
+</div>
+<div class="paragraph">
+<p>Eureka服務端默認以結對模式運行，若要以單獨「Standalone」模式運行，需顯示關閉其客戶端注冊特性。</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">eureka:
+  instance:
+    hostname: localhost
+  client:
+    registerWithEureka: false <i class="conum" data-value="1"></i><b>(1)</b>
+    fetchRegistry: false <i class="conum" data-value="2"></i><b>(2)</b>
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/ <i class="conum" data-value="3"></i><b>(3)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>顯式關閉服務注冊。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>顯式關閉從對方同步服務注冊元數據。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>即使以單獨模式運行，依舊要顯式聲明服務諯（即自身）URL。</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="協議">協議</h3>
+<div class="paragraph">
+<p>Eureka服務端開放RESTFul風格的Web服務，客戶端和結對的其它服務端可以通過此RESTFul Web服務注冊和發現服務。Eureka維護的核心元數據是應用「application」和實例「instance」。</p>
+</div>
+<div class="paragraph">
+<p>TBD</p>
+</div>
+<div class="sect3">
+<h4 id="注冊服務">注冊服務</h4>
+<div class="paragraph">
+<p>客戶端通過 <code>POST</code> 請求嚮月中尸水務端注冊服務，請求目標URL的格式為 <code>/eureka/apps/{appName}</code>。</p>
+</div>
+<div class="listingblock">
+<div class="title">注冊服務請求樣例</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-http hljs" data-lang="http">POST /eureka/apps/CATALOG HTTP/1.1
+Accept-Encoding: gzip
+Content-Type: application/json
+Accept: application/json
+DiscoveryIdentity-Name: DefaultClient
+DiscoveryIdentity-Version: 1.4
+DiscoveryIdentity-Id: 192.168.199.141
+User-Agent: Java-EurekaClient/v1.9.13
+
+{
+   "instance":{
+      "instanceId":"macbook-pro.lan:catalog:8081",
+      "hostName":"macbook-pro.lan",
+      "app":"CATALOG",
+      "ipAddr":"192.168.199.141",
+      "status":"DOWN",
+      "overriddenStatus":"UNKNOWN",
+      "port":{
+         "$":8081,
+         "@enabled":"true"
+      },
+      "securePort":{
+         "$":443,
+         "@enabled":"false"
+      },
+      "countryId":1,
+      "dataCenterInfo":{
+         "@class":"com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
+         "name":"MyOwn"
+      },
+      "leaseInfo":{
+         "renewalIntervalInSecs":30,
+         "durationInSecs":90,
+         "registrationTimestamp":0,
+         "lastRenewalTimestamp":0,
+         "evictionTimestamp":0,
+         "serviceUpTimestamp":0
+      },
+      "metadata":{
+         "management.port":"8081"
+      },
+      "homePageUrl":"http://macbook-pro.lan:8081/",
+      "statusPageUrl":"http://macbook-pro.lan:8081/actuator/info",
+      "healthCheckUrl":"http://macbook-pro.lan:8081/actuator/health",
+      "vipAddress":"catalog",
+      "secureVipAddress":"catalog",
+      "isCoordinatingDiscoveryServer":"false",
+      "lastUpdatedTimestamp":"1576139530623",
+      "lastDirtyTimestamp":"1576139611782"
+   }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="服務實例心跳狀態">服務實例心跳狀態</h4>
+<div class="paragraph">
+<p>服務實例應定時嚮服務端發送心跳狀態。心跳狀態通過 <code>PUT</code> 請求發送給服務端。</p>
+</div>
+<div class="listingblock">
+<div class="title">心跳狀態請求樣例</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-http hljs" data-lang="http">PUT /eureka/apps/CATALOG/macbook-pro.lan:catalog:8081?status=UP&amp;lastDirtyTimestamp=1576139630424 HTTP/1.1
+DiscoveryIdentity-Name: DefaultClient
+DiscoveryIdentity-Version: 1.4
+DiscoveryIdentity-Id: 192.168.199.141
+Accept-Encoding: gzip
+User-Agent: Java-EurekaClient/v1.9.13</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="注銷服務">注銷服務</h4>
+<div class="paragraph">
+<p>客戶端通 <code>DELETE</code> 請求注銷服務實例，請求的目標URL格式為 <code>/eureka/apps/{appName}/{instanceId}</code>。</p>
+</div>
+<div class="listingblock">
+<div class="title">注銷服務實例請求樣例</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-http hljs" data-lang="http">DELETE /eureka/apps/CATALOG/macbook-pro.lan:catalog:8081 HTTP/1.1
+DiscoveryIdentity-Name: DefaultClient
+DiscoveryIdentity-Version: 1.4
+DiscoveryIdentity-Id: 192.168.199.141
+Accept-Encoding: gzip
+User-Agent: Java-EurekaClient/v1.9.13</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="發現服務">發現服務</h4>
+<div class="paragraph">
+<p>TBD</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="實現">實現</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="創建eureka服務端">創建Eureka服務端</h3>
+<div class="paragraph">
+<p>首先，創建一個獨立的Spring Boot應用實現Eureka服務端。</p>
+</div>
+<div class="paragraph">
+<p>然後，配置 <code>build.gradle</code>。</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">plugins {
+	id 'org.springframework.boot' version '2.1.0.RELEASE' <i class="conum" data-value="1"></i><b>(1)</b>
+	id 'io.spring.dependency-management' version '1.0.8.RELEASE' <i class="conum" data-value="2"></i><b>(2)</b>
+	id 'java'
+}
+
+group = 'io.github.rscai.microservices'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' } <i class="conum" data-value="3"></i><b>(3)</b>
+}
+
+ext {
+	set('springCloudVersion', "Greenwich.SR3") <i class="conum" data-value="4"></i><b>(4)</b>
+}
+
+dependencies {
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server' <i class="conum" data-value="5"></i><b>(5)</b>
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}" <i class="conum" data-value="6"></i><b>(6)</b>
+	}
+}
+...</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>引入Spring Boot的Gradle插件。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>引入Spring依賴管理插件。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>添加Spring里程碑倉庫。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>統一聲明Spring Cloud的版本，Eureka是做為Spring Cloud Netflix項目的一部份編護和發佈的，Spring Cloud的版本也作用於Eureka。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>將 <code>spring-cloud-starter-netflix-eureka-server</code> 引入至 <code>implementation</code> 範圍的依賴。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>通過 <code>dependencyManagement</code> 統一管理Spring Cloud包的版本。</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>再然後，在Spring Boot應用配置類上添加注解 <code>@EnableEurekaServer</code> 激活Eureka服務端配置。</p>
+</div>
+<div class="listingblock">
+<div class="title">EurekaApplication.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@SpringBootApplication
+@EnableEurekaServer <i class="conum" data-value="1"></i><b>(1)</b>
+public class EurekaApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(EurekaApplication.class, args);
+	}
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>使用注解 <code>org.springframework.cloud.netflix.eureka.server.EnbaleEurekaServer</code> 標注應用入口類，激活Eureka服務端自動配置。</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>最後，在應用配置文件中配置監聽端口及Eureka相關屬性。</p>
+</div>
+<div class="listingblock">
+<div class="title">application-dev.yml</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">server:
+  port: 9001 <i class="conum" data-value="1"></i><b>(1)</b>
+
+eureka:
+  instance:
+    hostname: localhost <i class="conum" data-value="2"></i><b>(2)</b>
+  client:
+    registerWithEureka: false <i class="conum" data-value="3"></i><b>(3)</b>
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/ <i class="conum" data-value="4"></i><b>(4)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>設置監聽端口為 <code>9001</code>。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>顯示設置服務端主機名。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>本例Eureka服務端以單獨模式運行，所以顯示關閉服務注冊（以客戶端身份）和注冊信息同步。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>將服務端地址指嚮自身。</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>在命令行中執行</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">./gradlew bootRun -Dspring.profiles.active=dev</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>就會啟動Eureka服務端。其提供了一個基於Web的控制面版，在瀏覧器地址欗中輸入 <code><a href="http://localhost:9001" class="bare">http://localhost:9001</a></code> 就可以訪問。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/eureka-dashboard.png" alt="Eureka Server Dashboard">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="注冊服務-2">注冊服務</h3>
+<div class="paragraph">
+<p>首先，在 <code>build.gradle</code> 中引入Eureka客戶端依賴。</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">...
+ext {
+	snippetsDir = file('build/generated-snippets')
+	set('springCloudVersion', "Greenwich.SR3") <i class="conum" data-value="1"></i><b>(1)</b>
+}
+
+dependencies {
+    ...
+    implementation 'org.springframework.boot:spring-boot-starter-actuator' <i class="conum" data-value="2"></i><b>(2)</b>
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client' <i class="conum" data-value="3"></i><b>(3)</b>
+	...
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}" <i class="conum" data-value="4"></i><b>(4)</b>
+	}
+}
+...</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>跟服務端項目相似，統一設置變量 <code>springCloudVersion</code> 管理Eureka及其它Spring Cloud模組的版本。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>引入依賴 <code>spring-boot-starter-actuator</code>，以提供狀態頁 <code>/info</code> 和健康指示 <code>/health</code>。做為服務實例元數據的一部份，服務實例需嚮Eureka服務端注冊狀態頁和健康指示的URL，而Spring Boot Actuator正好實現了它們。引入 spring-boot-starter-actuator` 是最快的實現符合Eureka規範狀態頁和健康指示的方法。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>引入依賴 <code>spring-cloud-start-netflix-eureka-client</code>。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>統一管理Eureka及其它Spring Cloud模組版本。</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>然後，使用注解 <code>@EnableEurekaClient</code> 激活Eureka客戶端自動配置。</p>
+</div>
+<div class="listingblock">
+<div class="title">CatalogApplication.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@SpringBootApplication
+@EnableEurekaClient <i class="conum" data-value="1"></i><b>(1)</b>
+public class CatalogApplication {
+
+  public static void main(String[] args) {
+    SpringApplication.run(CatalogApplication.class, args);
+  }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>使用注解 <code>org.springframework.cloud.netflix.eureka.EnableEurekaClient</code> 激活Eureka客戶端自動配置。</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>再然後，在應用配置文件中配置Eureka相關屬性。</p>
+</div>
+<div class="listingblock">
+<div class="title">application-dev.yml</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">...
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:9001/eureka/ <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>本例中，Eureka服務端以單獨模式運行，客戶端祗需要與一個服務端通信、注冊和發現服務。</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>打開命令行，進入Catalog項目根目錄，執行命令：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">.gradlew bootRun -Dspring.profiles.active=dev</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>就可以啟動Catalog服務，並嚮Eureka服務端注冊自身。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="發現服務-2">發現服務</h3>
+<div class="paragraph">
+<p>TBD</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="總結">總結</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>通過本章的學習，我們理解了服務注冊與發現模式；使用Eureka實現服務注冊服務；使用Eureka將Spring Boot應用嚮Eureka注冊服務注冊，並從Eureka注冊服務發現服務實例。</p>
+</div>
+</div>
 </div>
 </div>
 <div id="footer">
