@@ -3,6 +3,7 @@
 ifndef::imagesdir[:imagesdir: images]
 
 == 目標
+
 本章中，我們將基於Spring Boot開發提供RESTful API的Catalog微服務。我們將學習：
 
 * 使用Lombok在編譯器生成Getter和Setter訪問器，減少模板代碼
@@ -1126,6 +1127,8 @@ public class ProductTest {
 <3> 調用 `ProductImageRepository` 方法，將預置 `ProductImage` 對象持久化至數據庫
 
 再然後，通過MockMvc嚮測試目標發送模擬RESTFul HTTP請求並校驗响應。
+
+Hypertexy Transfer Protocol (HTTP)是一種請求/嚮應架構的通信協議。其共定義了兩種消息包：請求包和嚮應包。請求包由請求行、標頭和消息體三部份構成，嚮應包由狀態行、標頭和消息體三部份構成。MockMvc提供了豐富的工具構造請求的各個部份，和校驗嚮應的各個部份。MockMVC是直接與DispatcherServlet交互的，所以其是構造和校驗 `HttpServletRequest` 和 `HttpServletResponse` 對象。
 
 .ProductTest.java
 [source, java]

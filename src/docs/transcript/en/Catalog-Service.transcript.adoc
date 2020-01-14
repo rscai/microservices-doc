@@ -1,0 +1,81 @@
+= Catalog Service
+
+== Open
+
+TBD
+
+== Agenda
+
++ Test pyramid
++ API Testing against RESTFul WebService
++ Test Spring MVC code by MockMVC
++ Document RESTFul API by Spring REST Docs
+
+== Test Pyramid
+
+Test pyramid is a way of thinking different kinds of tests, it categorizes tests by granirity of test objects.
+
+A typical test pyramid categorizes Microservices application tests into four groups, from low layer to high layer is: unit test, integration test, API test and functional test.
+
++ unit test mostly aims single class, verify behavior of single method, its test objects' granurity is the smallest.
++ integration test aims a group of classes, mostly assembe a group of classes, and verify behavior which requires collaboration of classes.
++ API test aims the behavior which component exposed. Take RESTFul WebService as an example, it exposes RESTFul API for other components, so the RESTFil API just is the exposed behavior.
++ functional test aims the behavior which exposed to end user.
+
+== API Test against RESTFul WebService
+
+RESTFul is built on HTTP, so TESTFul API test basically is simulating HTTP request and verify HTTP response.
+
+Let's review basic HTTP concepts and elements. HTTP functions as a request-response protocol in the client-server computing model. HTTP defines two types of messages: request message and response message. Request message consists of request line, headers and message body, request line contains method, request target and HTTP version. Similiarly, response message consists of status line, headers and message body, and status line contains HTTP version, status code and reason phrase.
+
+RESTFul is built on HTTP, it reuses HTTP elememnts, likes method, request target and status code.
+
+So RESTFul API test basically is constructing elements of request message and verify elements of response message.
+
+== Test Spring MVC Code by MockMVC
+
+Two key elements of Spring MVC application are `DispatcherServlet` and `Controller`. Application developer maybe only aware of `Controller`. A `Controller` is a Java class which groups a few methods, these methods could be mapped to specific HTTP requests. Spring MVC Framework instantialize a `DispatcherServlet` to accept all incoming HTTP requests, and lookup `Controller` methods mappings, and then dispatch request to correct `Controller` method. After `Controller` methods completed, `DispatcherServlet` encode return value as `HttpServletResponse`.
+
+In real case, Servlet Container, likes Apache Tomcat, will listen on port 80 or 433, convert HTTP messages to `HttpServletRequest/HttpServletResponse` and vice. We found that application developer only create `Controller` code and the Request-to-Controller-method mapping. `DispatcherServlet` is created by Spring MVC Framework developers, and Servlet Container is created by Servlet Container developers. So application developer only need to response for `Controller` code and request to controller method mappings. Correspondingly, application develiper only need to create test to cover `Controller` code and request to controller method mappings.
+
+Spring MVC Test Framework provides `MockMvc` for communicating with `DispatcherServlet` without a running Servlet container. And Spring MVC Test Framework provifd a fluent API to construct mock request and verify response.
+
+Now let me show an example.
+This is simple API test which built by JUnit 4 and MockMvc. The application is built on Spring Boot.
+
+First at all, it's basic setup for Spring Boot application test. Use annotation `@RunWith` to set JUnit runner as `SpringRunner`, `SpringRunner` will initialize Spring Context and process Spring annotations, default JUnit runner wouldn't do that; Use annotation `SpringBootTest` to set root Spring Context. `Controller` class is a simple class, it could be tested in Unit test way, mock all dependent objects, likes services and repositories. But now we are testing it in API test way, so will construct all dependent objects and assemble as well as in real case.
+
+Then, we configure `MockMvc`. The most significant feature of Spring Boot is auto-configuration. Insurprisingly, Spring MVC Test Framework support auto-configure `MockMvc`. The `MockMvc` auto-configuration could be enabled by annotation `@AutoConfigureMockMvc`. It will create a `MockMvc` bean on Web context, the `DispatcherServlet` is just managed by Web context, the `MockMvc` bean which built on Web Context is able to communicate with `DispatcherServlet` directly. In our JUnit test, annotation `@Autowired` injects the `MockMvc` bean on field `mvc`.
+
+And then, construct request. HTTP request consists of three parts: request line, headers and message body. Spring MVC Test Framework provides a fluent API to construct request.
+The key elements of request line are method and request target. `MockMvcRequest` provides static builder methods for each HTTP method, all of builder methods accept request target as parameter, and return `MockHttpServletRequestBuilder`. Developer is able to set other parts through `MockHttpRequestBuilder` object. In this case, I set headers `Accet` and `ContentType` by methods `accept` and `contentType`, and message body by method `content`.
+
+Similiarly, Spring MVC Test Framework provides a fluent API to verify response. `MockMvc` exposes a functional interface `ResultAction`, it accepts two kinds of functions `ResultMatcher`, `ResultHandler` and just return response result. Application developer is able to verify elements of response by `ResultMatcher`, likes `status()` to verify status code, `jsonPath` to verify JSON format message body. Besides verification, application developer is able to do more actions through `ResultHandler`, likes log response, format message body, and so on.
+
+== Document RESTFul API by Spring REST Docs
+
+Why document?
+
+Documentation is the most economy approach to record and spread knowledge. Consuming web service requires knownledge of API. And we want people to consume our web services and we want to improve Return of Investment (ROI), so we documentate API.
+
+What's the biggest challenge of documentation?
+
+The biggest challenge of documentation is keep it up-to-day. Wrong document is worse than no document, out-of-day document just is wrong document.
+
+Spring REST Docs provides a way to document API by code, and verify document by API tests as well as production code. When document mismatched production code, it will fail API tests. Obviously, Spring REST Docs can not correct out-of-day document, it's only able to mention application developer when document became out-of-day, by a rude way.
+
+Spring REST Docs split document into two parts: snippets and asciidoc files.
+Snippets are generated by tests, they are pieces of incoming/outcome messages, and with description, default in asciidoc format.
+AsciiDoc is a text document format for writing notes, documentation, articles, books, ebooks, slideshows, web pages, man pages and blogs. AsciiDoc files can be translated to many formats including HTML, PDF, EPUB, and so on.
+Application developer generates API specification, likes field name, type, as snippets, and write human readable description by AsciiDoc, and includes snippets. Finally convert displayable format, likes HTML.
+
+Let me show you some example.
+
+Firstly, setup build pipeline. The example project is built by Gradle. AsciiDoctor officially support Gradle. Here we import AsciiDoctor plugin, import Spring Rest Docs asciidoctor extension; and set snippets output directory; configure Gradle task asciidoctor to depend on task test, because AsciiDoc document include snippets, and snippets are generated by tests, so it has to execute test before task asciidoctor; and finally copy rendered API document to folder static slash docs, and package them in Spring Boot flat jar, Spring Boot application will serve everything under path static as static web page.
+
+Then go to API tests, enable Spring Rest Docs auto-configuration by annotation `@AutoConfigureRestDocs`. And replace mock request builders. `RestDocumentationReqyestBuilders` provides static builder methods for all HTTP methods. These builder methods are almost same as MockMvc's. Only one difference is that `RestDocumentationRequestBuilders` hold the origin URL template, so that itS able to extract URL path variables.
+
+And then, we are able to extract snippets and document snippets. Spring Rest Docs extend documentation function as a `ResultHandler`. All documentation functions are implemented in functional style, all of them are refered as static methods. The most important and mandatory method is `document`, which construct a `RestDocumentationResultHandler`. One `RestDocumentationResultHandler` should handle one HTTP request and its response.
+
+Web service is a group of functions which could be accessed by comsumer through standard and common protocols. And RESTFul Web Service just is a group of functions which could be accessed through RESTFul style HTTP interface. So the API or contract of RESTFul Web Service.
+
