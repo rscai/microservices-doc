@@ -1,5 +1,5 @@
 plugins {
-    id 'org.asciidoctor.jvm.convert' version '2.4.0'
+    id 'org.asciidoctor.jvm.convert' version '3.1.0'
     id "org.kordamp.gradle.livereload" version "0.2.1"
 }
 
@@ -10,25 +10,17 @@ version = '0.0.1'
 
 repositories {
 	mavenCentral()
-	maven { url "http://rubygems-proxy.torquebox.org/releases" }
 }
 
-//dependencies {
-    //gems 'rubygems:asciidoctor-diagram:1.5.8'
-//}
-
 asciidoctorj {
-    version = '1.5.8'
     modules {
-       diagram.version '1.5.8'
+        diagram.use()
+        diagram.version '2.0.2'
     }
 }
 
 asciidoctor {
     baseDirFollowsSourceDir()
-	//dependsOn jrubyPrepare
-    //requires = ['asciidoctor-diagram']
-    //gemPath = jrubyPrepare.outputDir
 	attributes \
         'build-gradle': file('build.gradle'),
         'toc': 'left',
@@ -40,8 +32,7 @@ asciidoctor {
         'docinfo1': ''
     resources {
         from('src/docs/asciidoc/zh_TR/images') {
-            include '*.*'
-            exclude 'images/**/notThisOne.png'
+            include '**/*.*'
         }
 
         into './zh_TR/images'
