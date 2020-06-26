@@ -1,0 +1,246 @@
+= 介紹
+:icons: font
+ifndef::imagesdir[:imagesdir: images]
+
+== 概述
+
+本文以線上商店為例，介紹基於 Spring Boot 及 Spring Cloud 開發微服務「Microservices」應用。
+
+本文將會囊括技術：
+
+* Spring Boot
+* Spring Data MongoDB
+* Spring Data JPA
+* Spring Data REST
+* Spring Security
+* Service Registration & Discovery
+* API Gateway Pattern
+* Single Sign On
+
+== 用例
+
+.use cases
+[plantuml]
+....
+@startuml
+left to right direction
+actor 顧客 as customer
+actor "商品目錄運營" as catalog_ops
+actor "倉儲運營" as inventory_ops
+actor "訂單運營" as order_ops
+
+package "商品目錄營運" {
+    usecase "新建商品" as create_product
+    usecase "修改商品" as change_product
+    usecase "刪除商品" as delete_product
+}
+catalog_ops --> create_product
+catalog_ops --> change_product
+catalog_ops --> delete_product
+
+package "倉儲營運" {
+    usecase "新建倉儲項" as create_inventory_item
+    usecase "入庫" as increase_quantity
+    usecase "出庫" as decrease_quantity
+}
+inventory_ops --> create_inventory_item
+inventory_ops --> increase_quantity
+inventory_ops --> decrease_quantity
+
+package "訂單交易" {
+    usecase "新建訂單" as create_order
+    usecase "提交訂單" as submit_order
+    usecase "支付訂單" as pay_order
+    usecase "取消訂單" as cancel_order
+    usecase "發貨" as start_deliver_order
+    usecase "交貨" as complete_deliver_order
+    usecase "結束訂單" as close_order
+
+    decrease_quantity <-- submit_order
+}
+create_order <-- customer
+submit_order <-- customer
+pay_order <-- customer
+cancel_order <-- customer
+start_deliver_order <-- order_ops
+complete_deliver_order <-- order_ops
+close_order <-- customer
+@enduml
+....
+
+整個業務由三個子業務組成：
+
+* 商品目錄營運
+* 倉儲營運
+* 訂單交易
+
+業務參與者劃分為四個⻆色：
+
+* 商品目錄運營
+* 倉儲運營
+* 訂單運營
+* 顧客
+
+在商品目錄營運子業務中，商品目錄運營參與了三個用例：
+
+* 新建商品。作為商品目錄運營，其可以新建商品項。商品拥有名穪、圖片等屬性；
+* 修改商品。作為商品目錄運營，其可以修改商品的名穪、圖片等屬性；
+* 刪除商品。作為商品目錄運營，其可以刪除不再銷售的商品。
+
+在倉儲營運子業務中，倉儲運營參與了三個用例：
+
+* 新建倉儲項。作為倉儲運營，其可以為每一項商品建立相應的倉儲項，倉儲項拥有單價、庫存量等屬性；
+* 入庫。作為倉儲運營，其可以增加任意倉儲項的庫存量；
+* 出庫。作為倉儲運營，其可以減少任意倉儲項的庫存量。
+
+在訂單交易子業務中，顧客與訂單運營共同參與了七個用例：
+
+* 新建訂單。作為顧客，其可以新建訂單。每個訂單都可以包含若干訂單項，每項指明了商品及購買數量；
+* 提交訂單。作為顧客，其可以提交訂單。訂單一但被提交，將從倉儲中消減相應倉儲項的庫存量；
+* 取消訂單。作為顧客，其可以取消新建的訂單；
+* 支付訂單。作為顧客，其可以支付已提交的訂單；
+* 發貨。作為訂單運營，其可以將已支付的訂單標記為「已發貨」；
+* 交貨。作為訂單運營，其可以在貨物交至顧客手中之後將訂單標記為「已交貨」；
+* 結束訂單。作為顧客，其可以在貨物送逹後，結束訂單。
+
+== 架構
+
+本應用採用微服務架構，同時應用API網關模式。
+
+=== 微服務
+
+[quote, 微服務, https://zh.wikipedia.org/wiki/微服務]
+____
+微服務（Microservices）是一種軟體架構風格，它是以專注於單一責任與功能的小型功能區塊（Small Building Blocks）為基礎，利用模組化的方式組合出複雜的大型應用程式，各功能區塊使用與語言無關（Language-Independent/Language agnostic）的 API 集相互通訊。
+
+微服務的起源是由 Peter Rodgers 博士於 2005 年度雲端運算博覽會提出的微 Web 服務（Micro-Web-Service）開始，Juval Löwy 則是與他有類似的前導想法，將類別變成細粒服務（granular services），以作為 Microsoft 下一階段的軟體架構，其核心想法是讓服務是由類似 Unix 管道的存取方式使用，而且複雜的服務背後是使用簡單 URI 來開放介面，任何服務，任何細粒都能被開放（exposed）。這個設計在 HP 的大田大金驗室被實現，具有改變複雜軟體系統的強大力量。
+
+2014年，Martin Fowler 與 James Lewis 共同提出了微服務的概念，定義了微服務是由以單一應用程式構成的小服務，自己擁有自己的行程與輕量化處理，服務依業務功能設計，以全自動的方式部署，與其他服務使用 HTTP API 通訊。同時服務會使用最小的規模的集中管理（例如 Docker）能力，服務可以用不同的程式語言與貨料庫等元作實作。
+____
+
+[quote, 微服務, https://zh.wikipedia.org/wiki/微服務]
+____
+微服務是一種以業務功能為主的服務設計概念，每一個服務都具有自主運行的業務功能，對外開放不受語言限制的 API（最常用的是 HTTP），應用程式則是由一個或多個微服務組成。
+
+微服務的另一個對比是單體式應用程式。單體式應用表示一個應用程式內包含了所有需要的業務功能，並且使用像主從式架構（Client/Server）或是多層次架構（N-tier）實作，雖然它也是能以分散式應用程序來實作，但是在單體式應用內，每一個業務功能是不可分割的。若要對單體式應用進行擴展則必須將整個應用程式都放到新的運算資源（如：虛擬機器）內，但事實上應用程式中最吃資源、需要運算資源的僅有某個業務部份（例如跑分析報表或是數學演算法分析），但因為單體式應用無法分割該部份，因此無形中會有大量的資源浪費的現象。
+
+微服務運用了以業務功能的設計概念，應用程式在設計時就能先以業務功能或流程設計先行分割，將各個業務功能都獨立實作成一個能自主執行的個體服務，然後再利用相同的協定將所有應用程式需要的服務都組合起來，形成一個應用程式。若需要針對特定業務功能進行擴充時，祗要對該業務功能的服務進行擴展就好，不需要整個應用程式都擴展，同時，由於微服務是以業務功能導向的實作，因此不會受到應用程式的干擾，微服務的管理員可以視運算資源的需要來組態微服務到不同的運算資源內，或是布建新的運算資源並將它組態進去。
+
+雖然使用一般的伺服器虛擬化技術就能應用於微服務的管理，但容器技術（Container Technology）如 Docker 會更加地適合發展微服務的運算資源管理技術。
+____
+
+總體業務分為三個部份：商品目錄營運、倉儲營運和訂單交易，每部份業務分別實現為一個微服務：Catalog Service, Inventory Service 和 Order Service。
+
+.Map Bounded Context to Service
+[plantuml]
+....
+@startuml
+left to right direction
+frame "商品目錄營運" as catalogContext {
+}
+frame "倉儲營運" as inventoryContext {
+}
+frame "訂單交易" as orderContext {
+}
+
+component "Catalog Service" as catalog
+component "Inventory Service" as inventory
+component "Order Service" as order
+
+catalogContext -- catalog
+inventoryContext -- inventory
+orderContext -- order
+@enduml
+....
+
+每個微服務有維護獨立的數據庫。微服務以RESTFul API的形式向外曝露服務，同時微服務與微服務之間也通過 RESTFul API 通信。
+
+.Microservices Architecture
+[plantuml]
+....
+@startuml
+boundary "API Gateway" as gateway
+component "Catalog Service" as catalog
+component "Inventory Service" as inventory
+component "Order Service" as order
+database "Catalog DB" as catalogDB
+database "Inventory DB" as inventoryDB
+database "Order DB" as orderDB
+
+gateway --> catalog
+gateway --> inventory
+gateway --> order
+
+order -> inventory
+
+catalog --> catalogDB
+inventory --> inventoryDB
+order --> orderDB
+@enduml
+....
+
+=== API 網關模式
+
+[quote, API 網關模式與客戶端到微服務直接通信, https://docs.microsoft.com/zh-cn/dotnet/architecture/microservices/architect-microservice-container-applications/direct-client-to-microservice-communication-versus-the-api-gateway-pattern]
+____
+使用多個客戶端應用來設計和生成基於微服務的大型複雜應用程序時， API 網關是非常不錯的方法。這一服務可為某些微服務組提供單一入口點。這類似於面嚮對象設計的外觀模式，但在此情況下，它是分佈式系統的一部份。因為構建時考慮了客戶端應用的需求，所以 API 網關模式有時也穪為"用於前端的後端"（BFF）。
+
+因此，API 網關位於客戶端應用和微服務之間。它充當反嚮代理，將請求從客戶端路由到服務。它還可以提供其他跨領域功能，例如身份驗證、SSL 終止和緩存。
+____
+
+[quote, API 網關模式與客戶端到微服務直接通信, https://docs.microsoft.com/zh-cn/dotnet/architecture/microservices/architect-microservice-container-applications/direct-client-to-microservice-communication-versus-the-api-gateway-pattern]
+____
+API 網關可以提供多個功能。然而，根據產品，它可能提供更豐富或更簡單的功能，任何 API 網關最重要和最基本的功能都採用以下設計模式：
+
+反嚮代理或網關路由。API 網關提供一個反嚮代理將請求（第 7 層路由，通常是 HTTP 請求）重定嚮或路由到內部微服務的終結點。網關為客戶端應用提供單個終結點或 URL，然後將請求映射到一組內部服務。此路由功能有助於將客戶端應用從微服務中分離出來；而且在升級整體式 API 服務時，將 API 網關置於整體式 API 服務和客戶端應用之間，操作會變得非常方便，然後可以添加新的 API 作為新的微服務，同時仍然可以使用整體式 API 服務，直到將來它拆分成多個微服務為止。由於 API 網關，客戶端應用不會注意到所使用 API 是否已實現為內部微服務或整體式 API，更重要的是，當對整體式 API 進行演進並將其重構為微服務時，得益於 API 網關路由，任何 URI 更改土心山一不會對客戶端應用造成影响。
+
+請求聚合。作為網關模式的一部份，你可以將多個針對多個內部微服務的客戶端請求（通常是 HTTP 請求）聚合到單個客戶端請求中。如果客戶端頁面/屏幕需要來算多個微服務的信息，此模式特別方便。通過這種方法，客戶端應用嚮 API 網關發送一個單一請求，該網關嚮內部微服務發送多個請求，然後聚合結果，並將所有內容發送迴客戶端應用。這種設計模式的主要優勢和目標是減少客戶端應用和後端 API 之間的隔閡，這對於微服務所在的數據中心中的遠程應用至關重要，如移動應用或來算客戶端遠程瀏覽器 Javascript 的 SPA 應用發出的請求。對於在服務器環境中執行請求的常規 Web 應用（如 ASP.NET Core MVC Web 應用），這種模式並不重要，因為延遲時間比遠程客戶端應用要小得多。
+
+跨領域問題或網關卸載。根據每個 API 網關產品提供的功能，你可以將功能從單個微服務轉移到網關，從而通過將跨領域問題整合到一個層級中來簡化每個微服務的實現。這對於在每個內部微服務中難以正確實現的特殊功能而言特別方便，比如以下功能：
+
+* 身份驗證和授權
+* 服務發現集成
+* 响應緩存
+* 重試策略、斷路器和 QoS
+* 速率限制和遏制
+* 負載均衡
+* 日志記錄、跟踪、相關性
+* 標頭、查詢字符串和聲明轉換
+* IP 允許列表
+____
+
+本應用採用 API 網關模式實現網關路由及身份驗證、服務發現集成、負載均衡等跨領域問題。
+
+.Deployment Architecture
+[plantuml]
+....
+@startuml
+actor user
+cloud {
+    boundary "API Gateway" as gateway
+    component "Catalog Service" as catalog
+    component "Inventory Service" as inventory
+    component "Order Service" as order
+    database "Catalog DB" as catalogDB
+    database "Inventory DB" as inventoryDB
+    database "Order DB" as orderDB
+
+    gateway --> catalog
+    gateway --> inventory
+    gateway --> order
+
+    order -> inventory
+
+    catalog --> catalogDB
+    inventory --> inventoryDB
+    order --> orderDB
+}
+user --> gateway
+@enduml
+....
+
+
+== 參考
+
+* https://www.omg.org/spec/UML/2.5.1/PDF[OMG® Unified Modeling Language® (OMG UML®)]
+* https://zh.wikipedia.org/wiki/微服務[微服務]
