@@ -1,4 +1,4 @@
-= 服務發現「Service Discovery」
+= 服務注冊與發現「Service Registry & Discovery」
 :icons: font
 ifndef::imagesdir[:imagesdir: images]
 
@@ -7,9 +7,9 @@ ifndef::imagesdir[:imagesdir: images]
 * 理解服務注冊與發現「Service Registry and Discovery」模式
 * 使用Eureka實現服務注冊與發現
 
-== 理解服務發現「Service Discovery」
+== 理解服務注冊與發現「Service Registry & Discovery」
 
-服務發現（有時穪為服務注冊「Service Registry」或服務注冊與發現「Service Registry and Discovery」是微服務架構中常用的模式。
+服務注冊與發現「Service Registry and Discovery」（有時穪為服務注冊「Service Registry」或服務發現「Service Discovery」是微服務架構中常用的模式。
 
 由於微服務架構的固有特性，生產環境中的服務都是不斷地變化的，服務實例也是不斷地被創建和銷毁的。消費者服務需要一種機制去實時地發現可用的服務實例，服務注冊與發現就是其中一種解決方案。
 
@@ -29,6 +29,49 @@ serviceInstance <- consumerService: request
 服務注冊維護着服務實例的元數據（包含服務名穪、實例的主機地址、監聽的端口等）。服務實例啟動時主動嚮服務注冊注冊自身元數據，在停止時主動嚮服務注冊注銷自身元數據。
 
 消費者服務通過服務名穪從服務注冊穫取可用的服務實例信息，然後直接與服務實例通信。
+
+舉個例子，Service Registry & Discovery 服務是一直存活着的，微服務的實例 instanceA 和 instanceB 存活的時間較短且其啟動與停止皆是不可預知的。
+
+1. instanceA 啟動之後會主動嚮 Service Registry & Discovery 注冊自身；
+2. Consumer 先從 Service Registry & Discovery 發現（discover）微服務的實例；
+3. Service Registry & Discovery 從自已維謢的服務實例元信息中尋找一個可用的服務實例，將其IP及端口等信息返回給 Consumer；
+4. Consumer 通過服務實例的IP及端口訪問服務實例；
+5. instanceA 在常規停止時可以將自身從 Service Registry & Discovery 處注銷，但大多數情況下服務實例是被強制停止的，來不及主動注銷，所以 Service Registry & Discovery 要有能力處理已死但未注銷的服務實例；
+6. 新的 instanceB 啟動時也會嚮 Service Registry & Discovery 注冊；
+7. Consumer 再一次從 Service Registry & Discovery 發現服務實例；
+8. Service Registry & Discovery 從自己維護的服務實例元信息中尋找一個可用的服務實例 instanceB，將其 IP 及端口等信息返回給 Consumer；
+9. Consumer 通過服務實例的 IP 及端口訪問服務實例。
+
+.服務注冊與發現
+[plantuml, service-registry-and-discovery-example]
+....
+@startuml
+participant "Consumer Service" as consumer
+participant "Service Registry & Discovery" as serviceRegistry
+participant "Instance A" as instanceA
+participant "Instance B" as instanceB
+
+autonumber
+
+activate serviceRegistry
+instanceA -> serviceRegistry: register(applicationName, ip, port)
+activate instanceA
+consumer -> serviceRegistry: discover(applicationName)
+activate consumer
+consumer <-- serviceRegistry: ip, port of instanceA
+consumer -> instanceA: request
+instanceA -> serviceRegistry: unregister
+deactivate instanceA
+instanceB -> serviceRegistry: register(applicationName, ip, port)
+activate instanceB
+consumer -> serviceRegistry: discover(applicationName)
+consumer <-- serviceRegistry: ip, port of instanceB
+consumer -> instanceB: request
+deactivate instanceB
+deactivate consumer
+deactivate serviceRegistry
+@enduml
+....
 
 == 理解Eureka
 
@@ -148,11 +191,77 @@ eureka:
 
 Eureka服務端開放RESTFul風格的Web服務，客戶端和結對的其它服務端可以通過此RESTFul Web服務注冊和發現服務。Eureka維護的核心元數據是應用「application」和實例「instance」。
 
-TBD
+應用「application」僅維護一個屬性 `appName`。
+
+實例「instance」以 `InstanceInfo` 的形式維護。`InstanceInfo` 維護着很多屬性，其中服務消費者最常用的有：
+
+* `ipAddr`，服務實例的 IP 地址；
+* `port`，服務實例監聽的端口；
+* `securePort`，服務實例監聽的安全端口（HTTPS 服務監聽的端口）。
+
+.InstanceInfo
+[plantuml, InstanceInfo-class]
+....
+@startuml
+package com.netflix.appinfo {
+  class InstanceInfo {
+    -instanceId: String
+    -appName: String
+    -appGroupName: String
+    -ipAddr: String
+    -port: PortWrapper
+    -securePort: PortWrapper
+    -homePageUrl: String
+    -statusPageUrl: String
+    -healthCheckUrl: String
+    -secureHealthCheckUrl: String
+    -vipAddress: String
+    -secureVipAddress: String
+    -countryId: int
+    -dataCenterInfo: DataCenterInfo
+    -hostName: String
+    -status: InstanceStatus
+    -overriddenStatus: InstanceStatus
+    -overriddenStatusAlt: InstanceStatus
+    -leaseInfo: LeaseInfo
+    -isCoordinatingDiscoveryServer: Boolean
+    -metadata: Map<String, String>
+    -lastUpdatedTimestamp: Long
+    -lastDirtyTimestamp: long
+  }
+  class PortWrapper {
+    -enabled: boolean
+    -port: int
+  }
+  enum InstanceStatus {
+    UP
+    DOWN
+    STARTING
+    OUT_OF_SERVICE
+    UNKNOWN
+  }
+  class LeaseInfo {
+    -renewalIntervalInSecs: int
+    -durationInSecs: int
+    -registrationTimestamp: long
+    -lastRenewalTimestamp: long
+    -evictionTimestamp: long
+    -serviceUpTimestamp: long
+  }
+
+  InstanceInfo o-left- PortWrapper: port
+  InstanceInfo o-left- PortWrapper: securePort
+  InstanceInfo o-right- InstanceStatus: status
+  InstanceInfo o-right- InstanceStatus: overriddenStatus
+  InstanceInfo o-right- InstanceStatus: overriddenStatusAlt
+  InstanceInfo o-down- LeaseInfo: leaseInfo
+}
+
+....
 
 ==== 注冊服務
 
-客戶端通過 `POST` 請求嚮月中尸水務端注冊服務，請求目標URL的格式為 `/eureka/apps/{appName}`。
+客戶端通過 `POST` 請求嚮服務端注冊服務，請求目標 URL 的格式為 `/eureka/apps/{appName}`。
 
 .注冊服務請求樣例
 [source, http]
@@ -212,7 +321,7 @@ User-Agent: Java-EurekaClient/v1.9.13
 
 ==== 服務實例心跳狀態
 
-服務實例應定時嚮服務端發送心跳狀態。心跳狀態通過 `PUT` 請求發送給服務端。
+服務實例應定時嚮服務端發送心跳狀態。心跳狀態通過 `PUT` 請求發送給服務端。心跳請求 URL 格式為 `/eureka/apps/{appName}/{instanceId}`。
 
 .心跳狀態請求樣例
 [source, http]
@@ -244,9 +353,95 @@ User-Agent: Java-EurekaClient/v1.9.13
 
 ==== 發現服務
 
-TBD
+其定期從服務注冊與發現服務處理獲取全部注冊的服務實例，再本地搜尋某個應用的實例。
+
+獲取全部注冊服務實例的請求樣例：
+
+[source, http]
+----
+GET /eureka/apps/delta HTTP/1.1
+Accept: application/json
+DiscoveryIdentity-Name: DefaultClient
+DiscoveryIdentity-Version: 1.4
+DiscoveryIdentity-Id: 192.168.199.141
+Accept-Encoding: gzip
+Host: localhost:9001
+Connection: Keep-Alive
+User-Agent: Java-EurekaClient/v1.9.13
+
+----
+
+响應樣例：
+
+[source, http]
+----
+HTTP/1.1 200 
+Content-Encoding: gzip
+Content-Type: application/json
+Content-Length: 617
+Date: Mon, 22 Jun 2020 07:48:34 GMT
+Keep-Alive: timeout=60
+Connection: keep-alive
+
+{
+    "applications": {
+        "versions__delta": "2",
+        "apps__hashcode": "UP_2_",
+        "application": [
+            {
+                "name": "CATALOG",
+                "instance": [
+                    {
+                        "instanceId": "192.168.199.141:catalog:8081",
+                        "hostName": "192.168.199.141",
+                        "app": "CATALOG",
+                        "ipAddr": "192.168.199.141",
+                        "status": "UP",
+                        "overriddenStatus": "UNKNOWN",
+                        "port": {
+                            "$": 8081,
+                            "@enabled": "true"
+                        },
+                        "securePort": {
+                            "$": 443,
+                            "@enabled": "false"
+                        },
+                        "countryId": 1,
+                        "dataCenterInfo": {
+                            "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
+                            "name": "MyOwn"
+                        },
+                        "leaseInfo": {
+                            "renewalIntervalInSecs": 30,
+                            "durationInSecs": 90,
+                            "registrationTimestamp": 1592811966623,
+                            "lastRenewalTimestamp": 1592812146532,
+                            "evictionTimestamp": 0,
+                            "serviceUpTimestamp": 1592811966623
+                        },
+                        "metadata": {
+                            "management.port": "8081"
+                        },
+                        "homePageUrl": "http://192.168.199.141:8081/",
+                        "statusPageUrl": "http://192.168.199.141:8081/actuator/info",
+                        "healthCheckUrl": "http://192.168.199.141:8081/actuator/health",
+                        "vipAddress": "catalog",
+                        "secureVipAddress": "catalog",
+                        "isCoordinatingDiscoveryServer": "false",
+                        "lastUpdatedTimestamp": "1592811966624",
+                        "lastDirtyTimestamp": "1592811966498",
+                        "actionType": "ADDED"
+                    }
+                ]
+            }
+        ]
+    }
+}
+----
 
 == 實現
+
+供由 Spring Cloud Netflix，可以輕鬆地實現基於 Eureka 的服務注冊與發現。
 
 === 創建Eureka服務端
 
@@ -349,7 +544,7 @@ image::eureka-dashboard.png[Eureka Server Dashboard]
 
 === 注冊服務
 
-首先，在 `build.gradle` 中引入Eureka客戶端依賴。
+以 catalog 服務為例。首先，在 `build.gradle` 中引入Eureka客戶端依賴。
 
 .build.gradle
 [source, groovy]
@@ -419,8 +614,14 @@ eureka:
 
 === 發現服務
 
-TBD
+將在 API Gateway 章節中介紹。
 
 == 總結
 
 通過本章的學習，我們理解了服務注冊與發現模式；使用Eureka實現服務注冊服務；使用Eureka將Spring Boot應用嚮Eureka注冊服務注冊，並從Eureka注冊服務發現服務實例。
+
+== 參考
+
+* https://dzone.com/articles/getting-started-with-microservices-2[Microservices: Service Registration and Discovery]
+* https://github.com/Netflix/eureka/wiki[Netflix Eureka]
+* https://cloud.spring.io/spring-cloud-netflix/reference/html/[Spring Cloud Netflix]

@@ -3,25 +3,16 @@
 :icons: font
 :source-highlighter: highlightjs
 :toc: left
-:toclevels: 3
+:toclevels: 2
 :sectlinks:
 :includedir: zh_TR/
 
-==  簡介
+include::{includedir}/00-Introduction.adoc[leveloffset=1]
+include::{includedir}/01-Tools-Setup.adoc[leveloffset=1]
+include::{includedir}/02-Catalog.adoc[leveloffset=1]
+include::{includedir}/03-Service-Discovery.adoc[leveloffset=1]
+include::{includedir}/04-Gateway.adoc[leveloffset=1]
+include::{includedir}/05-Security.adoc[leveloffset=1]
+include::{includedir}/06-Inventory.adoc[leveloffset=1]
+include::{includedir}/07-Order.adoc[leveloffset=1]
 
-TBD
-
-== 工具安裝與設置
-
-TBD
-
-== 架構概覧
-
-TBD
-
-
-:leveloffset: 1
-
-include::{includedir}/03-Catalog-Service.adoc[]
-
-:leveloffset: 0

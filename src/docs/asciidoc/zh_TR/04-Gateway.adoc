@@ -7,46 +7,13 @@ ifndef::source-highlighter[:source-highlighter: highlightjs]
 
 * 理解API Gateway模式
 * 使用Spring Cloud Gateway實現API Gateway
+* 集成 Spring Cloud Gateway 與 Eureka，自動發現服務並路由
 
 == 理解API Gateway模式
 
 在微服務架構中，每一個微服務都曝露一組細粒度的通信終點。在此架構下，客戶端與微服務之間的通信方式有客戶端微服務直接通信和API Gateway模式兩種。
 
 === 客戶端與微服務直接通信
-
-[plantuml, client-microservices-direct-communication, png]
-....
-@startuml
-node PC {
-    [Web browser]
-}
-node mobile {
-    [app]
-}
-
-cloud trustZone {
-    left to right direction
-    node {
-        interface "REST" as catalogRest
-        catalogRest -- [catalog service]
-    }
-    node {
-        interface "REST" as inventoryRest
-        inventoryRest -- [inventory service]
-    }
-    node {
-        interface "REST" as orderRest
-	orderRest -- [order service]
-    }
-}
-[Web browser] --> catalogRest
-[Web browser] --> inventoryRest
-[Web browser] --> orderRest
-[app] --> catalogRest
-[app] --> inventoryRest
-[app] --> orderRest
-@enduml
-....
 
 在客戶端與微服務直接通信模式中，微服務運行在受信任網絡中，客戶端（如運行在Web瀏覧器中的網頁腳本、移動設備中的應用等）運行在非受信任網絡中。微服務與微服務之間直接通過REST終點通信，客戶端與微服務之間也直接通過REST終點通信。所有的微服務都運行在受信任網絡中，所以來自微服務的請求都是可信的。但是來自微服務的請求和來自客戶端（運行在不受信任網絡）的請求共用通信終點，微服務無法區分它們，所以微服務祗能把所有請求都當作不可信請求處理，校驗所有請求的認證信息。
 
@@ -110,7 +77,7 @@ WebBrowser <-- catalogService
 ....
 
 . 首先，Web瀏覧器先請求服務注冊服務，發現Catalog服務實例。
-. 服務注冊服務訪問一個可用的Catalog服務實例信息，包IP、端口等。
+. 服務注冊服務訪問一個可用的Catalog服務實例信息，包括IP、端口等。
 . 然後，Web瀏覧器再直接請求Catalog服務實例。
 . Catalog微服務直接响應結果給Web瀏覧器。
 
@@ -126,6 +93,8 @@ WebBrowser <-- catalogService
 * 服務端與客戶端網絡沒有有效隔離，應用需承担更多的安全職責。
 
 === API Gateway模式
+
+API Gateway模式在微服務和客戶端之間增加一個服務。微服務依舊是運行在受信任的網絡中，客戶端運行在受信任網絡之外。從受信任網絡之外不能直接訪問任何微服務，客戶端僅能訪問API Gateway，API Gateway從服務注冊處發現微服務，再將請求路由給微服務。
 
 [plantuml, api-gateway-deployment, png]
 ....
@@ -165,7 +134,7 @@ cloud trustZone {
 @enduml
 ....
 
-API Gateway模式在微服務和客戶端之間增加一個服務。微服務依舊是運行在受信任的網絡中，客戶端運行在受信任網絡之外。從受信任網絡之外不能直接訪問任何微服務，客戶端僅能訪問API Gateway，API Gateway從服務注冊處發現微服務，再將請求路由給微服務。以運行在Web瀏覧器中的頁面請求Catalog微服務為例，
+以運行在Web瀏覧器中的頁面請求Catalog微服務為例，
 
 [plantuml, api-gateway-communication, png]
 ....
@@ -186,12 +155,12 @@ WebBrowser <-- APIGateway
 @enduml
 ....
 
-. Web瀏覧器發送請求給APIGateway。
-. APIGateway請求服務注冊服務，發現Catalog微服務的實例。
-. 服務注冊服務响應一個可用的Catalog微服務實例。
-. APIGateway將Web瀏覧器的請求路由給Catalog微服務實例。
-. Catalog微服務實例處理請求，再將响應發迴APIGateway。
-. APIGateway將微服務响應返迴給Web瀏覧器。
+. Web 瀏覧器發送請求給 API Gateway；
+. API Gateway 請求服務注冊服務，發現 Catalog 微服務的實例；
+. 服務注冊服務响應一個可用的 Catalog 微服務實例；
+. API Gateway 將 Web 瀏覧器的請求路由給 Catalog 微服務實例；
+. Catalog 微服務實例處理請求，再將响應發回 API Gateway；
+. API Gateway 將微服務响應返迴給Web瀏覧器。
 
 該模式優點：
 
@@ -230,9 +199,7 @@ Spring Cloud Gateway中三個重要概念：
 [plantuml, spring-cloud-gateway-process, png]
 ....
 @startuml
-actor Client
-node "API Gateway Node" as gatewayNode {
-    frame "Spring Cloud Gateway" as gateway {
+frame "Spring Cloud Gateway" as gateway {
         frame "Route A" as routeA {
             [Predicates] as predicatesA
 	    [Filters] as filtersA
@@ -241,19 +208,20 @@ node "API Gateway Node" as gatewayNode {
             [Predicates] as predicatesB
             [Filters] as filtersB
         }
-        frame "Route C" as routeC {
+      frame "Route C" as routeC {
             [Predicates] as predicatesC
  	    [Filters] as filtersC
         }
 	routeA -[hidden]- routeB
 	routeB -[hidden]- routeC
-    }
 }
-node "Destination Node" as destinationNode {
-    [Destination Service]
-}
-Client -> gatewayNode
-gatewayNode -> destinationNode
+
+[Destination Service] as destinationService
+
+predicatesA -> filtersA
+predicatesB -> filtersB
+predicatesC -> filtersC
+filtersA -> destinationService
 @enduml
 ....
 
@@ -350,11 +318,6 @@ public class ForwardRoutingFilter implements GlobalFilter, Ordered {
 
 }
 ----
-
-[NOTE]
-====
-Spring Cloud Gateway官方文檔 https://spring.io/projects/spring-cloud-gateway[Spring Cloud Gateway]。
-====
 
 == 理解Cross-Origin Resource Sharing(CORS)
 
@@ -470,11 +433,6 @@ Client <- Server: 200 OK\nAccess-Control-Allow-Origin: *
 
 . 簡單請求無需CORS預檢，可直接發送CORS請求。
 . 服務務器在响應中需添加CORS標頭。
-
-[NOTE]
-====
-https://fetch.spec.whatwg.org/#http-cors-protocol[CORS protocol
-====
 
 == 實現
 
@@ -765,3 +723,11 @@ server:
 == 總結
 
 本章我們使用Spring Cloud Gateway構建API Gateway，並集成Eureka，使其可以自動從Eureka中發現微服務並路由請求給微服務。我們在網關中配置CORS，使網關代理的所有資源都可以被跨來源共用。
+
+== 參考
+
+* https://spring.io/projects/spring-cloud-gateway[Spring Cloud Gateway]
+* https://fetch.spec.whatwg.org/#http-cors-protocol[CORS protocol]
+
+
+

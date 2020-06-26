@@ -1,0 +1,795 @@
+= Inventory
+:icons: font
+ifndef::imagesdir[:imagesdir: images]
+
+== 目標
+
+本章中，我們將基於 Spring Boot 開發提供 RESTful API 的 Inventory 微服務。我們將學習：
+
+* 使用 Spring Data/Spring Data JPA 訪問關係式數據庫（本例中使用 MySQL）
+
+== 設計
+
+=== 用例
+
+作為一個倉儲運營，其可以：
+
+1. 新建倉儲項，每個倉儲項包含商品標識、單價、數量等屬性；
+2. 入庫，增加倉儲項的數量；
+3. 出庫，減少倉儲項的數量。
+
+.用例
+[plantuml]
+....
+@startuml
+left to right direction
+
+actor "倉儲運營" as inventory_ops
+
+package "倉儲營運" {
+    usecase "新建倉儲項" as create_inventory_item
+    usecase "入庫" as increase_quantity
+    usecase "出庫" as decrease_quantity
+}
+inventory_ops --> create_inventory_item
+inventory_ops --> increase_quantity
+inventory_ops --> decrease_quantity
+@enduml
+....
+
+=== 業務模型
+
+倉儲業務主要涉及到兩個業務模型：倉儲項「InventoryItem」和倉儲項數量變更「InventoryItemQuantityChange」。
+
+InventoryItem:: 記錄了倉儲項的所有屬性，包括商品標識、單價、數量等。
+InventoryItemQuantityChange:: 倉儲項的數量變更是比較頻繁，多來源且要求可追遡可撤消。所以，將倉儲項數量變更設計成獨立的業務模型。
+
+.實體模型
+[plantuml, inventory entity, png]
+....
+@startuml
+class InventoryItem <<entity>> {
+    -id: String
+    -productId: String
+    -quantity: int
+    -unitPrice: BigDecimal
+    -createdAt: Date
+    -updatedAt: Date
+}
+class InventoryItemQuantityChange <<entity>> {
+    -id: String
+    -inventoryItemId: String
+    -quantityChange: int
+    -createdAt: Date
+}
+@enduml
+....
+
+
+=== 架構
+
+.架構
+[plantuml, inventory-architecture]
+....
+@startuml
+boundary "網關" as gateway
+component "Eureka" as eureka
+component "倉儲服務" as inventory
+database "倉儲數據庫 (MySQL)" as inventoryDB
+
+gateway .> eureka: 發現服務
+gateway --> inventory: 路由
+inventory .> eureka: 注冊服務
+inventory --> inventoryDB
+@enduml
+....
+
+整體採用網關模式。所有外部請求都被發送至網關，網關從發現倉儲服務實例，並將請求轉發給倉儲服務實例。倉儲服務實例在啟動階段將自身注冊於 Eureka。
+
+倉儲服務自身採用經典的分層架構。由外至內分別為：
+
+* Controller 層，負責RESTful 請求/嚮應與對象模型之間的映射。.
+* Service 層，包含業務邏輯。因其業務邏輯比較簡單，所以可以省略此層。
+* Repository 層，負責數據查詢與持久化。
+
+.分層架構
+[plantuml, inventory-layer]
+....
+@startuml
+package "Controller" {
+    [InventoryItemController]
+}
+package "Service" {
+    [InventoryItemService]
+}
+package "Repository" {
+    [InventoryItemRepository]
+}
+[InventoryItemController] --> [InventoryItemService]
+[InventoryItemService] --> [InventoryItemRepository]
+@enduml
+....
+
+=== JPA
+
+[quote, Java 持久化 API, https://zh.wikipedia.org/wiki/Java持久化API]
+____
+Java 持久化 API（JPA）是一個 Java 應用程式接口規範，描述了使用 Java 標準版平台（Java SE）和 Java 企業平台（Java EE）的應用中的關係數據的管理。
+
+持久化，在這𥚃包括三個層面的意思：
+
+* API 本身，定義在 `javax.persistence` 包內
+* Java 持久化查詢語言（JPQL）
+* 對象/關係元數據
+____
+
+在倉庫模式「Repository Pattern」中，業務邏輯代碼與倉庫「Repository」介面交互存取業務實體。Repository 通過特定的 Data Mapper 實現業務實體與具體 Data Source 之間的映射。JPA就是一種針對關係式數據庫 Data Source 的 Data Mapper。
+
+.Repository Pattern
+[plantuml]
+....
+@startuml
+component "Client Business Logic" as client
+package "Repository" as repository {
+    component "Data Mapper" as dataMapper
+}
+component "Data Source" as dataSource
+
+client -> repository: C/R/U/D Business Entity
+dataMapper -> dataSource
+@enduml
+....
+
+[quote, 關係數據庫, https://zh.wikipedia.org/zh-cn/关系數據庫]
+____
+關係數據庫（英語：Relational database），是創建在關係模型基礎上的數據庫，借助於集合代數等數學概念和方法來處理數據庫中的數據。現實世界中的各種實體以及實體之間的各種聯系均用關係模型來表示。
+____
+
+[quote, 關係模型, https://zh.wikipedia.org/zh-cn/關係模型]
+____
+用於數據庫管理的關係模型（英語：Relational model）是基於謂詞邏輯和集合論的一種數據模型，廣泛被使用於數據庫之中。最旲於1970年由埃德加·科德提出。
+
+關係模型的基本假定是所有數據都表示為數學上的關係，就是說 n 個集合的笛卡爾積的一個子集，有關這種數據的推理通過二值（就是說沒有 NULL）的謂詞邏輯來進行，這意味着對每個命題都有兩種可能的賦值：要麼是真要麼是假。數據通過關係演算和關係代數的一種方式來操作。關係模型是採用二維表格結構表逹實體類型及實體間聯係的數據模型。
+
+關係模型允許設計者通過數據庫規範化的提煉，去建立一個信息的一致性的模型。訪問計劃和其他實現與操作細節由 DBMS 引擎來處理，而不應該反映在邏輯模型中。這與 SQL DBMS 普遍的實踐是對立的，在它們那𥚃性能調整經常需要改變邏輯模型。
+
+基本的關係建造塊是域或者叫數據類型。元組是屬性的有序多重集（multiset），屬性是域和值的有序對。關係變量（relvar）是域和名字的有序對（序偶）的集合，它充當關係的表頭（header）。關係是元組的集合。儘管這些關係概念是數學上的定義，但它們可以寬鬆地映射到傳統數據庫概念上。表是關係公認的可視表示；元組類似於行的概念。
+
+關係模型的基本原理是信息原理：所有信息都表示為關係中的資料值。所以，關係變量在設計時刻是相互無關係的；反而，設計者在多個關係變量中使用相同的域，如果一個屬性依賴另一個屬性，則通過參照完整性來強制這種依賴性。
+____
+
+[quote, 關係數據庫, https://zh.wikipedia.org/zh-cn/关系數據庫]
+____
+關係模型中常用的操作包括：
+
+* 數據查詢
+  * 選擇
+  * 投影
+  * 連接
+  * 併
+  * 交
+  * 差
+  * 除
+* 數據操作
+  * 插入
+  * 刪除
+  * 修改
+
+完整性約束包括：
+
+* 實體完整性
+* 參照完整性
+* 用戶定義完整性
+____
+
+關係式數據庫中數據構件有：
+
+* 表（table）
+* 行（row）
+* 列（column）
+
+對象（Object Oriented）模型中基本構件有：
+
+* 類（class）
+* 對象（object）
+* 屬性（property）
+
+JPA 提供了一組方法，使應用開發者可以聲明對象模型與關係式模型之間的映射。類映射為表，對象映射為行，屬性映射為列。
+
+== 實現
+
+使用 Spring Initializr 生成項目骨架，並導入 IntelliJ IDEA.
+
+TBD
+
+=== 構建
+
+首先，引入構建插件。
+
+.build.gradle
+----
+plugins {
+    id 'org.springframework.boot' version '2.2.2.RELEASE' // <1>
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE' // <2>
+	id 'java'
+    id "io.freefair.lombok" version "4.1.6"
+    id "org.sonarqube" version "2.7.1"
+    id 'jacoco'
+    id 'org.asciidoctor.convert' version '1.5.3'
+}
+
+...
+----
+<1> 引入 Spring Boot 插件，其版本決定了引入的 Spring Boot 庫的版本。所以有了 Spring Boot 插件，就無需顯示指定各個 Spring Boot 庫的版本了。
+<2> 引入 Spring 依賴管理插件。
+
+然後，引入依賴。
+
+.build.gradle
+----
+...
+
+ext {
+    snippetsDir = file('build/generated-snippets')
+    set('springCloudVersion', "Hoxton.SR1") // <1>
+}
+
+dependencies {
+    asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+    implementation 'org.springframework.boot:spring-boot-starter-web' // <2>
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas' // <3>
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // <4>
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client' // <5>
+    implementation 'org.springframework.boot:spring-boot-starter-security' // <6>
+    implementation 'org.springframework.security:spring-security-oauth2-resource-server' // <7>
+    implementation 'org.springframework.security:spring-security-oauth2-jose' // <8>
+    runtimeOnly 'mysql:mysql-connector-java' // <9>
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'com.h2database:h2'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}" // <10>
+    }
+}
+
+...
+----
+<1> 將 Spring Cloud 版本定義為變量，便於引用及統一管理。Spring Cloud 與 Spring Boot 之間的版本兼容性發佈在 https://spring.io/projects/spring-cloud#overview
++
+.Release train Spring Boot compatibility
+|===
+|Release Train|Boot Version
+
+|Hoxton
+|2.2.x
+
+|Greenwich
+|2.1.x
+
+|Finchley
+|2.0.x
+
+|Edgware
+|1.5.x
+
+|Dalston
+|1.5.x
+|===
+<2> `spring-boot-starter-web` 引入了 Spring MVC 相關的庫。
+<3> `spring-boot-starter-hateoas` 引入了 HATEOAS 相關庫，用以實現 Level 3 RESTFul 服務。
+<4> `spring-boot-start-data-jpa` 引入了 Spring Data JPA 相關的庫，用以實現以 JPA 訪問關係式數據庫的倉庫「Repository」。
+<5> `spring-cloud-starter-betflix-eureka-client` 引入了 Eureka 客戶端庫，用以實現將本服務注冊至 Eureka，以便網關及其它服務發現。
+<6> `spring-boot-starter-security` 引入 Spring Security 相關的庫，用以實現請求安全控制。
+<7> `spring-security-oauth2-resource-server` 提供 OAuth2 資源服務器的實現，以便將本服務以資源服務器的⻆色集成進 OAuth2 機制中。
+<8> `spring-security-oauth2-jose` 提供了對 JWT 令牌的支持。
+<9> 本服務使用 MySQL 作為數據庫實現，所以需在運行時提供 MySQL 驅動。
+<10> 通過引入 `org.springframework.cloud:spring-cloud-dependencies` BOM 來管理 Spring Cloud 庫的版本。
+
+=== 業務模型
+
+借助於 Lombok，可以在編器期生成樣板代碼，如訪問器、構造器等，從而使代碼更簡潔易讀。使用 JPA 和 Hibernate 定義的注解，可以以聲明式的方式描述業務模型與關係式模型之間的映射。
+
+常用的用以描述模型映射的 JPA 注解有：
+
+.常用 JPA 注解
+[cols="2,5a,2"]
+|===
+|注解|參數|作用域
+
+|@Entity
+|name:: 實體名穪，默認為類名。
+|類
+
+|@Table
+|
+name:: 表名，默認為類名。
+catalog:: 類目。
+schema:: 對應數據庫中的 schema。
+uniqueConstraints:: 唯一約束，一般用以定義多列聯合唯一約束。
+indexes:: 表上的索引。
+|類
+
+|@Column
+|
+name:: 列名，默認為列名或屬性名。
+unique:: `@UniqueConstraint` 的快捷方法，用以定義列值是否唯一，默認值為否。
+nullable:: 列是否可空，默認值為是。
+insertable:: 該列是否可通過 INSERT SQL 語句賦值，默認值為是。
+updatable:: 該列是否可通過 UPDATE SQL 語句賦值，默認值為是。
+columnDefinition:: 創建列的 DDL 語句，默認是通過其它參數生成。
+table:: 表名，默認是定義在類級的主表名。
+length:: 列長度，默認值為255。
+precision:: 有效位數，默認值為0。
+scale:: 小數位數，默認值為0。
+|字段、訪問器
+
+|@Id
+|
+|字段、訪問器
+
+|@GeneratedValue
+|
+strategy:: 主鍵生成策略，可選值有 `TABLE, SEQUENCE, IDENTITY, AUTO`，默認值為 `AUTO`。
+generator:: 主鍵生成器的名穪，默認主鍵生成器由持久化提供者提供。
+|字段、訪問器
+
+|@Temporal
+|
+value:: `java.util.Date` 或 `java.util.Calendar` 要映射的類型，有三個可選項 `DATE, TIME, TIMESTAMP`。
+|字段、訪問器
+|===
+
+JPA 本身僅是一個 API 規範，Spring Data JPA 採用 Hibernate 作為其 JPA 實現。
+
+==== InventoryItem
+
+.InventoryItem.java
+[source, java]
+----
+@Data
+@Entity
+@Relation(collectionRelation = "inventoryItems")
+public class InventoryItem {
+
+  @Id
+  @GeneratedValue(generator = "system-uuid")
+  @GenericGenerator(name = "system-uuid", strategy = "uuid")
+  private String id;
+  @Column(nullable = false, unique = true)
+  private String productId;
+  @Column(nullable = false)
+  private int quantity;
+  @Column(nullable = false, scale = 2)
+  private BigDecimal unitPrice;
+  @Column(nullable = false, updatable = false)
+  @Temporal(TemporalType.TIMESTAMP)
+  @CreationTimestamp
+  private Date createdAt;
+  @Column(nullable = false)
+  @Temporal(TemporalType.TIMESTAMP)
+  @UpdateTimestamp
+  private Date updatedAt;
+}
+----
+
+其使用 JPA 注解將實體 `InventoryItem` 映射至表 `inventory_item`，表名可以通過注解 `@Table` 顯示指定，默認是將駝峰形式轉換成以下劃線連接單詞的形式。字段也被一一映射至列。
+
+id:: `String` 類型的字段被映射為 `varchar` 類型的列，長度默認為255。列名及長度可通過注解 `@Column` 顯示指定；使用注解 `@Id` 將該字段聲明為主鍵；組合使用注解 `GeneratedValue` 和 `GenericGenerator` 聲明以 UUID 策略生成該字段的值。在數據庫實踐中，主鍵值一般都是自動生成的。
+product_id:: `String` 類型的字段被映射為 `varchar` 類型的列，列名默認是把字段名轉換成以下劃線連接單詞的形式。這𥚃顯示用注解 `@Column` 聲明該字段是不可為空且不可重復。
+quantity:: `int` 類型的字段被映射為 `int` 類型的列，長度默認為11。列名及長度都可通過注解 `@Column` 顯示聲明。
+unitPrice:: `BigDecimal` 類型的字段被映射為 `decimal` 的列，通過注解 `@Column` 聲明小數點後的精度為2。
+createdAt:: `Date` 類型的字段可被映射為多種類型的列，比如 `datetime`、`date` 和 `time`。這𥚃使用注解 `@Temporal` 顯示聲明其映射為 `datetime` 類型的列。同時使用注解 `@Column` 聲明其不可為空且不可更新。因為羅輯上講，實體的創建時間戳在創建時就確定不變的。
+updatedAt:: 使用注解 `@Temporal` 顯示聲明其映射為 `datatime` 類型的列。同時使用注解 `@Column` 聲明其不可為空。
+
+[plantuml]
+....
+@startuml
+class InventoryItem <<entity>> {
+    -id: String
+    -productId: String
+    -quantity: int
+    -unitPrice: BigDecimal
+    -createdAt: Date
+    -updatedAt: Date
+}
+class inventory_item <<table>> {
+    {field} id varchar(255) primary key
+    {field} product_id varchar(255) not null unique
+    {field} quantity int(11) not null
+    {field} unit_price decimal(19,2) not null
+    {field} created_at datetime not null
+    {field} updated_at datetime not null
+}
+
+InventoryItem -right- inventory_item: 映射
+@enduml
+....
+
+==== InventoryItemQuantityChange
+
+.InventoryItemQuantityChange.java
+[source, java]
+----
+@Data // <1>
+@NoArgsConstructor // <2>
+@AllArgsConstructor // <3>
+@Entity
+public class InventoryItemQuantityChange {
+
+  @Id
+  private String id;
+  @Column(nullable = false)
+  private String inventoryItemId;
+  // could be positive or negative
+  @Column(nullable = false)
+  private int quantityChange;
+  @Column(nullable = false, updatable = false)
+  @CreationTimestamp
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date createdAt;
+}
+----
+<1> 使用注解 `@Data` 修飾類，Lombok 會在編譯器為所有字段生成訪問器。
+<2> 使用注解 `@NoArgsConstructor` 修飾類，Lombok會在編譯期為其生成不含任何參數的構造器。
+<3> 使用注解 `@AllArgsConstructor` 修飾類，Lombok會在編譯期為其生成以所字段為參數的構造器。
+
+其使用 JPA 注解將類 `InventoryItemQuantityChange` 映射至表 `inventory_item_quantity_change`。其字段也被一一映射為列。
+
+id:: `String` 類型的字段被映射為 `varchar` 類型的列，長度默認為255。列名及長度可以通過注解 `@Column` 顯示聲明。
+inventoryItemId:: `String` 類型的字段被映射為 `varchar` 類型的列，長度默認為255。其使用注解 `@Column` 顯示聲明該字段值不能為空。
+quantityChange:: `int` 類型的字段被映射為 `varchar` 類型的列，長度默認為11。其使用注解 `@Column` 顯示聲明該字段值不能為空。
+createdAt:: `Date` 類型的字段可被映射為多種類型的列，比如 `datetime`、`date` 和 `time`。這𥚃使用注解 `@Temporal` 顯示聲明其映射為 `datetime` 類型的列。同時使用注解 `@Column` 聲明其不可為空且不可更新。因為羅輯上講，實體的創建時間戳在創建時就確定不變的。
+
+[plantuml]
+....
+@startuml
+class InventoryItemQuantityChange <<entity>> {
+    -id: String
+    -inventoryItemId: String
+    -quantityChange: int
+    -createdAt: Date
+}
+class inventory_item_quantity_change <<table>> {
+    {field} id varchar(255) primary key
+    {field} inventory_item_id varchar(255) not null
+    {field} quantity_change int(11) not null
+    {field} created_at datetime not null
+}
+InventoryItemQuantityChange -right- inventory_item_quantity_change
+@enduml
+....
+
+=== Repository
+
+Spring Data 的核心是 Repository，Spring Data JPA 在其基礎之擴展出了針對 JPA 應用埸景的 `JpaRepository`。`JpaRepository` 增加了如 `flush(), deleteInBatch()` 等 JPA 應用場景中比較常用的方法。
+
+.JpaRepository
+[plantuml,JpaRepository-class]
+....
+@startuml
+interface PageAndSortingRepository<T, ID>
+interface JpaRepository<T, ID> {
+    <<override>> findAll(): List<T>
+    <<override>> findAll(sort: Sort): List<T>
+    <<override>> findAllById(ids: Iterable<ID>): List<T>
+    <<override>> saveAll<S extends T>(entities: Iterable): List<S>
+    flush()
+    saveAndFlush<S extends T>(entity S): S
+    deleteInBatch(entities: Iterable<T>)
+    deleteAllBatch()
+    getOne(id: ID): T
+}
+PageAndSortingRepository <|-- JpaRepository: extends
+@enduml
+....
+
+==== InventoryItemRepository
+
+業務模型 `InventoryItem` 專屬的倉庫接口擴展至 `JpaRepository`，增加了一個按商品標識批量分頁查詢倉儲項的方法。
+
+.InventoryItemRepository.java
+[source, java]
+----
+@Repository // <1>
+public interface InventoryItemRepository extends JpaRepository<InventoryItem, String> { // <2>
+
+  Page<InventoryItem> findByProductIdIn(List<String> productIds, Pageable pageable); // <3>
+}
+----
+<1> 使用注解 `@Repository` 聲明此接口為倉庫，Spring Data 在構建上下文時將為其生成一個實現類並初始化 Bean。
+<2> 擴展接口 `@JpaRepository`，並聲明實體類型為 `InventoryItem`，唯一標識類型為 `String`。
+<3> 增加按一組商品標識分頁查詢實體的方法。
+
+==== InventoryItemQuantityChangeRepository
+
+業務模型 `InventoryItemQuantityChange` 專屬的倉庫接口擴展至 `JpaRepository`。
+
+.InventoryItemQuantityChangeRepository.java
+[source, java]
+----
+@Repository // <1>
+public interface InventoryItemQuantityChangeRepository extends
+    JpaRepository<InventoryItemQuantityChange, String> { // <2>
+
+}
+----
+<1> 使用注解 `@Repository` 聲明此接口為倉庫，Spring Data 在構建上下文時將為其生成一個實現類並初始化 Bean。
+<2> 擴展接口 `@JpaRepository`，並聲明實體類型為 `InventoryItemQuantityChange`，唯一標識類型為 `String`。
+
+=== Controller
+
+Controller 層負責 RESTFul 風格請求與處理方法之間的映射，HAL 格式的請求/响應體與 Java 對象之間的映射，及鍳權。
+
+==== InventoryItemController
+
+.請求/方法映射
+|===
+|請求方法|URL|處理方法
+
+|POST
+|/inventoryItems
+|`create`
+
+|PUT
+|/inventoryItems/{id}
+|`update`
+
+|DELETE
+|/inventoryItems/{id}
+|`delete`
+
+|GET
+|/inventoryItems/{id}
+|`getOne`
+
+|GET
+|/inventoryItems/search/productIdIn
+|`searchByProductId`
+|===
+
+===== create
+
+.InventoryItemController.java
+[source, java]
+----
+...
+  @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, "application/hal+json"}) // <1>
+  @ResponseStatus(HttpStatus.CREATED) // <2>
+  @PreAuthorize(AUTHORITY_INVENTORY_WRITE)
+  public EntityModel<InventoryItem> create(@RequestBody InventoryItem entity) { // <3>
+    InventoryItem createdOne = repository.save(entity);
+    return new EntityModel<>(createdOne, itemLinks(createdOne));
+  }
+...
+----
+<1> 使用注解 `@PostMapping` 將 POST 請求映射至此方法，並聲明祗接受請求體媒體類型為 `application/json` 或 `application/hal+json` 的 POST 請求。
+<2> 使用注解 `@ResponseStatus` 聲明在成功响應時响應碼為201 Created。
+<3> 使用注解 `@RequestBody` 聲明將請求體解碼為 `InventoryItem` 類型對象並作為實參傳給該方法。
+
+===== update
+
+.InventoryItemController.java
+[source, java]
+----
+  @PutMapping(value = "{id}", consumes = {MediaType.APPLICATION_JSON_VALUE, "application/hal+json"}) // <1>
+  @ResponseStatus(HttpStatus.NO_CONTENT) // <2>
+  @PreAuthorize(AUTHORITY_INVENTORY_WRITE)
+  public void update(@PathVariable("id") String id,
+      @RequestBody InventoryItem entity) { // <3>
+    InventoryItem existedOne = repository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    existedOne.setProductId(entity.getProductId());
+    existedOne.setUnitPrice(entity.getUnitPrice());
+    repository.save(existedOne);
+  }
+----
+<1> 使用注解 `@PutMapping` 將 PUT 請求映射至此方法，並聲明祗接受請求體媒體類型為 `application/json` 或 `application/hal+json` 的 PUT 請求。
+<2> 使用注解 `@ResponseStatus` 聲明在成功响應時响應碼為204 No Content, 即响應體為空。
+<3> 使用注解 `@PathVariable` 將從請求路徑中解析出的 `id` 以實參 `id` 的形式傳給該方法，並使用注解 `@RequestBody` 聲明將請求體解碼為 `InventoryItem` 類型對象並作為實參傳給該方法。
+
+===== delete
+
+.InventoryItemController.java
+[source, java]
+----
+...
+  @DeleteMapping("{id}") // <1>
+  @ResponseStatus(HttpStatus.NO_CONTENT) // <2>
+  @PreAuthorize(AUTHORITY_INVENTORY_WRITE)
+  public void delete(@PathVariable("id") String id) { // <3>
+    InventoryItem existedOne = repository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    repository.delete(existedOne);
+  }
+...
+----
+<1> 使用注解 `@DeleteMapping` 將 PUT 請求映射至此方法，DELETE 請求不帶請求體，所以對無需約束其請求體媒體類型。
+<2> 使用注解 `@ResponseStatus` 聲明在成功响應時响應碼為204 No Content, 即响應體為空。
+<3> 使用注解 `@PathVariable` 將從請求路徑中解析出的 `id` 以實參 `id` 的形式傳給該方法。
+
+===== getOne
+
+.InventoryItemController.java
+[source, java]
+----
+...
+  @GetMapping(value = "{id}", produces = "application/hal+json") // <1>
+  public EntityModel<InventoryItem> getOne(@PathVariable("id") String id) { // <2>
+    InventoryItem existedOne = repository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    return new EntityModel<>(existedOne, itemLinks(existedOne));
+  }
+...
+----
+<1> 使用注解 `@GetMapping` 將 GET /inventoryItems/{id} 的請求映射至此方法，並聲明其响應體媒體類型為 `application/hal+json`。 默認的成功返回狀態碼為200，符合需求，所以無需通過 `@ResponseStatus` 顯示聲明。
+<2> 使用注解 `@PathVariable` 將從請求路徑中解析出的 `id` 以實參 `id` 的形式傳給該方法。
+
+===== searchByProductId
+
+.InventoryItemController.java
+[source, java]
+----
+...
+  @GetMapping(value = "search/productIdIn", produces = "application/hal+json") // <1>
+  public PagedModel<EntityModel<InventoryItem>> searchByProductId(
+      @RequestParam("productId") List<String> productIds, @NotNull Pageable pageable) { // <2>
+    Page<InventoryItem> pagedItems = repository.findByProductIdIn(productIds, pageable);
+    return pagedResourcesAssembler.toModel(pagedItems);
+  }
+...
+----
+<1> 使用注解 `@GetMapping` 將 GET /inventoryItems/{id} 的請求映射至此方法，並聲明其响應體媒體類型為 `application/hal+json`。 默認的成功返回狀態碼為200，符合需求，所以無需通過 `@ResponseStatus` 顯示聲明。
+<2> 使用注解 `@RequestParam` 將請求中的名為 productId 的查詢參數全都解析出來並以實參 `productIds` 的形式傳給該方法，並從請求中解析出分頁及排序條件以實參 `pageable` 的形式傳給該方法。
+
+===== HAL
+
+`org.springframework.boot:spring-boot-starter-hateoas` 提供了豐富的工具幫助應用開發者將 Java 對象編碼為 HAL 文本及將 HAL 文本解碼為 Java 對象。
+
+相較與普通的 Java 對象， HAL 其實祗是附加了相關的鏈接「Link」。以 `InventoryItem` 為例，一個普通的對象編碼為 JSON 僅包含其所有屬性，例如：
+
+[source, json]
+----
+{
+  "id" : "ff8080817203fa06017203fa7df40011",
+  "productId" : "P123456",
+  "quantity" : 12,
+  "unitPrice" : 12.12,
+  "createdAt" : "2020-05-11T13:44:07.414+0000",
+  "updatedAt" : "2020-05-11T13:44:07.414+0000"
+}
+----
+
+但編碼為 HAL+JSON 格式時則需附加一些鏈接，例如：
+
+[source, json]
+----
+{
+  "id" : "ff8080817203fa06017203fa7df40011",
+  "productId" : "P123456",
+  "quantity" : 12,
+  "unitPrice" : 12.12,
+  "createdAt" : "2020-05-11T13:44:07.414+0000",
+  "updatedAt" : "2020-05-11T13:44:07.414+0000",
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/inventoryItems/ff8080817203fa06017203fa7df40011"
+    }
+  }
+}
+----
+
+Spring Hateoas 提供了 `EntityModel` 和 `PagedModel`，分別用於將單個實體和分頁查詢結果「Page」包裝成 HAL 模型。
+
+.InventoryItemController.java
+[source, java]
+----
+@RestController
+@RequestMapping("inventoryItems")
+@ExposesResourceFor(
+    InventoryItem.class)
+@PreAuthorize("hasAuthority('SCOPE_inventory.read')")
+public class InventoryItemController {
+
+  private static final String AUTHORITY_INVENTORY_WRITE = "hasAuthority('SCOPE_inventory.write')";
+
+  private final EntityLinks entityLinks;
+  @Autowired
+  private PagedResourcesAssembler<InventoryItem> pagedResourcesAssembler; // <1>
+  @Autowired
+  private InventoryItemRepository repository;
+
+  public InventoryItemController(EntityLinks entityLinks) { // <2>
+    this.entityLinks = entityLinks;
+  }
+  @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, "application/hal+json"})
+  @ResponseStatus(HttpStatus.CREATED)
+  @PreAuthorize(AUTHORITY_INVENTORY_WRITE)
+  public EntityModel<InventoryItem> create(@RequestBody InventoryItem entity) {
+    InventoryItem createdOne = repository.save(entity);
+    return new EntityModel<>(createdOne, itemLinks(createdOne)); // <3>
+  }
+  ...
+  @GetMapping(value = "search/productIdIn", produces = "application/hal+json")
+  public PagedModel<EntityModel<InventoryItem>> searchByProductId(
+      @RequestParam("productId") List<String> productIds, @NotNull Pageable pageable) {
+    Page<InventoryItem> pagedItems = repository.findByProductIdIn(productIds, pageable);
+    return pagedResourcesAssembler.toModel(pagedItems); // <4>
+  }
+    private Link[] itemLinks(final InventoryItem item) {
+    return new Link[]{
+        entityLinks.linkToItemResource(InventoryItem.class, item.getId()) // <5>
+    };
+  }
+}
+----
+<1> Spring Data 提供了一個工具類 `PagedResourcesAssembler` 幫助應用開發者將 `Page` 轉換為 `PagedModel`。
+<2> 以構造器注入方式注入 `EntityLinks`。`EntityLinks`可以幫助應用開發者構造單個實體的鏈接。因為所有鏈接都是絕對地址，其中包含了服務的域名端口等，構造過程比較繁瑣。有了 `EntityLinks` 的幫助可以大大減少應用開發者的工作量。
+<3> HAL 模型其實就是普通模型加鏈接。將單個實體的鏈接構造集中到一個補助方法中。
+<4> PagedResourcesAssembler` 可以直接從 `Page` 對象構造 `PagedModel`。
+<5> 使用 `EntityLinks` 構造一個至實體自身的鏈接，該鏈接包含了服務域名和端口號。
+
+===== 鍳權
+
+.SecurityConfig.java
+[source, java]
+----
+@Profile("!test")
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http
+        .csrf().disable()
+        .authorizeRequests()
+        .anyRequest().authenticated()
+        .and()
+        .oauth2ResourceServer()
+        .jwt();
+  }
+}
+----
+<1>
+<2>
+
+.InventoryItemController.java
+[source, java]
+----
+@RestController
+@RequestMapping("inventoryItems")
+@ExposesResourceFor(
+    InventoryItem.class)
+@PreAuthorize("hasAuthority('SCOPE_inventory.read')") // <1>
+public class InventoryItemController {
+
+  private static final String AUTHORITY_INVENTORY_WRITE = "hasAuthority('SCOPE_inventory.write')";
+  ...
+  @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, "application/hal+json"})
+  @ResponseStatus(HttpStatus.CREATED)
+  @PreAuthorize(AUTHORITY_INVENTORY_WRITE)
+  public EntityModel<InventoryItem> create(@RequestBody InventoryItem entity) {
+    InventoryItem createdOne = repository.save(entity);
+    return new EntityModel<>(createdOne, itemLinks(createdOne));
+  }
+  ...
+----
+
+=== 測試
+
+TBD
+
+== 參考
+
+* https://zh.wikipedia.org/zh-cn/关系数据库[關係數據庫]
+* https://zh.wikipedia.org/zh-tw/关系模型[關係模型]
+* https://download.oracle.com/otn-pub/jcp/persistence-2.0-fr-eval-oth-JSpec/persistence-2_0-final-spec.pdf[JSR 317: Java(TM) Persistence API, Version 2.0]

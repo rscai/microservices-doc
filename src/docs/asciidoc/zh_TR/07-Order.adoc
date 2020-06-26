@@ -1,0 +1,190 @@
+= 訂單服務「Order Service」
+::icons: font
+ifndef::imagesdir[:imagesdir: images]
+ifndef::source-highlighter[:source-highlighter: highlightjs]
+
+== 目標
+
+本章中，我們將基於Spring Boot開發RESTFul風格的訂單服務。我們將學習：
+
+* 使用Spring Data JPA訪問MySQL數據庫
+* 使用
+
+== 需求分析
+
+=== 用例
+
+.用例
+[plantuml, order-usecase, png]
+....
+@startuml
+left to right direction
+:Customer: --> (Create order)
+:Customer: --> (Add item)
+:Customer: --> (Submit order)
+:Customer: --> (Cancel rder)
+:Customer: --> (Pay order)
+:Customer: --> (Close order)
+:OrderOps: --> (Start order delivery)
+:OrderOps: --> (Complete order Delivery)
+@enduml
+....
+
+顧客「Customer」和訂單運營人員「OrderOps」兩個用戶⻆色參與訂單處理業務。
+
+作為一名顧客，我可以創建訂單「Order」，並嚮其中添加任意數量的商品「Product」；創建訂單之後，我可以提交訂單或取消訂單；提交訂單之後，我可以支付訂單；一但我支付了訂單，系統應立即開始交付訂單；當我確認訂單已被交付，我可以關閉訂單。
+
+作為一名訂單運營人員，我可以將已支付的「Paid」訂單標記為交付中「On Delivery」；當確認訂單已實際被交付時，可以將訂單標記為已交付「Delivered」。
+
+=== 領域模型
+
+.Order
+[plantuml, order-model, png]
+....
+@startuml
+enum Order.State {
+     OPEN
+     SUBMITTED
+     PAID
+     ON_DELIVERY
+     DELIVERED
+     CLOSED
+     CANCELLED
+}
+class Order <<Entity>> {
+      -id: String
+      -amount: BigDecimal
+      -customerId: String
+      -items: List<OrderItem>
+      -state: Order.State
+}
+class OrderItem {
+      -productId: String
+      -quanlity: int
+}
+
+Order "1" o-- "1..*" OrderItem
+@enduml
+....
+
+訂單處理是圍繞領域模型**訂單「Order」**。訂單紀錄了一竹竹中手**購買**活動的全部信息，包括購買商品清單數量、金額、顧客信息等。一筆真實的**購買**活動由多個線上線下子活動組成，所以訂單模型實體拥有較長的生命週期，及多個週期階段。
+
+.Order State
+[plantuml, order-state, png]
+....
+@startuml
+[*] --> OPEN: create
+OPEN -> SUBMITTED: submit
+OPEN --> CANCELLED: cancel
+CANCELLED --> [*]
+SUBMITTED -> PAID: pay
+PAID -> ON_DELIVERY: start delivery
+ON_DELIVERY -> DELIVERED: complete delivery
+DELIVERED --> CLOSED: close
+CLOSED --> [*]
+@enduml
+....
+
+* **OPEN** 當訂單被顧客創建時，其處於 `OPEN` 狀態。
+* **SUBMITTED** 顧客可以提交**OPEN**狀態的訂單，提交後的訂單處於**SUBMITTED**狀態。
+* **CANCELLED** 顧客也可以取消**OPEN**狀態的訂單。
+* **PAID** 顧客針對**SUBMITTED**狀態的訂單進行支付。顧客其實是與第三方支付提供商「Payment Provider」交互，支付提供商嚮本系統通知支付結果。支付成功後，訂單狀態為**PAID**。
+* **ON_DELOVERY** 訂單運營人員可以將**PAID**訂單標記為**ON_DELIVERY**以開始交付。
+* **DELIVERED** 當訂單運營人員確認訂單已被交付時，將訂單標記為**DELIVERED**。
+* **CLOSED** 顧客關閉已交付的訂單。
+
+== 設計
+
+=== 領域模型
+
+.Order
+[plantuml, order-class, png]
+....
+@startuml
+enum Order.State {
+     OPEN
+     SUBMITTED
+     PAID
+     ON_DELIVERY
+     DELIVERED
+     CLOSED
+     CANCELLED
+}
+class Order <<Entity>> {
+      -id: String
+      -amount: BigDecimal
+      -customerId: String
+      -items: List<OrderItem>
+      -state: Order.State
+      +submit(): boolean
+      +pay(): boolean
+      +startDelivery(): boolean
+      +completeDelivery(): boolean
+      +close(): boolean
+      +cancel(): boolean
+}
+class OrderItem {
+      -productId: String
+      -quanlity: int
+}
+@enduml
+....
+
+=== RESTFul API
+
+.Order RESTFul API
+|===
+|操作|Endpoint|HTTP方法|參數
+
+|創建訂單
+|/orders
+|POST
+|
+
+|提交訂單
+|/orders/<id>/submit
+|PUT
+|`id` 訂單唯一標識
+
+|取消訂單
+|/orders/<id>/cancel
+|PUT
+|`id` 訂單唯一標識
+
+|支付訂單
+|/orders/<id>/pay
+|PUT
+|`id` 訂單唯一標識
+
+|開始交付訂單
+|/orders/<id>/startDelivery
+|PUT
+|`id` 訂單唯一標識
+
+|完成交付訂單
+|/orders/<id>/completeDelivery
+|PUT
+|`id` 訂單唯一標識
+
+|關閉定單
+|/orders/<id>/close
+|PUT
+|`id` 訂單唯一標識
+
+|穫取單個訂單
+|/orders/<id>
+|GET
+|`id` 訂單唯一標識
+
+|分頁穫取訂單
+|/orders?page=<page>&size=<size>
+|GET
+|`page` 分頁索引，從 `0` 開始；`size` 分頁大小，默認 `10`
+|===
+
+
+== 實現
+
+
+
+
