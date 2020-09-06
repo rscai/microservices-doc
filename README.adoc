@@ -22,3 +22,15 @@ Install Chrome LiveReload extension.
 ====
 Official document of Live Preview asciidoc https://asciidoctor.org/docs/editing-asciidoc-with-live-preview/[Editing AsciDoc with Live preview]
 ====
+
+== Convert Video to GIF
+
+[source, bash]
+....
+ffmpeg -i Catalog-import.mp4 -vf "fps=1,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" -c:v pam -f image2pipe - | convert -delay 30 - -loop 0 -layers optimize catalog-import.gif
+....
+
+[NOTE]
+====
+https://superuser.com/questions/556029/how-do-i-convert-a-video-to-gif-using-ffmpeg-with-reasonable-quality
+====
