@@ -467,9 +467,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#catalog-service">Catalog Service</a>
 <ul class="sectlevel2">
 <li><a href="#目標">目標</a></li>
-<li><a href="#特性">特性</a></li>
 <li><a href="#設計">設計</a></li>
 <li><a href="#實現">實現</a></li>
+<li><a href="#測試">測試</a></li>
+<li><a href="#api文檔">API文檔</a></li>
 <li><a href="#總結">總結</a></li>
 <li><a href="#參考-3">參考</a></li>
 </ul>
@@ -501,7 +502,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#認證與授權">認證與授權</a></li>
 <li><a href="#設計-2">設計</a></li>
 <li><a href="#實現-4">實現</a></li>
-<li><a href="#測試-3">測試</a></li>
+<li><a href="#測試-2">測試</a></li>
 <li><a href="#參考-6">參考</a></li>
 </ul>
 </li>
@@ -1112,84 +1113,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p>將 <code>helloworld.zip</code> 解壓後得到一個 Spring Boot 項目。其中：</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>.gitignore</code> 邏列了 GIT 忽略文件列表；</p>
-</li>
-<li>
-<p><code>build.gradle</code> 和 <code>settings.gradle</code> 是 Gradle 的構建定義；</p>
-</li>
-<li>
-<p><code>gradle/</code> 包含了 Gradle Wrapper 的內容；</p>
-</li>
-<li>
-<p><code>gradlew</code> 和 <code>gradlew.bat</code> 是 Gradle Wrapper 的命令；</p>
-</li>
-<li>
-<p><code>HELP.md</code> 顧名思義是描述文檔，與 README 類似；</p>
-</li>
-<li>
-<p><code>src/main/java</code> 包含所有運行期 Java 代碼；</p>
-</li>
-<li>
-<p><code>src/main/resources</code> 包含所有編譯期及運行期所需的資源文件；</p>
-</li>
-<li>
-<p><code>src/test/java</code> 包含所有測試 Java 代碼。</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>  .gitignore
-  build.gradle
-+ gradle
-  + wrapper
-      gradle-wrapper.war
-      gradle-wrapper.properties
-  graldew
-  gradlew.bat
-  HELP.md
-  settings.gradle
-+ src
-  + main
-    - java
-    - resources
-  + test
-    - java</pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>.gitignore</code>, 羅列了應被 GIT 忽略的文件和目錄。自動生成及臨時文件及目錄不應被納入版本控制；</p>
-</li>
-<li>
-<p><code>build.gradle</code>，Gradle 項目文件，定義了項結構及構建過程；</p>
-</li>
-<li>
-<p><code>gradle/wrapper</code> 包含所有 Gradle Wrapper 相關的文件。其中，<code>gradle-wrapper.war</code> ,,,</p>
-</li>
-<li>
-<p><code>gradlew</code> 是 UNIX-like 平台版本的 Gradle 命令包裝；</p>
-</li>
-<li>
-<p><code>gradlew.bat</code></p>
-</li>
-<li>
-<p><code>setting.gradle</code></p>
-</li>
-<li>
-<p><code>src/main/java</code></p>
-</li>
-<li>
-<p><code>src/main/resources</code></p>
-</li>
-<li>
-<p><code>src/test/java</code></p>
-</li>
-</ul>
+<div class="paragraph">
+<p>Unresolved directive in zh_TR//01-Tools-Setup.adoc - include::zh_TR/common/gradle-project-structure-basic.adoc[]</p>
 </div>
 <div class="paragraph">
 <p>將 helloworld 項目導入 IntelliJ IDEA。首先，打開 Intellij IDEA，然後，單繫 Import Project，選定 helloworld 項目目錄，再然後選擇以 Gradle 項目形式導入。IntelliJ IDEA 會自動初始執行 Gradle 配置，下載 <code>/gradle/wrapper/gradle-wrapper.properties</code> 中指定版本的 Gradle。</p>
@@ -1199,10 +1124,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <img src="images/01-Tools-Setup/Helloworld-import.gif" alt="Helloworld import">
 </div>
 </div>
-<div class="literalblock">
-<div class="title">src/main/java/io/github/rscai/microservices/helloworld/HelloWorldApplication.java</div>
+<div class="listingblock">
+<div class="title">/src/main/java/io/github/rscai/microservices/helloworld/HelloWorldApplication.java</div>
 <div class="content">
-<pre>package io.github.rscai.microservices.helloworld;
+<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package io.github.rscai.microservices.helloworld;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -1214,7 +1139,7 @@ public class HelloWorldApplication {
 		SpringApplication.run(HelloWorldApplication.class, args); <i class="conum" data-value="2"></i><b>(2)</b>
 	}
 
-}</pre>
+}</code></pre>
 </div>
 </div>
 <div class="olist arabic">
@@ -1328,7 +1253,9 @@ public class HelloWorldController {
 </div>
 </div>
 <div class="sect2">
-<h3 id="特性"><a class="link" href="#特性">特性</a></h3>
+<h3 id="設計"><a class="link" href="#設計">設計</a></h3>
+<div class="sect3">
+<h4 id="用例-2"><a class="link" href="#用例-2">用例</a></h4>
 <div class="paragraph">
 <p>Catalog微服務負責維護Product和ProductImage兩個業務模型實體。</p>
 </div>
@@ -1385,8 +1312,8 @@ public class HelloWorldController {
 </ol>
 </div>
 </div>
-<div class="sect2">
-<h3 id="設計"><a class="link" href="#設計">設計</a></h3>
+<div class="sect3">
+<h4 id="架構-2"><a class="link" href="#架構-2">架構</a></h4>
 <div class="paragraph">
 <p>Catalog微服務採用分層架構，自上往下分為：</p>
 </div>
@@ -1410,6 +1337,7 @@ public class HelloWorldController {
 </div>
 <div class="paragraph">
 <p>這𥚃我們採用Spring Data REST實現展現層；供助Spring Data REST開放的實體事件擴展機制，實現業務邏輯；數據存儲方案選用MongoDB；數據訪問層採用Spring Data MongoDB實現。</p>
+</div>
 </div>
 <div class="sect3">
 <h4 id="理解-lombok"><a class="link" href="#理解-lombok">理解 Lombok</a></h4>
@@ -2305,7 +2233,117 @@ public ResponseEntity&lt;? extends ResourceSupport&gt; deletePropertyReference(R
 <div class="sect3">
 <h4 id="理解junit"><a class="link" href="#理解junit">理解JUnit</a></h4>
 <div class="paragraph">
-<p>TBD</p>
+<p>JUnit 是一個 Java 編程語言的單元測試框架。JUnit 定義了三層單元測試組織結構：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>TestSuite</p>
+</li>
+<li>
+<p>TestCase</p>
+</li>
+<li>
+<p>Test</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Test</strong> 是單元測試的最小組織單位，多個 <strong>Test</strong> 可以組織為 <strong>TestCase</strong>，多個 <strong>TestCase</strong> 可以組織為 <strong>TestSuite</strong>。在 Java 中，<strong>TestCase</strong> 和 <strong>TestSuite</strong> 實現為類，<strong>Test</strong> 實現為 <strong>TestCase</strong> 的方法。所以在實際應用中，<strong>Test</strong> 和 <strong>TestCase</strong> 是必須的，<strong>TestSuite</strong> 是可選的。</p>
+</div>
+<div class="paragraph">
+<p>Junit 定義了五個單元測試執行階段：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>BeforeClass</p>
+</li>
+<li>
+<p>BeforeEach</p>
+</li>
+<li>
+<p>Test</p>
+</li>
+<li>
+<p>AfterEach</p>
+</li>
+<li>
+<p>AfterClass</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>BeforeClass</strong> 為 <strong>TestCase</strong> 的初始階段，JUnit 在即將執行 <strong>TestCase</strong> 所包含的 <strong>Test</strong> 之前執行 <strong>BeforeClass</strong>；<strong>BeforeEach</strong> 為 <strong>Test</strong> 的前置階段，JUnit 在每次執行 <strong>Test</strong> 之前執行 <strong>BeforeEach</strong>；<strong>Test</strong> 為單元測試的主要階段，該階段應包含嚮測試對象輸入和斷言測試對象的輸出；<strong>AfterEach</strong> 為 <strong>Test</strong> 的後置階段，JUnit 在每次執行 <strong>Test</strong> 之後執行 <strong>AfterEach</strong>；<strong>AfterClass</strong> 為 <strong>TestCase</strong> 的善後階段，JUnit 在執行完 <strong>TestCase</strong> 所包含的所有 <strong>Test</strong> 之後執行 <strong>AfterClass</strong>。</p>
+</div>
+<div class="paragraph">
+<p>舉個例子，</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleTest.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">public class ExampleTest {
+  private Example testObject;
+  @BeforeClass
+  public void beforeClass() {
+    System.out.println("Before test case ExampleTest");
+  }
+  @AfterClass
+  public void afterClass() {
+    System.out.println("After test case ExampleTest");
+  }
+  @BeforeEach
+  public void setUp() {
+    System.out.println("SetUp for each test");
+    testObject = new Example();
+  }
+  @AfterEach
+  public void tearDown() {
+    System.out.println("TearDown for each test");
+  }
+  @Test
+  public void testFunA() {
+    String actual = testObject.funA();
+    assertEqual(actual, "expected value");
+  }
+  @Test
+  public void testFunB() {
+    String actual = testObject.funB();
+    assertEqual(actual, "expected value");
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>BeforeClass</strong>, <strong>AfterClass</strong>, <strong>BeforeEach</strong>, <strong>AfterEach</strong> 和 <strong>Test</strong> 都被實現為 <strong>TestCase</strong> 的方法，通過注解聲明。JUnit 在執行上述 <strong>TestCase</strong>，方法調用序列為：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>beforeClass()</code></p>
+</li>
+<li>
+<p><code>setUp()</code></p>
+</li>
+<li>
+<p><code>testFunA()</code></p>
+</li>
+<li>
+<p><code>tearDown()</code></p>
+</li>
+<li>
+<p><code>setUp()</code></p>
+</li>
+<li>
+<p><code>testFunB()</code></p>
+</li>
+<li>
+<p><code>tearDown()</code></p>
+</li>
+<li>
+<p><code>afterClass()</code></p>
+</li>
+</ol>
 </div>
 </div>
 <div class="sect3">
@@ -2422,16 +2460,200 @@ public ResponseEntity&lt;? extends ResourceSupport&gt; deletePropertyReference(R
 </div>
 <div class="sect2">
 <h3 id="實現"><a class="link" href="#實現">實現</a></h3>
+<div class="paragraph">
+<p>最簡單的創建一個新的 Spring Boot 應用方法是使用 <a href="https://start.spring.io">Spring Initializr</a>。使用瀏覽器訪問 <a href="https://start.spring.io" class="bare">https://start.spring.io</a> :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Project 選擇 Gradle Project，使用 Gradle 構建我們的項目；</p>
+</li>
+<li>
+<p>Language 選擇 Java；</p>
+</li>
+<li>
+<p>Spring Boot 撰擇 2.2.7 或其它 2.2.x 版本，最新版（訖今為止）的 Spring Cloud Hoxton 兼容 Spring Boot 2.2.x；</p>
+</li>
+<li>
+<p>Project Metadata 部份，Group 填 <code>io.github.rscai.microservices</code>，Artifact 填 <code>catalog</code>，Name 填 <code>catalog</code>，Packaging 撰 Jar，Java 撰擇版本 8；</p>
+</li>
+<li>
+<p>Dependencies 選擇</p>
+</li>
+<li>
+<p>Spring Web</p>
+</li>
+<li>
+<p>Spring Data MongoDB</p>
+</li>
+<li>
+<p>Rest Repositories</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/02-Catalog/generate-project-by-spring-initializr.png" alt="generate project by spring initializr">
+</div>
+</div>
+<div class="paragraph">
+<p>單擊<strong>GENERATE</strong>，Spring initializr 就會生成 ZIP 格式的項目文件。</p>
+</div>
+<div class="paragraph">
+<p>將 <code>catalog.zip</code> 解壓後得到一個 Spring Boot 項目。其中：</p>
+</div>
+<div class="paragraph">
+<p>Unresolved directive in zh_TR//02-Catalog.adoc - include::zh_TR/common/gradle-project-structure-basic.adoc[]</p>
+</div>
+<div class="paragraph">
+<p>將 catalog 項目導入 IntelliJ IDEA。首先，打開 Intellij IDEA，然後，單繫 Import Project，選定 catalog 項目目錄，再然後選擇以 Gradle 項目形式導入。IntelliJ IDEA 會自動初始執行 Gradle 配置，下載 <code>/gradle/wrapper/gradle-wrapper.properties</code> 中指定版本的 Gradle。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/02-Catalog/catalog-import.gif" alt="catalog import">
+</div>
+</div>
 <div class="sect3">
-<h4 id="product"><a class="link" href="#product">Product</a></h4>
-<div class="sect4">
-<h5 id="領域模型"><a class="link" href="#領域模型">領域模型</a></h5>
+<h4 id="構建"><a class="link" href="#構建">構建</a></h4>
+<div class="paragraph">
+<p>本項目使用 Gradle 構建。Gradle 構建過程主要通過 <code>build.gradle</code> 描述。</p>
+</div>
+<div class="paragraph">
+<p>首先，引用必要的 Gradle 插件。</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">plugins {
+	id 'org.springframework.boot' version '2.2.2.RELEASE' <i class="conum" data-value="1"></i><b>(1)</b>
+	id 'io.spring.dependency-management' version '1.0.8.RELEASE' <i class="conum" data-value="2"></i><b>(2)</b>
+	id 'java'
+	id "io.freefair.lombok" version "4.1.6"
+	id "org.sonarqube" version "2.7.1"
+	id 'jacoco'
+	id 'org.asciidoctor.convert' version '1.5.3'
+}
+...</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>引入 Spring Boot 插件，其版本決定了引入的 Spring Boot 庫的版本。所以有了 Spring Boot 插件，就無需顯式指定各個 Spring Boot 庫的版本了。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>引入 Spring 依賴管理插件。</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>然後，引入依賴。</p>
+</div>
+<div class="listingblock">
+<div class="title">gradle.build</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">...
+ext {
+	snippetsDir = file('build/generated-snippets')
+	set('springCloudVersion', "Hoxton.SR1") <i class="conum" data-value="1"></i><b>(1)</b>
+}
+
+dependencies {
+	asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb' <i class="conum" data-value="2"></i><b>(2)</b>
+	implementation 'org.springframework.boot:spring-boot-starter-web' <i class="conum" data-value="3"></i><b>(3)</b>
+	implementation 'org.springframework.boot:spring-boot-starter-data-rest' <i class="conum" data-value="4"></i><b>(4)</b>
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+	implementation 'org.springframework.security:spring-security-oauth2-jose'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+	testImplementation 'org.springframework.security:spring-security-test'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}" <i class="conum" data-value="5"></i><b>(5)</b>
+	}
+}
+...</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>將 Spring Cloud 版本定義為變量，便於引用及統一管理。Spring Cloud 與 Spring Boot 之間的版本兼容性發佈在 <a href="https://spring.io/projects/spring-cloud#overview" class="bare">https://spring.io/projects/spring-cloud#overview</a>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Release train Spring Boot compatibility</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Release Train</th>
+<th class="tableblock halign-left valign-top">Boot Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hoxton</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.2.x</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Greenwich</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.1.x</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Finchley</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.0.x</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Edgware</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1.5.x</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dalston</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1.5.x</p></td>
+</tr>
+</tbody>
+</table></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><code>org.springframework.boot:spring-boot-starter-data-mongodb</code> 引入 Spring Data MongoDB 相關的庫，用以生成訪問 MongoDB 的 Repository。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td><code>spring-boot-starter-web</code> 引入了 Spring MVC 相關的庫。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td><code>org.springframework.boot:spring-boot-starter-data-rest</code> 引入 Spring Data REST 相關的庫。Spring Data REST 將 Repository 方法發佈為 RESTFul 風格的 Web 服務，以減少模板代碼。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>通過引入 <code>org.springframework.cloud:spring-cloud-dependencies</code> BOM 來管理 Spring Cloud 庫的版本。</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="領域模型"><a class="link" href="#領域模型">領域模型</a></h4>
 <div class="paragraph">
 <p>利用Lombok編譯期生成getter/setter方法，減少重復的模板代碼。</p>
 </div>
 <div class="paragraph">
 <p>使用Spring Data MongoDB提供的注解描述java類與MongoDB集合、java字段與MongoDB字段之間的映射關系。Spring Data MongoDB會根據映射關系生成對應的Repository實現。</p>
 </div>
+<div class="sect4">
+<h5 id="product"><a class="link" href="#product">Product</a></h5>
 <div class="listingblock">
 <div class="title">Product.java</div>
 <div class="content">
@@ -2607,10 +2829,51 @@ public class Product {
 </table>
 </div>
 <div class="sect4">
-<h5 id="倉庫repository"><a class="link" href="#倉庫repository">倉庫Repository</a></h5>
+<h5 id="productimage"><a class="link" href="#productimage">ProductImage</a></h5>
+<div class="listingblock">
+<div class="title">ProductImage.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">@Getter <i class="conum" data-value="1"></i><b>(1)</b>
+@Setter <i class="conum" data-value="2"></i><b>(2)</b>
+@Document <i class="conum" data-value="3"></i><b>(3)</b>
+public class ProductImage {
+  @Id <i class="conum" data-value="4"></i><b>(4)</b>
+  private String id;
+  private String src;
+  private Date createdAt;
+  private Date updatedAt;
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Lombok會在編譯期掃描類，為以 <code>@lombok.Getter</code> 注解標注的類中所有成員字段生成getter訪問器。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Lombok會在編譯期掃描類，為以 <code>@lombok.Setter</code> 注解標注的類中所有成員字段生成setter訪問器。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>注解 <code>org.springframework.data.mongodb.core.mapping.Document</code> 將一個類 <code>ProductImage</code> 映射至MongoDB的Collection <code>ProductImage</code>。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td><code>org.springframework.data.annotation.Id</code> 將對象中的字段 <code>id</code> 映射為文檔的主鍵 <code>id</code> 。</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="倉庫-repository"><a class="link" href="#倉庫-repository">倉庫 Repository</a></h4>
 <div class="paragraph">
 <p><code>Repository</code> 是Spring Data抽象的中心接口。應用開發者以 <code>Repository</code> 子接口的形式聲明模型Repository及其需支持的數據訪問方法，Spring Data的具體數據存儲模塊（本例中是Spring Data MongoDB）將會為其生成相應的實現類。由於這些實現類僅包含模板代碼，所以自動生成可以大幅減少應用開發者重復工作。</p>
 </div>
+<div class="sect4">
+<h5 id="productrepository"><a class="link" href="#productrepository">ProductRepository</a></h5>
 <div class="listingblock">
 <div class="title">ProductRepository</div>
 <div class="content">
@@ -2630,7 +2893,28 @@ public interface ProductRepository extends MongoRepository&lt;Product, String&gt
 </div>
 </div>
 <div class="sect4">
-<h5 id="restful-web服務"><a class="link" href="#restful-web服務">RESTful Web服務</a></h5>
+<h5 id="productimagerepository"><a class="link" href="#productimagerepository">ProductImageRepository</a></h5>
+<div class="listingblock">
+<div class="title">ProductImageRepository.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">@RepositoryRestResource(collectionResourceRel = "productImages", path = "productImages")
+public interface ProductImageRepository extends MongoRepository&lt;ProductImage, String&gt; { <i class="conum" data-value="1"></i><b>(1)</b>
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>為模型 <code>ProductImage</code> 創建專屬的 <code>ProductImageRepository</code> ，繼承至 <code>org.springframework.data.mongodb.repository.MongoRepository</code> 。</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="restful-web-服務"><a class="link" href="#restful-web-服務">RESTful Web 服務</a></h4>
 <div class="paragraph">
 <p>Spring Data REST 是Spring Data的一部份，旨於簡化在Spring Data倉庫上構建hypermedia-driven REST Web服務。應用開發者僅需在依賴中引入 <code>spring-boot-starter-data-rest</code> ，再聲明領域模型的倉庫，Spring Data REST就會將其發佈為 Hypermedia-Driven REST Web服務。</p>
 </div>
@@ -2766,9 +3050,27 @@ public class RepositoryRestConfig {
 </tr>
 </table>
 </div>
+<div class="listingblock">
+<div class="title">ProductImageRepository.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">@RepositoryRestResource(collectionResourceRel = "productImages", path = "productImages") <i class="conum" data-value="1"></i><b>(1)</b>
+public interface ProductImageRepository extends MongoRepository&lt;ProductImage, String&gt; {
+
+}</code></pre>
 </div>
-<div class="sect4">
-<h5 id="測試"><a class="link" href="#測試">測試</a></h5>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>用注解 <code>org.springframework.data.rest.core.annotation.RepositoryRestResource</code> 宣告 <code>ProductImageRepository</code> 的數據訪問方法需被曝露為RESTFul Web服務。RESTFul Web服務是以資源為中心的， <code>ProductImageRepository</code> 所專屬於的領域模型 <code>ProductImage</code> 就對應為RESTFul中的資源。 <code>@RepositoryRestResource</code> 允許應用闕發者自定義模型所對應資源名穪。本例中，資源的名穪為`product`。</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="測試"><a class="link" href="#測試">測試</a></h3>
 <div class="paragraph">
 <p>一個典型的軟件測試金字塔自下而上為：</p>
 </div>
@@ -2797,6 +3099,8 @@ public class RepositoryRestConfig {
 <div class="paragraph">
 <p>我們應權衡考慮測試的覆盖度和編寫維護測試代碼的工作量。鍳於我們的應用大量使用第三框架，應用開發者編寫的代碼實際上很少，且是RESTFul的Web服務。所以跳過單元測試和集成測試，僅做應用編程接口測試是比較合適的。</p>
 </div>
+<div class="sect3">
+<h4 id="應用編程接口測試api-test"><a class="link" href="#應用編程接口測試api-test">應用編程接口測試「API Test」</a></h4>
 <div class="paragraph">
 <p>Spring Test提供了Spring MVC Test框架，其為Spring MVC代碼測試提供了流暢的API，應用開發者可以方便等將其與JUnit、TestNG或其它測試框架集成。</p>
 </div>
@@ -3056,8 +3360,9 @@ content(String content)</p></td>
 <div class="paragraph">
 <p>其它Product應用編程接口測試與此相似，這𥚃就不再贅述，請參閱源碼。</p>
 </div>
-<div class="sect5">
-<h6 id="使用嵌入式mongodb-mock-mongodb"><a class="link" href="#使用嵌入式mongodb-mock-mongodb">使用嵌入式MongoDB mock MongoDB</a></h6>
+</div>
+<div class="sect3">
+<h4 id="使用嵌入式mongodb-mock-mongodb"><a class="link" href="#使用嵌入式mongodb-mock-mongodb">使用嵌入式MongoDB mock MongoDB</a></h4>
 <div class="paragraph">
 <p>我們的應用編程接口測試依賴運行的MongoDB服務，而可重復執行測試的一個重要特性是「不依賴外部資源或服務」。所以內嵌MongoDB服務是最佳解決方案。</p>
 </div>
@@ -3095,10 +3400,125 @@ public class EmbeddedMongoAutoConfiguration {
 }</code></pre>
 </div>
 </div>
-</div>
-</div>
 <div class="sect4">
-<h5 id="api文檔"><a class="link" href="#api文檔">API文檔</a></h5>
+<h5 id="productimage-api-test"><a class="link" href="#productimage-api-test">ProductImage API Test</a></h5>
+<div class="paragraph">
+<p>首先，創建測試目標及MockMvc。</p>
+</div>
+<div class="listingblock">
+<div class="title">ProductImageTest.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">@ActiveProfiles({"test"})
+@RunWith(SpringRunner.class) <i class="conum" data-value="1"></i><b>(1)</b>
+@SpringBootTest(classes = CatalogApplication.class) <i class="conum" data-value="2"></i><b>(2)</b>
+@AutoConfigureMockMvc <i class="conum" data-value="3"></i><b>(3)</b>
+@AutoConfigureRestDocs
+public class ProductImageTest {
+
+  private static final String ENDPOINT = "/productImages";
+  @Autowired
+  private MockMvc mvc; <i class="conum" data-value="4"></i><b>(4)</b>
+  @Autowired
+  private ObjectMapper objectMapper; <i class="conum" data-value="5"></i><b>(5)</b>
+  @Autowired
+  private ProductImageRepository imageRepository; <i class="conum" data-value="6"></i><b>(6)</b>
+  ...</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>使用JUnit注解 <code>org.junit.runner.RunWith</code> 指明使用Spring擴展的JUnit Runner <code>org.springframework.test.context.junit4,SpringRunner</code> 。 <code>SpringRunner</code> 會初始化Spring上下文，從而可以在測試中使用依賴注入、模組掃描等Spring特性。默認的JUnit Runner不會初始化Spring上下文。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>使用注解 <code>org.springframework.boot.test.context.SpringBootTest</code> 聲明測試用Spring上下文。 <code>@SpringBootTest</code> 可以指定上下文配置類，這𥚃我們使用生產代碼相同的應用入口類配置測試上下文。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>使用注解 <code>org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc</code> 聲明配置MockMvc，然後就可以在測試代碼中注入MockMvc Bean了。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>使用注解 <code>org.springframework.beans.factory.annotation.Autowired</code> 聲明注入MockMvc。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>使用注解 <code>org.springframeowrk.beans.factory.annotation.Autowired</code> 聲明注入ObjectMapper。MockMvc是以包裝HTTP請求和响應的 <code>HttpServletRequest</code> 和 <code>HttpServletResponse</code> 的形式與DispatcherServlet通信的，所以需要構造和解析JSON格式的請求體和响戈人心土體。在測試代碼中使用與被測試代碼相同的JSON序列化和反序列化實現可以避免編解碼不一致的麻煩。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>使用注解 <code>org.springframework.beans.factory.annotation.Autowired</code> 聲明注入ProductImageRepository，用於在測試之後清理數據庫中的ProductImage數據，避免測試之間互相干擾。</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>然後，通過MockMvc嚮測試目標發送模擬RESTFul HTTP請求並檢驗响應。</p>
+</div>
+<div class="listingblock">
+<div class="title">ProductImageTest.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">...
+@Test
+public void testSaveAndGetOne() throws Exception {
+  final String src = "https://aaa.bbb.ccc/ddd.png";
+  ProductImage newImage = new ProductImage();
+  newImage.setSrc(src);
+
+  ArgumentCaptor&lt;String&gt; linkMatcher = ArgumentCaptor.forClass(String.class);
+  String responseContent = mvc.perform(
+      post(ENDPOINT).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON) <i class="conum" data-value="1"></i><b>(1)</b>
+          .content(objectMapper.writeValueAsString(newImage))) <i class="conum" data-value="2"></i><b>(2)</b>
+      .andDo(print())
+      .andExpect(status().isCreated()) <i class="conum" data-value="3"></i><b>(3)</b>
+      .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)) <i class="conum" data-value="4"></i><b>(4)</b>
+      .andExpect(jsonPath("$.src", is(src))) <i class="conum" data-value="5"></i><b>(5)</b>
+      .andExpect(jsonPath("$.createdAt", notNullValue()))
+      .andExpect(jsonPath("$.updatedAt", notNullValue()))
+      .andDo(document("productImage/create",
+          links(),
+          requestFields(),
+          responseFields(
+              subsectionWithPath("_links").description("links to other resources"))))
+      .andReturn().getResponse().getContentAsString();
+  ...
+}
+...</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>使用 <code>org.springframework.test.web.servlet.request.MockMvcRequestBuilders</code> 提供的構造方法構造 <code>MockHttpServletRequestBuilder</code> ，MockMvc的perform方法會從中構造請求實例並發送給DispatcherServlet模擬HTTP請求。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>使用 <code>objectMapper</code> 將 <code>ProductImage</code> 對象序列化成JSON格式的字符串，填充為請求的消息體。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>使用 <code>status()</code> 檢驗响應狀態碼。對應成功處理的創建請求，RESTFul Web服務應响應 <code>201 Created</code> 。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>使用 <code>content()</code> 檢驗响應頭 <code>Content-Type</code> 應為 <code>application/json</code> 或相容的其它媒體類型。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>使用 <code>jsonPath()</code> 檢驗响應消息體的各個部份。</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>其它ProductImage應用編程接口測試與此類似，這𥚃就不贅述了，詳情請參閱源碼。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="api文檔"><a class="link" href="#api文檔">API文檔</a></h3>
 <div class="paragraph">
 <p>使用Spring REST Docs，從應用編程接口測試中生成API文檔。</p>
 </div>
@@ -3569,225 +3989,6 @@ include::{snippets}/product/create/response-fields.adoc[]</pre>
 </div>
 <div class="paragraph">
 <p>其它API文檔生成方式與此相同，這𥚃就不再贅述，請參閱源碼。</p>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="productimage"><a class="link" href="#productimage">ProductImage</a></h4>
-<div class="sect4">
-<h5 id="領域模型-2"><a class="link" href="#領域模型-2">領域模型</a></h5>
-<div class="paragraph">
-<p>利用Lombok在編譯期生成getter/setter方法，減少重復的模板代碼。</p>
-</div>
-<div class="paragraph">
-<p>使用Spring Data MongoDB提供的注解描述Java類與Mongo集合、Java字段與MongoDB字段之間的映射關系。Spring Data MongoDB會根據映射關系生成對應的倉庫「Repository」實現。</p>
-</div>
-<div class="listingblock">
-<div class="title">ProductImage.java</div>
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">@Getter <i class="conum" data-value="1"></i><b>(1)</b>
-@Setter <i class="conum" data-value="2"></i><b>(2)</b>
-@Document <i class="conum" data-value="3"></i><b>(3)</b>
-public class ProductImage {
-  @Id <i class="conum" data-value="4"></i><b>(4)</b>
-  private String id;
-  private String src;
-  private Date createdAt;
-  private Date updatedAt;
-}</code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Lombok會在編譯期掃描類，為以 <code>@lombok.Getter</code> 注解標注的類中所有成員字段生成getter訪問器。</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Lombok會在編譯期掃描類，為以 <code>@lombok.Setter</code> 注解標注的類中所有成員字段生成setter訪問器。</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>注解 <code>org.springframework.data.mongodb.core.mapping.Document</code> 將一個類 <code>ProductImage</code> 映射至MongoDB的Collection <code>ProductImage</code>。</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td><code>org.springframework.data.annotation.Id</code> 將對象中的字段 <code>id</code> 映射為文檔的主鍵 <code>id</code> 。</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect4">
-<h5 id="倉庫repository-2"><a class="link" href="#倉庫repository-2">倉庫「Repository」</a></h5>
-<div class="paragraph">
-<p><code>Repository</code> 是Spring Data抽象的中心接口。應用開發者以 <code>Repository</code> 子接口的形式聲明領域模型倉庫及其需支持的數據訪問方法，Spring Data的具體數據存儲模塊（本例中是Spring Data MongoDB）將會為其生成相應的實現類。倉庫實現生成大幅減少了模板代碼，減輕了應用開發者的工作。</p>
-</div>
-<div class="listingblock">
-<div class="title">ProductImageRepository.java</div>
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">@RepositoryRestResource(collectionResourceRel = "productImages", path = "productImages")
-public interface ProductImageRepository extends MongoRepository&lt;ProductImage, String&gt; { <i class="conum" data-value="1"></i><b>(1)</b>
-
-}</code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>為模型 <code>ProductImage</code> 創建專屬的 <code>ProductImageRepository</code> ，繼承至 <code>org.springframework.data.mongodb.repository.MongoRepository</code> 。</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect4">
-<h5 id="restful-web服務-2"><a class="link" href="#restful-web服務-2">RESTful Web服務</a></h5>
-<div class="paragraph">
-<p>Spring Data REST是Spring Data的一部份，旨於簡化在Spring Data倉庫上構建Hypermedia-Driven REST Web服務。應用開發暂僅需在依賴中引入 <code>spring-boot-starter-data-rest</code> ，再聲明領域模型的倉庫，Spring DataREST就會將其發佈為Hypermedia-Driven REST Web服務。</p>
-</div>
-<div class="listingblock">
-<div class="title">ProductImageRepository.java</div>
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">@RepositoryRestResource(collectionResourceRel = "productImages", path = "productImages") <i class="conum" data-value="1"></i><b>(1)</b>
-public interface ProductImageRepository extends MongoRepository&lt;ProductImage, String&gt; {
-
-}</code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>用注解 <code>org.springframework.data.rest.core.annotation.RepositoryRestResource</code> 宣告 <code>ProductImageRepository</code> 的數據訪問方法需被曝露為RESTFul Web服務。RESTFul Web服務是以資源為中心的， <code>ProductImageRepository</code> 所專屬於的領域模型 <code>ProductImage</code> 就對應為RESTFul中的資源。 <code>@RepositoryRestResource</code> 允許應用闕發者自定義模型所對應資源名穪。本例中，資源的名穪為`product`。</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect4">
-<h5 id="測試-2"><a class="link" href="#測試-2">測試</a></h5>
-<div class="paragraph">
-<p>我們集求JUnit和Spring MVC Test框架，實現應用編程接口測試。</p>
-</div>
-<div class="paragraph">
-<p>首先，創建測試目標及MockMvc。</p>
-</div>
-<div class="listingblock">
-<div class="title">ProductImageTest.java</div>
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">@ActiveProfiles({"test"})
-@RunWith(SpringRunner.class) <i class="conum" data-value="1"></i><b>(1)</b>
-@SpringBootTest(classes = CatalogApplication.class) <i class="conum" data-value="2"></i><b>(2)</b>
-@AutoConfigureMockMvc <i class="conum" data-value="3"></i><b>(3)</b>
-@AutoConfigureRestDocs
-public class ProductImageTest {
-
-  private static final String ENDPOINT = "/productImages";
-  @Autowired
-  private MockMvc mvc; <i class="conum" data-value="4"></i><b>(4)</b>
-  @Autowired
-  private ObjectMapper objectMapper; <i class="conum" data-value="5"></i><b>(5)</b>
-  @Autowired
-  private ProductImageRepository imageRepository; <i class="conum" data-value="6"></i><b>(6)</b>
-  ...</code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>使用JUnit注解 <code>org.junit.runner.RunWith</code> 指明使用Spring擴展的JUnit Runner <code>org.springframework.test.context.junit4,SpringRunner</code> 。 <code>SpringRunner</code> 會初始化Spring上下文，從而可以在測試中使用依賴注入、模組掃描等Spring特性。默認的JUnit Runner不會初始化Spring上下文。</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>使用注解 <code>org.springframework.boot.test.context.SpringBootTest</code> 聲明測試用Spring上下文。 <code>@SpringBootTest</code> 可以指定上下文配置類，這𥚃我們使用生產代碼相同的應用入口類配置測試上下文。</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>使用注解 <code>org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc</code> 聲明配置MockMvc，然後就可以在測試代碼中注入MockMvc Bean了。</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>使用注解 <code>org.springframework.beans.factory.annotation.Autowired</code> 聲明注入MockMvc。</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>使用注解 <code>org.springframeowrk.beans.factory.annotation.Autowired</code> 聲明注入ObjectMapper。MockMvc是以包裝HTTP請求和响應的 <code>HttpServletRequest</code> 和 <code>HttpServletResponse</code> 的形式與DispatcherServlet通信的，所以需要構造和解析JSON格式的請求體和响戈人心土體。在測試代碼中使用與被測試代碼相同的JSON序列化和反序列化實現可以避免編解碼不一致的麻煩。</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="6"></i><b>6</b></td>
-<td>使用注解 <code>org.springframework.beans.factory.annotation.Autowired</code> 聲明注入ProductImageRepository，用於在測試之後清理數據庫中的ProductImage數據，避免測試之間互相干擾。</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>然後，通過MockMvc嚮測試目標發送模擬RESTFul HTTP請求並檢驗响應。</p>
-</div>
-<div class="listingblock">
-<div class="title">ProductImageTest.java</div>
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">...
-@Test
-public void testSaveAndGetOne() throws Exception {
-  final String src = "https://aaa.bbb.ccc/ddd.png";
-  ProductImage newImage = new ProductImage();
-  newImage.setSrc(src);
-
-  ArgumentCaptor&lt;String&gt; linkMatcher = ArgumentCaptor.forClass(String.class);
-  String responseContent = mvc.perform(
-      post(ENDPOINT).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON) <i class="conum" data-value="1"></i><b>(1)</b>
-          .content(objectMapper.writeValueAsString(newImage))) <i class="conum" data-value="2"></i><b>(2)</b>
-      .andDo(print())
-      .andExpect(status().isCreated()) <i class="conum" data-value="3"></i><b>(3)</b>
-      .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)) <i class="conum" data-value="4"></i><b>(4)</b>
-      .andExpect(jsonPath("$.src", is(src))) <i class="conum" data-value="5"></i><b>(5)</b>
-      .andExpect(jsonPath("$.createdAt", notNullValue()))
-      .andExpect(jsonPath("$.updatedAt", notNullValue()))
-      .andDo(document("productImage/create",
-          links(),
-          requestFields(),
-          responseFields(
-              subsectionWithPath("_links").description("links to other resources"))))
-      .andReturn().getResponse().getContentAsString();
-  ...
-}
-...</code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>使用 <code>org.springframework.test.web.servlet.request.MockMvcRequestBuilders</code> 提供的構造方法構造 <code>MockHttpServletRequestBuilder</code> ，MockMvc的perform方法會從中構造請求實例並發送給DispatcherServlet模擬HTTP請求。</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>使用 <code>objectMapper</code> 將 <code>ProductImage</code> 對象序列化成JSON格式的字符串，填充為請求的消息體。</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>使用 <code>status()</code> 檢驗响應狀態碼。對應成功處理的創建請求，RESTFul Web服務應响應 <code>201 Created</code> 。</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>使用 <code>content()</code> 檢驗响應頭 <code>Content-Type</code> 應為 <code>application/json</code> 或相容的其它媒體類型。</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>使用 <code>jsonPath()</code> 檢驗响應消息體的各個部份。</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>其它ProductImage應用編程接口測試與此類似，這𥚃就不贅述了，詳情請參閱源碼。</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="api-文檔"><a class="link" href="#api-文檔">API 文檔</a></h5>
-<div class="paragraph">
-<p>使用Spring REST Docs從應用編程接口測試中生成API文檔。</p>
-</div>
-</div>
 </div>
 </div>
 <div class="sect2">
@@ -6435,7 +6636,7 @@ public interface ProductRepository extends MongoRepository&lt;Product, String&gt
 <p>Spring Security 內建一些表逹式，以方便應用開發者檢驗以 <code>Authentication</code> 對象形式展現的認證與授權信息。</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 1. Common Built-In Expressions</caption>
+<caption class="title">Table 2. Common Built-In Expressions</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -6508,7 +6709,7 @@ public interface ProductRepository extends MongoRepository&lt;Product, String&gt
 </div>
 </div>
 <div class="sect2">
-<h3 id="測試-3"><a class="link" href="#測試-3">測試</a></h3>
+<h3 id="測試-2"><a class="link" href="#測試-2">測試</a></h3>
 <div class="sect3">
 <h4 id="api-測試"><a class="link" href="#api-測試">API 測試</a></h4>
 <div class="paragraph">
@@ -6814,7 +7015,7 @@ public class ProductTest {
 <div class="sect2">
 <h3 id="設計-3"><a class="link" href="#設計-3">設計</a></h3>
 <div class="sect3">
-<h4 id="用例-2"><a class="link" href="#用例-2">用例</a></h4>
+<h4 id="用例-3"><a class="link" href="#用例-3">用例</a></h4>
 <div class="paragraph">
 <p>作為一個倉儲運營，其可以：</p>
 </div>
@@ -6863,7 +7064,7 @@ public class ProductTest {
 </div>
 </div>
 <div class="sect3">
-<h4 id="架構-2"><a class="link" href="#架構-2">架構</a></h4>
+<h4 id="架構-3"><a class="link" href="#架構-3">架構</a></h4>
 <div class="imageblock">
 <div class="content">
 <img src="images/inventory-architecture.png" alt="inventory architecture" width="239" height="286">
@@ -7081,7 +7282,7 @@ public class ProductTest {
 <p>TBD</p>
 </div>
 <div class="sect3">
-<h4 id="構建"><a class="link" href="#構建">構建</a></h4>
+<h4 id="構建-2"><a class="link" href="#構建-2">構建</a></h4>
 <div class="paragraph">
 <p>首先，引入構建插件。</p>
 </div>
@@ -7162,7 +7363,7 @@ dependencyManagement {
 <td><i class="conum" data-value="1"></i><b>1</b></td>
 <td>將 Spring Cloud 版本定義為變量，便於引用及統一管理。Spring Cloud 與 Spring Boot 之間的版本兼容性發佈在 <a href="https://spring.io/projects/spring-cloud#overview" class="bare">https://spring.io/projects/spring-cloud#overview</a>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 2. Release train Spring Boot compatibility</caption>
+<caption class="title">Table 3. Release train Spring Boot compatibility</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -7245,7 +7446,7 @@ dependencyManagement {
 <p>常用的用以描述模型映射的 JPA 注解有：</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 3. 常用 JPA 注解</caption>
+<caption class="title">Table 4. 常用 JPA 注解</caption>
 <colgroup>
 <col style="width: 22.2222%;">
 <col style="width: 55.5555%;">
@@ -7604,7 +7805,7 @@ public interface InventoryItemQuantityChangeRepository extends
 <div class="sect4">
 <h5 id="inventoryitemcontroller"><a class="link" href="#inventoryitemcontroller">InventoryItemController</a></h5>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 4. 請求/方法映射</caption>
+<caption class="title">Table 5. 請求/方法映射</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -7967,7 +8168,7 @@ public class InventoryItemController {
 </div>
 </div>
 <div class="sect3">
-<h4 id="測試-4"><a class="link" href="#測試-4">測試</a></h4>
+<h4 id="測試-3"><a class="link" href="#測試-3">測試</a></h4>
 <div class="paragraph">
 <p>TBD</p>
 </div>
@@ -8016,7 +8217,7 @@ public class InventoryItemController {
 <div class="sect2">
 <h3 id="需求分析"><a class="link" href="#需求分析">需求分析</a></h3>
 <div class="sect3">
-<h4 id="用例-3"><a class="link" href="#用例-3">用例</a></h4>
+<h4 id="用例-4"><a class="link" href="#用例-4">用例</a></h4>
 <div class="imageblock">
 <div class="content">
 <img src="images/order-usecase.png" alt="order usecase" width="334" height="521">
@@ -8034,7 +8235,7 @@ public class InventoryItemController {
 </div>
 </div>
 <div class="sect3">
-<h4 id="領域模型-3"><a class="link" href="#領域模型-3">領域模型</a></h4>
+<h4 id="領域模型-2"><a class="link" href="#領域模型-2">領域模型</a></h4>
 <div class="imageblock">
 <div class="content">
 <img src="images/order-model.png" alt="order model" width="328" height="340">
@@ -8080,7 +8281,7 @@ public class InventoryItemController {
 <div class="sect2">
 <h3 id="設計-4"><a class="link" href="#設計-4">設計</a></h3>
 <div class="sect3">
-<h4 id="領域模型-4"><a class="link" href="#領域模型-4">領域模型</a></h4>
+<h4 id="領域模型-3"><a class="link" href="#領域模型-3">領域模型</a></h4>
 <div class="imageblock">
 <div class="content">
 <img src="images/order-class.png" alt="order class" width="506" height="235">
@@ -8091,7 +8292,7 @@ public class InventoryItemController {
 <div class="sect3">
 <h4 id="restful-api"><a class="link" href="#restful-api">RESTFul API</a></h4>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 5. Order RESTFul API</caption>
+<caption class="title">Table 6. Order RESTFul API</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -8175,7 +8376,7 @@ public class InventoryItemController {
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1<br>
-Last updated 2020-06-26 09:43:32 UTC
+Last updated 2020-09-06 07:40:06 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
