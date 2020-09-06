@@ -1,0 +1,33 @@
+----
+  .gitignore
+  build.gradle
++ gradle
+  + wrapper
+      gradle-wrapper.war
+      gradle-wrapper.properties
+  graldew
+  gradlew.bat
+  HELP.md
+  settings.gradle
++ src
+  + main
+    - java
+    - resources
+  + test
+    - java
+----
+
+* `.gitignore`, 羅列了應被 GIT 忽略的文件和目錄。自動生成及臨時文件及目錄不應被納入版本控制；
+* `build.gradle`，Gradle 項目文件，定義了項結構及構建過程；
+* `gradle/wrapper/` 包含所有 Gradle Wrapper 相關的文件；
+* `gradlew` 是 UNIX-like 平台版本的 Gradle 命令包裝；
+* `gradlew.bat` 是 Windows 平台版本的 Gradle 命令包裝；
+* `HELP.md` 顧名思義是幫助文檔，與 README 類似；
+* `setting.gradle` Gradle 的屬性文件；
+* `src/` 包含所有源代碼和資源文件：
+* `src/main/` 包含所有部署至運行環境的源代碼文件（以編譯後的目標代碼形式被部署至運行環境）和資源文件：
+* `src/main/java/` 包含所有部署至運行環境的 Java 源代碼文件：
+* `src/main/resources/` 包含所有部署至運行環境的資源文件；
+* `src/test` 包含所有用於測試的源代碼和資源文件；
+* `src/test/java/` 包含所有用於測試的 Java 源代碼文件；
+* `src/test/resource/` 包含所有用於測試的資源文件。
