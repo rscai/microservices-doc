@@ -1,6 +1,7 @@
 = Catalog Service
 :icons: font
 ifndef::imagesdir[:imagesdir: images]
+ifndef::commondir[:commondir: zh_TR/common]
 
 == 目標
 
@@ -12,7 +13,9 @@ ifndef::imagesdir[:imagesdir: images]
 * 使用Spring Test/MockMVC測試RESTFul API
 * 使用Spring REST Docs生成簡潔、準確且結構良好的RESTFul API文檔
 
-== 特性
+== 設計
+
+=== 用例
 
 Catalog微服務負責維護Product和ProductImage兩個業務模型實體。
 
@@ -55,8 +58,7 @@ Catalog微服務需支持特性：
 . 分頁查詢所有ProductImage
 . 讀取單個Product
 
-== 設計
-
+=== 架構
 
 Catalog微服務採用分層架構，自上往下分為：
 
@@ -666,7 +668,71 @@ QueryByExampleExecutor <|-- MongoRepository
 
 === 理解JUnit
 
-TBD
+JUnit 是一個 Java 編程語言的單元測試框架。JUnit 定義了三層單元測試組織結構：
+
+* TestSuite
+    * TestCase
+        * Test
+
+**Test** 是單元測試的最小組織單位，多個 **Test** 可以組織為 **TestCase**，多個 **TestCase** 可以組織為 **TestSuite**。在 Java 中，**TestCase** 和 **TestSuite** 實現為類，**Test** 實現為 **TestCase** 的方法。所以在實際應用中，**Test** 和 **TestCase** 是必須的，**TestSuite** 是可選的。
+
+Junit 定義了五個單元測試執行階段：
+
+* BeforeClass
+* BeforeEach
+* Test
+* AfterEach
+* AfterClass
+
+**BeforeClass** 為 **TestCase** 的初始階段，JUnit 在即將執行 **TestCase** 所包含的 **Test** 之前執行 **BeforeClass**；**BeforeEach** 為 **Test** 的前置階段，JUnit 在每次執行 **Test** 之前執行 **BeforeEach**；**Test** 為單元測試的主要階段，該階段應包含嚮測試對象輸入和斷言測試對象的輸出；**AfterEach** 為 **Test** 的後置階段，JUnit 在每次執行 **Test** 之後執行 **AfterEach**；**AfterClass** 為 **TestCase** 的善後階段，JUnit 在執行完 **TestCase** 所包含的所有 **Test** 之後執行 **AfterClass**。
+
+舉個例子，
+
+.ExampleTest.java
+[source, java]
+----
+public class ExampleTest {
+  private Example testObject;
+  @BeforeClass
+  public void beforeClass() {
+    System.out.println("Before test case ExampleTest");
+  }
+  @AfterClass
+  public void afterClass() {
+    System.out.println("After test case ExampleTest");
+  }
+  @BeforeEach
+  public void setUp() {
+    System.out.println("SetUp for each test");
+    testObject = new Example();
+  }
+  @AfterEach
+  public void tearDown() {
+    System.out.println("TearDown for each test");
+  }
+  @Test
+  public void testFunA() {
+    String actual = testObject.funA();
+    assertEqual(actual, "expected value");
+  }
+  @Test
+  public void testFunB() {
+    String actual = testObject.funB();
+    assertEqual(actual, "expected value");
+  }
+}
+----
+
+**BeforeClass**, **AfterClass**, **BeforeEach**, **AfterEach** 和 **Test** 都被實現為 **TestCase** 的方法，通過注解聲明。JUnit 在執行上述 **TestCase**，方法調用序列為：
+
+1. `beforeClass()`
+2. `setUp()`
+3. `testFunA()`
+4. `tearDown()`
+5. `setUp()`
+6. `testFunB()`
+7. `tearDown()`
+8. `afterClass()`
 
 === 理解Spring MVC Test Framework
 
@@ -789,13 +855,119 @@ Spring REST Docs為請求行，頭和消息體分別提供了Snippet。這些Sni
 
 == 實現
 
-=== Product
+最簡單的創建一個新的 Spring Boot 應用方法是使用 https://start.spring.io[Spring Initializr]。使用瀏覽器訪問 https://start.spring.io :
 
-==== 領域模型
+* Project 選擇 Gradle Project，使用 Gradle 構建我們的項目；
+* Language 選擇 Java；
+* Spring Boot 撰擇 2.2.7 或其它 2.2.x 版本，最新版（訖今為止）的 Spring Cloud Hoxton 兼容 Spring Boot 2.2.x；
+* Project Metadata 部份，Group 填 `io.github.rscai.microservices`，Artifact 填 `catalog`，Name 填 `catalog`，Packaging 撰 Jar，Java 撰擇版本 8；
+* Dependencies 選擇
+  * Spring Web
+  * Spring Data MongoDB
+  * Rest Repositories
+
+image::02-Catalog/generate-project-by-spring-initializr.png[]
+
+單擊**GENERATE**，Spring initializr 就會生成 ZIP 格式的項目文件。
+
+將 `catalog.zip` 解壓後得到一個 Spring Boot 項目。其中：
+
+include::{commondir}/gradle-project-structure-basic.adoc[]
+
+將 catalog 項目導入 IntelliJ IDEA。首先，打開 Intellij IDEA，然後，單繫 Import Project，選定 catalog 項目目錄，再然後選擇以 Gradle 項目形式導入。IntelliJ IDEA 會自動初始執行 Gradle 配置，下載 `/gradle/wrapper/gradle-wrapper.properties` 中指定版本的 Gradle。
+
+image::02-Catalog/catalog-import.gif[]
+
+=== 構建
+
+本項目使用 Gradle 構建。Gradle 構建過程主要通過 `build.gradle` 描述。
+
+首先，引用必要的 Gradle 插件。
+
+.build.gradle
+[source, groovy]
+----
+plugins {
+	id 'org.springframework.boot' version '2.2.2.RELEASE' // <1>
+	id 'io.spring.dependency-management' version '1.0.8.RELEASE' // <2>
+	id 'java'
+	id "io.freefair.lombok" version "4.1.6"
+	id "org.sonarqube" version "2.7.1"
+	id 'jacoco'
+	id 'org.asciidoctor.convert' version '1.5.3'
+}
+...
+----
+<1> 引入 Spring Boot 插件，其版本決定了引入的 Spring Boot 庫的版本。所以有了 Spring Boot 插件，就無需顯式指定各個 Spring Boot 庫的版本了。
+<2> 引入 Spring 依賴管理插件。
+
+然後，引入依賴。
+
+.gradle.build
+[source, groovy]
+----
+...
+ext {
+	snippetsDir = file('build/generated-snippets')
+	set('springCloudVersion', "Hoxton.SR1") // <1>
+}
+
+dependencies {
+	asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb' // <2>
+	implementation 'org.springframework.boot:spring-boot-starter-web' // <3>
+	implementation 'org.springframework.boot:spring-boot-starter-data-rest' // <4>
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+	implementation 'org.springframework.security:spring-security-oauth2-jose'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+	testImplementation 'org.springframework.security:spring-security-test'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}" // <5>
+	}
+}
+...
+----
+<1> 將 Spring Cloud 版本定義為變量，便於引用及統一管理。Spring Cloud 與 Spring Boot 之間的版本兼容性發佈在 https://spring.io/projects/spring-cloud#overview
++
+.Release train Spring Boot compatibility
+|===
+|Release Train|Boot Version
+
+|Hoxton
+|2.2.x
+
+|Greenwich
+|2.1.x
+
+|Finchley
+|2.0.x
+
+|Edgware
+|1.5.x
+
+|Dalston
+|1.5.x
+|===
+<2> `org.springframework.boot:spring-boot-starter-data-mongodb` 引入 Spring Data MongoDB 相關的庫，用以生成訪問 MongoDB 的 Repository。
+<3> `spring-boot-starter-web` 引入了 Spring MVC 相關的庫。
+<4> `org.springframework.boot:spring-boot-starter-data-rest` 引入 Spring Data REST 相關的庫。Spring Data REST 將 Repository 方法發佈為 RESTFul 風格的 Web 服務，以減少模板代碼。
+<5> 通過引入 `org.springframework.cloud:spring-cloud-dependencies` BOM 來管理 Spring Cloud 庫的版本。
+
+=== 領域模型
 
 利用Lombok編譯期生成getter/setter方法，減少重復的模板代碼。
 
 使用Spring Data MongoDB提供的注解描述java類與MongoDB集合、java字段與MongoDB字段之間的映射關系。Spring Data MongoDB會根據映射關系生成對應的Repository實現。
+
+==== Product
 
 .Product.java
 [source,java]
@@ -937,9 +1109,32 @@ Spring Data MongoDB提供的映射注解：
 |指明該字段將作為樂觀鎖定「Optimistic Locking」機制中的版本屬性，在保存變更之前都會先檢查版本值是否為所期望的。其初始值為 `0` ，每次變更都會自動加 `1` 。
 |===
 
-==== 倉庫Repository
+==== ProductImage
+
+.ProductImage.java
+[source,java]
+----
+@Getter // <1>
+@Setter // <2>
+@Document // <3>
+public class ProductImage {
+  @Id // <4>
+  private String id;
+  private String src;
+  private Date createdAt;
+  private Date updatedAt;
+}
+----
+<1> Lombok會在編譯期掃描類，為以 `@lombok.Getter` 注解標注的類中所有成員字段生成getter訪問器。
+<2> Lombok會在編譯期掃描類，為以 `@lombok.Setter` 注解標注的類中所有成員字段生成setter訪問器。
+<3> 注解 `org.springframework.data.mongodb.core.mapping.Document` 將一個類 `ProductImage` 映射至MongoDB的Collection `ProductImage`。
+<4> `org.springframework.data.annotation.Id` 將對象中的字段 `id` 映射為文檔的主鍵 `id` 。
+
+=== 倉庫 Repository
 
 `Repository` 是Spring Data抽象的中心接口。應用開發者以 `Repository` 子接口的形式聲明模型Repository及其需支持的數據訪問方法，Spring Data的具體數據存儲模塊（本例中是Spring Data MongoDB）將會為其生成相應的實現類。由於這些實現類僅包含模板代碼，所以自動生成可以大幅減少應用開發者重復工作。
+
+==== ProductRepository
 
 .ProductRepository
 [source,java]
@@ -951,7 +1146,19 @@ public interface ProductRepository extends MongoRepository<Product, String> { //
 ----
 <1> 為模型 `Product` 創建專屬的 `ProductRepository` 接口，繼承至 `org.springframework.data.mongodb.repository.MongoRepository` . `MongoRepository` 繼承了接口 `PagingAndSortingRepository` ，Spring Data MongoDB會其生成一個支持增刪改查及分頁排序的MongoDB訪問實現類。因為 `ProductRepository` 除了繼承的方法聲明外，沒有聲明其它方法，所以Spring Data MongoDB就會直接使用通用的實現類 `org.springframework.data.mongodb.repository.support.SimpleMongoRepository<T, ID>` 做為其實現。
 
-==== RESTful Web服務
+==== ProductImageRepository
+
+.ProductImageRepository.java
+[source,java]
+----
+@RepositoryRestResource(collectionResourceRel = "productImages", path = "productImages")
+public interface ProductImageRepository extends MongoRepository<ProductImage, String> { // <1>
+
+}
+----
+<1> 為模型 `ProductImage` 創建專屬的 `ProductImageRepository` ，繼承至 `org.springframework.data.mongodb.repository.MongoRepository` 。
+
+=== RESTful Web 服務
 
 Spring Data REST 是Spring Data的一部份，旨於簡化在Spring Data倉庫上構建hypermedia-driven REST Web服務。應用開發者僅需在依賴中引入 `spring-boot-starter-data-rest` ，再聲明領域模型的倉庫，Spring Data REST就會將其發佈為 Hypermedia-Driven REST Web服務。
 
@@ -1042,7 +1249,17 @@ public class RepositoryRestConfig {
 <2> 在Spring上下文中聲明個類型為 `RepositoryRestConfigurer` 的Bean。
 <3> 構造一個子類，並覆寫方法 `configureRepositoryRestConfiguration` ，自定義倉庫檢測策略為 `ANNOTATED` 。
 
-==== 測試
+.ProductImageRepository.java
+[source, java]
+----
+@RepositoryRestResource(collectionResourceRel = "productImages", path = "productImages") // <1>
+public interface ProductImageRepository extends MongoRepository<ProductImage, String> {
+
+}
+----
+<1> 用注解 `org.springframework.data.rest.core.annotation.RepositoryRestResource` 宣告 `ProductImageRepository` 的數據訪問方法需被曝露為RESTFul Web服務。RESTFul Web服務是以資源為中心的， `ProductImageRepository` 所專屬於的領域模型 `ProductImage` 就對應為RESTFul中的資源。 `@RepositoryRestResource` 允許應用闕發者自定義模型所對應資源名穪。本例中，資源的名穪為`product`。
+
+== 測試
 
 一個典型的軟件測試金字塔自下而上為：
 
@@ -1055,6 +1272,8 @@ public class RepositoryRestConfig {
 單元測試是一種以單個代碼單元（在Java中就是類）為測試目標的測試方法。
 
 我們應權衡考慮測試的覆盖度和編寫維護測試代碼的工作量。鍳於我們的應用大量使用第三框架，應用開發者編寫的代碼實際上很少，且是RESTFul的Web服務。所以跳過單元測試和集成測試，僅做應用編程接口測試是比較合適的。
+
+=== 應用編程接口測試「API Test」
 
 Spring Test提供了Spring MVC Test框架，其為Spring MVC代碼測試提供了流暢的API，應用開發者可以方便等將其與JUnit、TestNG或其它測試框架集成。
 
@@ -1260,7 +1479,7 @@ Spring Data REST對實體內容的編碼遵循Hypertext Application Language（H
 
 其它Product應用編程接口測試與此相似，這𥚃就不再贅述，請參閱源碼。
 
-===== 使用嵌入式MongoDB mock MongoDB
+=== 使用嵌入式MongoDB mock MongoDB
 
 我們的應用編程接口測試依賴運行的MongoDB服務，而可重復執行測試的一個重要特性是「不依賴外部資源或服務」。所以內嵌MongoDB服務是最佳解決方案。
 
@@ -1290,7 +1509,77 @@ public class EmbeddedMongoAutoConfiguration {
 }
 ----
 
-==== API文檔
+==== ProductImage API Test
+
+首先，創建測試目標及MockMvc。
+
+.ProductImageTest.java
+[source, java]
+----
+@ActiveProfiles({"test"})
+@RunWith(SpringRunner.class) // <1>
+@SpringBootTest(classes = CatalogApplication.class) // <2>
+@AutoConfigureMockMvc // <3>
+@AutoConfigureRestDocs
+public class ProductImageTest {
+
+  private static final String ENDPOINT = "/productImages";
+  @Autowired
+  private MockMvc mvc; // <4>
+  @Autowired
+  private ObjectMapper objectMapper; // <5>
+  @Autowired
+  private ProductImageRepository imageRepository; // <6>
+  ...
+----
+<1> 使用JUnit注解 `org.junit.runner.RunWith` 指明使用Spring擴展的JUnit Runner `org.springframework.test.context.junit4,SpringRunner` 。 `SpringRunner` 會初始化Spring上下文，從而可以在測試中使用依賴注入、模組掃描等Spring特性。默認的JUnit Runner不會初始化Spring上下文。
+<2> 使用注解 `org.springframework.boot.test.context.SpringBootTest` 聲明測試用Spring上下文。 `@SpringBootTest` 可以指定上下文配置類，這𥚃我們使用生產代碼相同的應用入口類配置測試上下文。
+<3> 使用注解 `org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc` 聲明配置MockMvc，然後就可以在測試代碼中注入MockMvc Bean了。
+<4> 使用注解 `org.springframework.beans.factory.annotation.Autowired` 聲明注入MockMvc。
+<5> 使用注解 `org.springframeowrk.beans.factory.annotation.Autowired` 聲明注入ObjectMapper。MockMvc是以包裝HTTP請求和响應的 `HttpServletRequest` 和 `HttpServletResponse` 的形式與DispatcherServlet通信的，所以需要構造和解析JSON格式的請求體和响戈人心土體。在測試代碼中使用與被測試代碼相同的JSON序列化和反序列化實現可以避免編解碼不一致的麻煩。
+<6> 使用注解 `org.springframework.beans.factory.annotation.Autowired` 聲明注入ProductImageRepository，用於在測試之後清理數據庫中的ProductImage數據，避免測試之間互相干擾。
+
+然後，通過MockMvc嚮測試目標發送模擬RESTFul HTTP請求並檢驗响應。
+
+.ProductImageTest.java
+[source, java]
+----
+...
+@Test
+public void testSaveAndGetOne() throws Exception {
+  final String src = "https://aaa.bbb.ccc/ddd.png";
+  ProductImage newImage = new ProductImage();
+  newImage.setSrc(src);
+
+  ArgumentCaptor<String> linkMatcher = ArgumentCaptor.forClass(String.class);
+  String responseContent = mvc.perform(
+      post(ENDPOINT).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON) // <1>
+          .content(objectMapper.writeValueAsString(newImage))) // <2>
+      .andDo(print())
+      .andExpect(status().isCreated()) // <3>
+      .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)) // <4>
+      .andExpect(jsonPath("$.src", is(src))) // <5>
+      .andExpect(jsonPath("$.createdAt", notNullValue()))
+      .andExpect(jsonPath("$.updatedAt", notNullValue()))
+      .andDo(document("productImage/create",
+          links(),
+          requestFields(),
+          responseFields(
+              subsectionWithPath("_links").description("links to other resources"))))
+      .andReturn().getResponse().getContentAsString();
+  ...
+}
+...
+----
+<1> 使用 `org.springframework.test.web.servlet.request.MockMvcRequestBuilders` 提供的構造方法構造 `MockHttpServletRequestBuilder` ，MockMvc的perform方法會從中構造請求實例並發送給DispatcherServlet模擬HTTP請求。
+<2> 使用 `objectMapper` 將 `ProductImage` 對象序列化成JSON格式的字符串，填充為請求的消息體。
+<3> 使用 `status()` 檢驗响應狀態碼。對應成功處理的創建請求，RESTFul Web服務應响應 `201 Created` 。
+<4> 使用 `content()` 檢驗响應頭 `Content-Type` 應為 `application/json` 或相容的其它媒體類型。
+<5> 使用 `jsonPath()` 檢驗响應消息體的各個部份。
+
+其它ProductImage應用編程接口測試與此類似，這𥚃就不贅述了，詳情請參閱源碼。
+
+== API文檔
 
 使用Spring REST Docs，從應用編程接口測試中生成API文檔。
 
@@ -1633,137 +1922,6 @@ Endpoint `products`.
 image::spring-rest-docs-product-example.png[]
 
 其它API文檔生成方式與此相同，這𥚃就不再贅述，請參閱源碼。
-
-=== ProductImage 
-
-==== 領域模型
-
-利用Lombok在編譯期生成getter/setter方法，減少重復的模板代碼。
-
-使用Spring Data MongoDB提供的注解描述Java類與Mongo集合、Java字段與MongoDB字段之間的映射關系。Spring Data MongoDB會根據映射關系生成對應的倉庫「Repository」實現。
-
-.ProductImage.java
-[source,java]
-----
-@Getter // <1>
-@Setter // <2>
-@Document // <3>
-public class ProductImage {
-  @Id // <4>
-  private String id;
-  private String src;
-  private Date createdAt;
-  private Date updatedAt;
-}
-----
-<1> Lombok會在編譯期掃描類，為以 `@lombok.Getter` 注解標注的類中所有成員字段生成getter訪問器。
-<2> Lombok會在編譯期掃描類，為以 `@lombok.Setter` 注解標注的類中所有成員字段生成setter訪問器。
-<3> 注解 `org.springframework.data.mongodb.core.mapping.Document` 將一個類 `ProductImage` 映射至MongoDB的Collection `ProductImage`。
-<4> `org.springframework.data.annotation.Id` 將對象中的字段 `id` 映射為文檔的主鍵 `id` 。
-
-==== 倉庫「Repository」
-
-`Repository` 是Spring Data抽象的中心接口。應用開發者以 `Repository` 子接口的形式聲明領域模型倉庫及其需支持的數據訪問方法，Spring Data的具體數據存儲模塊（本例中是Spring Data MongoDB）將會為其生成相應的實現類。倉庫實現生成大幅減少了模板代碼，減輕了應用開發者的工作。
-
-.ProductImageRepository.java
-[source,java]
-----
-@RepositoryRestResource(collectionResourceRel = "productImages", path = "productImages")
-public interface ProductImageRepository extends MongoRepository<ProductImage, String> { // <1>
-
-}
-----
-<1> 為模型 `ProductImage` 創建專屬的 `ProductImageRepository` ，繼承至 `org.springframework.data.mongodb.repository.MongoRepository` 。
-
-==== RESTful Web服務
-
-Spring Data REST是Spring Data的一部份，旨於簡化在Spring Data倉庫上構建Hypermedia-Driven REST Web服務。應用開發暂僅需在依賴中引入 `spring-boot-starter-data-rest` ，再聲明領域模型的倉庫，Spring DataREST就會將其發佈為Hypermedia-Driven REST Web服務。
-
-.ProductImageRepository.java
-[source, java]
-----
-@RepositoryRestResource(collectionResourceRel = "productImages", path = "productImages") // <1>
-public interface ProductImageRepository extends MongoRepository<ProductImage, String> {
-
-}
-----
-<1> 用注解 `org.springframework.data.rest.core.annotation.RepositoryRestResource` 宣告 `ProductImageRepository` 的數據訪問方法需被曝露為RESTFul Web服務。RESTFul Web服務是以資源為中心的， `ProductImageRepository` 所專屬於的領域模型 `ProductImage` 就對應為RESTFul中的資源。 `@RepositoryRestResource` 允許應用闕發者自定義模型所對應資源名穪。本例中，資源的名穪為`product`。
-
-==== 測試
-
-我們集求JUnit和Spring MVC Test框架，實現應用編程接口測試。
-
-首先，創建測試目標及MockMvc。
-
-.ProductImageTest.java
-[source, java]
-----
-@ActiveProfiles({"test"})
-@RunWith(SpringRunner.class) // <1>
-@SpringBootTest(classes = CatalogApplication.class) // <2>
-@AutoConfigureMockMvc // <3>
-@AutoConfigureRestDocs
-public class ProductImageTest {
-
-  private static final String ENDPOINT = "/productImages";
-  @Autowired
-  private MockMvc mvc; // <4>
-  @Autowired
-  private ObjectMapper objectMapper; // <5>
-  @Autowired
-  private ProductImageRepository imageRepository; // <6>
-  ...
-----
-<1> 使用JUnit注解 `org.junit.runner.RunWith` 指明使用Spring擴展的JUnit Runner `org.springframework.test.context.junit4,SpringRunner` 。 `SpringRunner` 會初始化Spring上下文，從而可以在測試中使用依賴注入、模組掃描等Spring特性。默認的JUnit Runner不會初始化Spring上下文。
-<2> 使用注解 `org.springframework.boot.test.context.SpringBootTest` 聲明測試用Spring上下文。 `@SpringBootTest` 可以指定上下文配置類，這𥚃我們使用生產代碼相同的應用入口類配置測試上下文。
-<3> 使用注解 `org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc` 聲明配置MockMvc，然後就可以在測試代碼中注入MockMvc Bean了。
-<4> 使用注解 `org.springframework.beans.factory.annotation.Autowired` 聲明注入MockMvc。
-<5> 使用注解 `org.springframeowrk.beans.factory.annotation.Autowired` 聲明注入ObjectMapper。MockMvc是以包裝HTTP請求和响應的 `HttpServletRequest` 和 `HttpServletResponse` 的形式與DispatcherServlet通信的，所以需要構造和解析JSON格式的請求體和响戈人心土體。在測試代碼中使用與被測試代碼相同的JSON序列化和反序列化實現可以避免編解碼不一致的麻煩。
-<6> 使用注解 `org.springframework.beans.factory.annotation.Autowired` 聲明注入ProductImageRepository，用於在測試之後清理數據庫中的ProductImage數據，避免測試之間互相干擾。
-
-然後，通過MockMvc嚮測試目標發送模擬RESTFul HTTP請求並檢驗响應。
-
-.ProductImageTest.java
-[source, java]
-----
-...
-@Test
-public void testSaveAndGetOne() throws Exception {
-  final String src = "https://aaa.bbb.ccc/ddd.png";
-  ProductImage newImage = new ProductImage();
-  newImage.setSrc(src);
-
-  ArgumentCaptor<String> linkMatcher = ArgumentCaptor.forClass(String.class);
-  String responseContent = mvc.perform(
-      post(ENDPOINT).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON) // <1>
-          .content(objectMapper.writeValueAsString(newImage))) // <2>
-      .andDo(print())
-      .andExpect(status().isCreated()) // <3>
-      .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)) // <4>
-      .andExpect(jsonPath("$.src", is(src))) // <5>
-      .andExpect(jsonPath("$.createdAt", notNullValue()))
-      .andExpect(jsonPath("$.updatedAt", notNullValue()))
-      .andDo(document("productImage/create",
-          links(),
-          requestFields(),
-          responseFields(
-              subsectionWithPath("_links").description("links to other resources"))))
-      .andReturn().getResponse().getContentAsString();
-  ...
-}
-...
-----
-<1> 使用 `org.springframework.test.web.servlet.request.MockMvcRequestBuilders` 提供的構造方法構造 `MockHttpServletRequestBuilder` ，MockMvc的perform方法會從中構造請求實例並發送給DispatcherServlet模擬HTTP請求。
-<2> 使用 `objectMapper` 將 `ProductImage` 對象序列化成JSON格式的字符串，填充為請求的消息體。
-<3> 使用 `status()` 檢驗响應狀態碼。對應成功處理的創建請求，RESTFul Web服務應响應 `201 Created` 。
-<4> 使用 `content()` 檢驗响應頭 `Content-Type` 應為 `application/json` 或相容的其它媒體類型。
-<5> 使用 `jsonPath()` 檢驗响應消息體的各個部份。
-
-其它ProductImage應用編程接口測試與此類似，這𥚃就不贅述了，詳情請參閱源碼。
-
-==== API 文檔
-
-使用Spring REST Docs從應用編程接口測試中生成API文檔。
 
 == 總結
 
