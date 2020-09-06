@@ -1,5 +1,6 @@
 = 工具設置
 ifndef::imagesdir[:imagesdir: images]
+ifndef::commondir[:commondir: zh_TR/common]
 
 == 概述
 
@@ -142,50 +143,15 @@ image::01-Tools-Setup/generate-helloworld-by-spring-initializr.png[]
 
 將 `helloworld.zip` 解壓後得到一個 Spring Boot 項目。其中：
 
-* `.gitignore` 邏列了 GIT 忽略文件列表；
-* `build.gradle` 和 `settings.gradle` 是 Gradle 的構建定義；
-* `gradle/` 包含了 Gradle Wrapper 的內容；
-* `gradlew` 和 `gradlew.bat` 是 Gradle Wrapper 的命令；
-* `HELP.md` 顧名思義是描述文檔，與 README 類似；
-* `src/main/java` 包含所有運行期 Java 代碼；
-* `src/main/resources` 包含所有編譯期及運行期所需的資源文件；
-* `src/test/java` 包含所有測試 Java 代碼。
-
-----
-  .gitignore
-  build.gradle
-+ gradle
-  + wrapper
-      gradle-wrapper.war
-      gradle-wrapper.properties
-  graldew
-  gradlew.bat
-  HELP.md
-  settings.gradle
-+ src
-  + main
-    - java
-    - resources
-  + test
-    - java
-----
-
-* `.gitignore`, 羅列了應被 GIT 忽略的文件和目錄。自動生成及臨時文件及目錄不應被納入版本控制；
-* `build.gradle`，Gradle 項目文件，定義了項結構及構建過程；
-* `gradle/wrapper` 包含所有 Gradle Wrapper 相關的文件。其中，`gradle-wrapper.war` ,,,
-* `gradlew` 是 UNIX-like 平台版本的 Gradle 命令包裝；
-* `gradlew.bat`
-* `setting.gradle`
-* `src/main/java`
-* `src/main/resources`
-* `src/test/java`
+include::{commondir}/gradle-project-structure-basic.adoc[]
 
 將 helloworld 項目導入 IntelliJ IDEA。首先，打開 Intellij IDEA，然後，單繫 Import Project，選定 helloworld 項目目錄，再然後選擇以 Gradle 項目形式導入。IntelliJ IDEA 會自動初始執行 Gradle 配置，下載 `/gradle/wrapper/gradle-wrapper.properties` 中指定版本的 Gradle。
 
 image::01-Tools-Setup/Helloworld-import.gif[]
 
-.src/main/java/io/github/rscai/microservices/helloworld/HelloWorldApplication.java
-....
+./src/main/java/io/github/rscai/microservices/helloworld/HelloWorldApplication.java
+[source, java]
+----
 package io.github.rscai.microservices.helloworld;
 
 import org.springframework.boot.SpringApplication;
@@ -199,7 +165,7 @@ public class HelloWorldApplication {
 	}
 
 }
-....
+----
 . 使用注解 `@SpringBootApplication` 聲明 Spring Boot 應用；
 . 將 Spring Boot 應用類傳遞給 `SpringApplication.run`，其會掃描 Spring Boot 應用類中相關的聲明及 classpath 中的聲明（注解和指標類），裝配並初始化 Spring Bean。
 
