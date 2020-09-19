@@ -1263,17 +1263,62 @@ public interface ProductImageRepository extends MongoRepository<ProductImage, St
 
 一個典型的軟件測試金字塔自下而上為：
 
-* 單元測測「Unit Test」
+* 單元測試「Unit Test」
 * 集成測試「Integration Test」
-* 應用編程接口測試「API Test」
+* 契約測試「Contract Test」
+* 端到端測試「End-to-End Test」
+* 驗收測試「Acceptance Test」
+
 * 功能測試「Function Test」
 * 性能測試「Performance Test」
 
-單元測試是一種以單個代碼單元（在Java中就是類）為測試目標的測試方法。
+單元測試::
+[quote, 測試金字塔實战, https://insights.thoughtworks.cn/practical-test-pyramid/]
+____
+單元測試將成為你測試的基石。你的單元測試保證了代碼庫𥚃的某個單元（被測試的主體）能按照預期那樣工作。單元測試在你的測試組合𥚃測試試的範圍是最窄的。它的數量在測試組合中應該遠遠多於其他類型的測試。
+____
 
-我們應權衡考慮測試的覆盖度和編寫維護測試代碼的工作量。鍳於我們的應用大量使用第三框架，應用開發者編寫的代碼實際上很少，且是RESTFul的Web服務。所以跳過單元測試和集成測試，僅做應用編程接口測試是比較合適的。
+集成測試::
+[quote, 測試金字塔實战, https://insights.thoughtworks.cn/practical-test-pyramid/]
+____
+所有常見的應用都會和一些外部環境做集成（數據庫、文件系統，向其他應用發起網絡請求）。為了使測試更好地隔離、運行更快，我們通常不會在編寫單元測試時涉及這些外部依賴。不過，這些交互始終是存在的，它們也需要被測試覆盖到。這正是集成測試的用處所在。它們測試的是應用與所有外部依賴的集成。
+____
 
-=== 應用編程接口測試「API Test」
+契约測試::
+[quote, 測試金字塔實战, https://insights.thoughtworks.cn/practical-test-pyramid/]
+____
+越來越多現代軟件組織發現，對於增長的開發需求，可以讓不同的團隊來開發同一系統的不同部分。每個團隊負責構建獨立、鬆耦合的服務，團隊間開發不互相影響。最終再將這些服務集成為一個大而全的系統。最近關於微服務的討論日益熱烈，關注的正是這一點。
+
+將系統拆分成多個更小的服務，常常意味着這些服務之間需要通過確定的（最好是定義明確的，但有時候會有變動演進）接口通信。
+
+不同應用間的接口可能形態各異，或其於不同的技術棧。常見的有：
+
+* 基於 HTTPS 使用 JSON 交互的 REST 接口
+* 基於類似 gRPC 的 RPC （Remote Procedure Call，遠程進程調用）接口
+* 使用隊列構建的事件驅動架構
+
+對於任意一個接口，一定會涉及兩個實體：提供方和消費方。提供方為消費方提供數據。消費方處理來自提供方的數據。在 REST 世界𥚃，提供方為所有要暴露的 API 創建一個 REST API；消費方則調用這些 API 來獲取數據，或進一步觸發其他的服務。而在一個由異步、事件驅動的世界，提供方（通常被穪為發佈者）發佈數據到一個隊列中；消費方（通常被穪為訂閱者）訂閱這些隊列，讀取並處理相關數據。
+
+當你把服務消費方和服務提供方分散到不同的團隊去時，你就需要清楚地瞭解這些服務之間的接口（也就是我們所講的契約）。傳統的公司一般是通過以下的方式解決這個問題：
+
+* 寫一個鉅細靡遺的接口文檔（就是契約）
+* 根據定義好的契約實現提供方服務
+* 把接口文檔扔給隔壁的消費團隊
+* 等。等到消費方團隊實現接口消費部分的工作
+* 運行一些大型的、手動的系統測試，保證軟件能正常工作
+* 祈禱雙方團隊永遠都維持接口定義不變，不要把事情搞砸
+
+越來越多現代軟件開發團隊已經把第五步和第六步用更加自動化的方式來替代：自動代契約測試保證了消費方和提供方實現的時候依然遵循契約。這種測試提供了一個良好的回歸測試組合，保證契約的變更能被及早發現。
+____
+
+端到端測試::
+端到端測試又被穪為廣域棧測試，其將系統運行所需的一切組裝在一起（包括運行時環境、依賴的外部服務），在系統的邊界上測試其行為是否符合預期。對於採有圖形用戶界面的系統而言，包含圖形用戶界面行為。而對於僅提供 API 界面的系統而言，僅包含 API 行為測試。
+
+驗收測試::
+以最終用戶的⻆度進行的功能及非功能測試。
+我們應權衡考慮測試的覆盖度和編寫維護測試代碼的工作量。鍳於我們的應用大量使用第三框架，應用開發者編寫的代碼實際上很少，且是RESTFul的Web服務。所以跳過單元測試和集成測試，僅做契約測試是比較合適的。契約測試又穪為應用編程接口測試「API Test」。
+
+=== Product API 測試
 
 Spring Test提供了Spring MVC Test框架，其為Spring MVC代碼測試提供了流暢的API，應用開發者可以方便等將其與JUnit、TestNG或其它測試框架集成。
 
@@ -1509,7 +1554,7 @@ public class EmbeddedMongoAutoConfiguration {
 }
 ----
 
-==== ProductImage API Test
+=== ProductImage API 測試
 
 首先，創建測試目標及MockMvc。
 
@@ -1786,7 +1831,7 @@ private static RequestFieldsSnippet requestFields(FieldDescriptor... descriptors
 
 |`+title+`
 |`+String+`
-|catalog's title
+|catalog title
 
 |`+tags+`
 |`+Array+`
@@ -1806,7 +1851,7 @@ private static RequestFieldsSnippet requestFields(FieldDescriptor... descriptors
 
 |`+title+`
 |`+String+`
-|catalog's title
+|catalog title
 
 |`+tags+`
 |`+Array+`
@@ -1844,7 +1889,7 @@ private static ResponseFieldsSnippet responseFields(FieldDescriptor... descripto
 
 |`+title+`
 |`+String+`
-|catalog's title
+|catalog title
 
 |`+tags+`
 |`+Array+`
@@ -1872,7 +1917,7 @@ private static ResponseFieldsSnippet responseFields(FieldDescriptor... descripto
 
 |`+title+`
 |`+String+`
-|catalog's title
+|catalog title
 
 |`+tags+`
 |`+Array+`
