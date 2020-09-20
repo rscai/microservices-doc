@@ -447,9 +447,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#目標">目標</a></li>
-<li><a href="#認證與授權">認證與授權</a></li>
 <li><a href="#設計">設計</a>
 <ul class="sectlevel2">
+<li><a href="#認證與授權">認證與授權</a></li>
+<li><a href="#架構">架構</a></li>
 <li><a href="#oauth">OAuth</a></li>
 <li><a href="#spring-security">Spring Security</a></li>
 <li><a href="#spring-cloud-security">Spring Cloud Security</a></li>
@@ -465,9 +466,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#測試">測試</a>
 <ul class="sectlevel2">
 <li><a href="#api-測試">API 測試</a></li>
-<li><a href="#系統集成測試">系統集成測試</a></li>
+<li><a href="#端到端測試">端到端測試</a></li>
 </ul>
 </li>
+<li><a href="#總結">總結</a></li>
 <li><a href="#參考">參考</a></li>
 </ul>
 </div>
@@ -495,8 +497,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="認證與授權">認證與授權</h2>
+<h2 id="設計">設計</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="認證與授權">認證與授權</h3>
 <div class="quoteblock">
 <blockquote>
 <div class="paragraph">
@@ -526,10 +530,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>一次資源訪問行為可描述為：某人對某物做某個行為。認證是驗證某人為何人，而授權則驗證某人可否對某物做某個行為。舉個例子，類目管理員添加新的商品。當中，人為類目管理員，物為新的商品，行為為添加。認證階段驗證其人是否真為所宣穪的類目管理員，授權階段則驗證類目管理員是否有權添加新的商品。</p>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="設計">設計</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="架構">架構</h3>
 <div class="paragraph">
 <p>按照 OAuth 協議實現單點登入模式。
 採用單點登入模式。採用 Cloud Foundry 的 UAA 實現認證與授權。在 Gateway處認證校驗。各個服務再作具體的授權校驗。</p>
@@ -546,6 +548,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="imageblock">
 <div class="content">
 <img src="images/diag-b5f47ab384ec7eeb0ce951041b0038ac.png" alt="diag b5f47ab384ec7eeb0ce951041b0038ac" width="498" height="401">
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -1123,7 +1126,7 @@ scim:
 <p>網關要校驗所有請求，若請求未認證則引導至 UAA 做認證與授權，若請求已認證則將訪問令牌一同轉發給後端服務。</p>
 </div>
 <div class="paragraph">
-<p>首先，在 Gradle 構建文件中引入依賴。</p>
+<p>首先，在 gateway 的 Gradle 構建文件中引入依賴。</p>
 </div>
 <div class="listingblock">
 <div class="title">build.gradle</div>
@@ -1656,7 +1659,7 @@ public class ProductTest {
 </div>
 </div>
 <div class="sect2">
-<h3 id="系統集成測試">系統集成測試</h3>
+<h3 id="端到端測試">端到端測試</h3>
 <div class="paragraph">
 <p>將 UAA、Catalog 服務、Eureka 和網關全都運行在同一個環境，執行端到端的測試。</p>
 </div>
@@ -1807,6 +1810,14 @@ public class ProductTest {
 </div>
 </div>
 <div class="sect1">
+<h2 id="總結">總結</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>本章我們瞭解了認證與授權，OAuth2 協議；使用 Spring Cloud Security 在網關上實現單點登入模式；使用 Spring Security 實現服務端鋻權。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="參考">參考</h2>
 <div class="sectionbody">
 <div class="ulist">
@@ -1840,7 +1851,7 @@ public class ProductTest {
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1<br>
-Last updated 2020-09-06 07:40:06 UTC
+Last updated 2020-09-20 07:47:41 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">

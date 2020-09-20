@@ -447,10 +447,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#目標">目標</a></li>
-<li><a href="#理解服務注冊與發現service-registry-discovery">理解服務注冊與發現「Service Registry &amp; Discovery」</a></li>
-<li><a href="#理解eureka">理解Eureka</a>
+<li><a href="#設計">設計</a>
 <ul class="sectlevel2">
-<li><a href="#協議">協議</a></li>
+<li><a href="#理解服務注冊與發現service-registry-discovery">理解服務注冊與發現「Service Registry &amp; Discovery」</a></li>
+<li><a href="#理解eureka">理解Eureka</a></li>
 </ul>
 </li>
 <li><a href="#實現">實現</a>
@@ -482,8 +482,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="理解服務注冊與發現service-registry-discovery">理解服務注冊與發現「Service Registry &amp; Discovery」</h2>
+<h2 id="設計">設計</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="理解服務注冊與發現service-registry-discovery">理解服務注冊與發現「Service Registry &amp; Discovery」</h3>
 <div class="paragraph">
 <p>服務注冊與發現「Service Registry and Discovery」（有時穪為服務注冊「Service Registry」或服務發現「Service Discovery」是微服務架構中常用的模式。</p>
 </div>
@@ -542,10 +544,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="title">Figure 1. 服務注冊與發現</div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="理解eureka">理解Eureka</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="理解eureka">理解Eureka</h3>
 <div class="paragraph">
 <p>Eureka是由Netflix捐贈給開源社區的基於Spring Boot的服務注冊與發現實現。</p>
 </div>
@@ -657,8 +657,8 @@ eureka:
 </tr>
 </table>
 </div>
-<div class="sect2">
-<h3 id="協議">協議</h3>
+<div class="sect3">
+<h4 id="協議">協議</h4>
 <div class="paragraph">
 <p>Eureka服務端開放RESTFul風格的Web服務，客戶端和結對的其它服務端可以通過此RESTFul Web服務注冊和發現服務。Eureka維護的核心元數據是應用「application」和實例「instance」。</p>
 </div>
@@ -686,6 +686,7 @@ eureka:
 <img src="images/InstanceInfo-class.png" alt="InstanceInfo class" width="851" height="631">
 </div>
 <div class="title">Figure 2. InstanceInfo</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="注冊服務">注冊服務</h4>
@@ -881,7 +882,118 @@ Connection: keep-alive
 <h2 id="實現">實現</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>供由 Spring Cloud Netflix，可以輕鬆地實現基於 Eureka 的服務注冊與發現。</p>
+<p>借由 Spring Cloud Netflix，可以輕鬆地實現基於 Eureka 的服務注冊與發現。</p>
+</div>
+<div class="paragraph">
+<p>最簡單的創建一個新的 Spring Boot 應用方法是使用 <a href="https://start.spring.io">Spring Initializr</a>。使用瀏覽器訪問 <a href="https://start.spring.io" class="bare">https://start.spring.io</a> :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Project 選擇 Gradle Project，使用 Gradle 構建我們的項目；</p>
+</li>
+<li>
+<p>Language 選擇 Java；</p>
+</li>
+<li>
+<p>Spring Boot 撰擇 2.2.7 或其它 2.2.x 版本，最新版（訖今為止）的 Spring Cloud Hoxton 兼容 Spring Boot 2.2.x；</p>
+</li>
+<li>
+<p>Project Metadata 部份，Group 填 <code>io.github.rscai.microservices</code>，Artifact 填 <code>eureka</code>，Name 填 <code>eureka</code>，Packaging 撰 Jar，Java 撰擇版本 8；</p>
+</li>
+<li>
+<p>Dependencies 選擇</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Eureka Server</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/03-Service-Discovery/generate-project-by-spring-initializr.png" alt="generate project by spring initializr">
+</div>
+</div>
+<div class="paragraph">
+<p>單擊<strong>GENERATE</strong>，Spring initializr 就會生成 ZIP 格式的項目文件。</p>
+</div>
+<div class="paragraph">
+<p>將 <code>eureka.zip</code> 解壓後得到一個 Spring Boot 項目。其中：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>.
+├── .gitignore
+├── HELP.md
+├── build.gradle
+├── gradle
+│   └── wrapper
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
+├── gradlew
+├── gradlew.bat
+├── settings.gradle
+└── src
+    ├── main
+    │   ├── java
+    │   └── resources
+    └── test
+        └── java
+        └── resources</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>.gitignore</code>, 羅列了應被 GIT 忽略的文件和目錄。自動生成及臨時文件及目錄不應被納入版本控制；</p>
+</li>
+<li>
+<p><code>build.gradle</code>，Gradle 項目文件，定義了項結構及構建過程；</p>
+</li>
+<li>
+<p><code>gradle/wrapper/</code> 包含所有 Gradle Wrapper 相關的文件；</p>
+</li>
+<li>
+<p><code>gradlew</code> 是 UNIX-like 平台版本的 Gradle 命令包裝；</p>
+</li>
+<li>
+<p><code>gradlew.bat</code> 是 Windows 平台版本的 Gradle 命令包裝；</p>
+</li>
+<li>
+<p><code>HELP.md</code> 顧名思義是幫助文檔，與 README 類似；</p>
+</li>
+<li>
+<p><code>setting.gradle</code> Gradle 的屬性文件；</p>
+</li>
+<li>
+<p><code>src/</code> 包含所有源代碼和資源文件：</p>
+</li>
+<li>
+<p><code>src/main/</code> 包含所有部署至運行環境的源代碼文件（以編譯後的目標代碼形式被部署至運行環境）和資源文件：</p>
+</li>
+<li>
+<p><code>src/main/java/</code> 包含所有部署至運行環境的 Java 源代碼文件：</p>
+</li>
+<li>
+<p><code>src/main/resources/</code> 包含所有部署至運行環境的資源文件；</p>
+</li>
+<li>
+<p><code>src/test</code> 包含所有用於測試的源代碼和資源文件；</p>
+</li>
+<li>
+<p><code>src/test/java/</code> 包含所有用於測試的 Java 源代碼文件；</p>
+</li>
+<li>
+<p><code>src/test/resource/</code> 包含所有用於測試的資源文件。</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>將 eureka 項目導入 IntelliJ IDEA。首先，打開 Intellij IDEA，然後，單繫 Import Project，選定 eureka 項目目錄，再然後選擇以 Gradle 項目形式導入。IntelliJ IDEA 會自動初始執行 Gradle 配置，下載 <code>/gradle/wrapper/gradle-wrapper.properties</code> 中指定版本的 Gradle。</p>
 </div>
 <div class="sect2">
 <h3 id="創建eureka服務端">創建Eureka服務端</h3>
@@ -1183,7 +1295,7 @@ eureka:
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1<br>
-Last updated 2020-09-06 07:40:06 UTC
+Last updated 2020-09-20 07:47:41 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">

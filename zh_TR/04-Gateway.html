@@ -447,15 +447,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#目標">目標</a></li>
-<li><a href="#理解api-gateway模式">理解API Gateway模式</a>
+<li><a href="#設計">設計</a>
 <ul class="sectlevel2">
-<li><a href="#客戶端與微服務直接通信">客戶端與微服務直接通信</a></li>
-<li><a href="#api-gateway模式">API Gateway模式</a></li>
-</ul>
-</li>
+<li><a href="#理解api-gateway模式">理解API Gateway模式</a></li>
 <li><a href="#理解spring-cloud-gateway">理解Spring Cloud Gateway</a></li>
 <li><a href="#理解cross-origin-resource-sharingcors">理解Cross-Origin Resource Sharing(CORS)</a></li>
-<li><a href="#實現">實現</a></li>
+</ul>
+</li>
+<li><a href="#實現">實現</a>
+<ul class="sectlevel2">
+<li><a href="#構建">構建</a></li>
+<li><a href="#配置">配置</a></li>
+<li><a href="#運行">運行</a></li>
+</ul>
+</li>
 <li><a href="#總結">總結</a></li>
 <li><a href="#參考">參考</a></li>
 </ul>
@@ -481,13 +486,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="理解api-gateway模式">理解API Gateway模式</h2>
+<h2 id="設計">設計</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="理解api-gateway模式">理解API Gateway模式</h3>
 <div class="paragraph">
 <p>在微服務架構中，每一個微服務都曝露一組細粒度的通信終點。在此架構下，客戶端與微服務之間的通信方式有客戶端微服務直接通信和API Gateway模式兩種。</p>
 </div>
-<div class="sect2">
-<h3 id="客戶端與微服務直接通信">客戶端與微服務直接通信</h3>
+<div class="sect3">
+<h4 id="客戶端與微服務直接通信">客戶端與微服務直接通信</h4>
 <div class="paragraph">
 <p>在客戶端與微服務直接通信模式中，微服務運行在受信任網絡中，客戶端（如運行在Web瀏覧器中的網頁腳本、移動設備中的應用等）運行在非受信任網絡中。微服務與微服務之間直接通過REST終點通信，客戶端與微服務之間也直接通過REST終點通信。所有的微服務都運行在受信任網絡中，所以來自微服務的請求都是可信的。但是來自微服務的請求和來自客戶端（運行在不受信任網絡）的請求共用通信終點，微服務無法區分它們，所以微服務祗能把所有請求都當作不可信請求處理，校驗所有請求的認證信息。</p>
 </div>
@@ -550,8 +557,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </div>
 </div>
-<div class="sect2">
-<h3 id="api-gateway模式">API Gateway模式</h3>
+<div class="sect3">
+<h4 id="api-gateway模式">API Gateway模式</h4>
 <div class="paragraph">
 <p>API Gateway模式在微服務和客戶端之間增加一個服務。微服務依舊是運行在受信任的網絡中，客戶端運行在受信任網絡之外。從受信任網絡之外不能直接訪問任何微服務，客戶端僅能訪問API Gateway，API Gateway從服務注冊處發現微服務，再將請求路由給微服務。</p>
 </div>
@@ -618,10 +625,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="理解spring-cloud-gateway">理解Spring Cloud Gateway</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="理解spring-cloud-gateway">理解Spring Cloud Gateway</h3>
 <div class="quoteblock">
 <blockquote>
 <div class="paragraph">
@@ -726,7 +731,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>路由過濾器可以修改進的HTTP請求或出的HTTP响應。過濾器一般僅作用於單個路由，但Spring Cloud Gateway也支持全局過濾器。全局過濾器作用於所有路由。</p>
 </div>
 <div class="paragraph">
-<p>過濾器的實現與斷言類似，路由特定的過濾器實現為兼容接口 <code>org.springframework.cloud.gateway.filter.GatewayFilter</code> 的對象，全局過濾器則是實現接口 <code>org.springframework.cloud.gateway.filter.GlobalFilter</code> 的對象。以路由特性過濾器工廠 <code>org.springframework.cloud.gateway.filter.factory.AddRequest&#8217;HeaderGatewayFilterFactory</code> 為例，過濾器工廠以annoymous內部類的形式定義兼容類，再構造對象。</p>
+<p>過濾器的實現與斷言類似，路由特定的過濾器實現為兼容接口 <code>org.springframework.cloud.gateway.filter.GatewayFilter</code> 的對象，全局過濾器則是實現接口 <code>org.springframework.cloud.gateway.filter.GlobalFilter</code> 的對象。以路由特性過濾器工廠 <code>org.springframework.cloud.gateway.filter.factory.AddRequestHeaderGatewayFilterFactory</code> 為例，過濾器工廠以annoymous內部類的形式定義兼容類，再構造對象。</p>
 </div>
 <div class="listingblock">
 <div class="title">AddRequestHeaderGatewayFilterFactory.java</div>
@@ -787,10 +792,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="理解cross-origin-resource-sharingcors">理解Cross-Origin Resource Sharing(CORS)</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="理解cross-origin-resource-sharingcors">理解Cross-Origin Resource Sharing(CORS)</h3>
 <div class="quoteblock">
 <blockquote>
 <div class="paragraph">
@@ -870,7 +873,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-top"><p class="tableblock">Access-Control-Max-Age</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">CORS响應，CORS預檢响應</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">秒數</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Access-Control-Allow-Methods</code> 和 <code>Access-'control-Allow-Headers</code> 的有效期限。</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Access-Control-Allow-Methods</code> 和 <code>Access-Control-Allow-Headers</code> 的有效期限。</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Access-Control-Expose-Headers</p></td>
@@ -991,17 +994,66 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
+</div>
 <div class="sect1">
 <h2 id="實現">實現</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>首先，借助Spring Initializr生成項目骨架。</p>
+<p>最簡單的創建一個新的 Spring Boot 應用方法是使用 <a href="https://start.spring.io">Spring Initializr</a>。使用瀏覽器訪問 <a href="https://start.spring.io" class="bare">https://start.spring.io</a> :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Project 選擇 Gradle Project，使用 Gradle 構建我們的項目；</p>
+</li>
+<li>
+<p>Language 選擇 Java；</p>
+</li>
+<li>
+<p>Spring Boot 撰擇 2.2.7 或其它 2.2.x 版本，最新版（訖今為止）的 Spring Cloud Hoxton 兼容 Spring Boot 2.2.x；</p>
+</li>
+<li>
+<p>Project Metadata 部份，Group 填 <code>io.github.rscai.microservices</code>，Artifact 填 <code>gateway</code>，Name 填 <code>eureka</code>，Packaging 撰 Jar，Java 撰擇版本 8；</p>
+</li>
+<li>
+<p>Dependencies 選擇</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Gateway</p>
+</li>
+<li>
+<p>Eureka Discovery Client</p>
+</li>
+<li>
+<p>OAuth2 Client</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/04-Gateway/generate-project-by-spring-initializr.png" alt="generate project by spring initializr">
+</div>
 </div>
 <div class="paragraph">
-<p>TBD</p>
+<p>單擊<strong>GENERATE</strong>，Spring initializr 就會生成 ZIP 格式的項目文件。</p>
 </div>
 <div class="paragraph">
-<p>然後，打開 <code>build.gradle</code> 做一些必要的配置。</p>
+<p>將 <code>gateway.zip</code> 解壓後得到一個 Spring Boot 項目。其中：</p>
+</div>
+<div class="paragraph">
+<p>Unresolved directive in 04-Gateway.adoc - include::{commondir}/gradle-project-structure-basic.adoc[]</p>
+</div>
+<div class="paragraph">
+<p>將 gateway 項目導入 IntelliJ IDEA。首先，打開 Intellij IDEA，然後，單繫 Import Project，選定 eureka 項目目錄，再然後選擇以 Gradle 項目形式導入。IntelliJ IDEA 會自動初始執行 Gradle 配置，下載 <code>/gradle/wrapper/gradle-wrapper.properties</code> 中指定版本的 Gradle。</p>
+</div>
+<div class="sect2">
+<h3 id="構建">構建</h3>
+<div class="paragraph">
+<p>本項目使用 Gradle 構建。Gradle 構建過程主要通過 <code>build.gradle</code> 描述。</p>
 </div>
 <div class="listingblock">
 <div class="title">build.gradle</div>
@@ -1092,6 +1144,9 @@ bootRun {
 </tr>
 </table>
 </div>
+</div>
+<div class="sect2">
+<h3 id="配置">配置</h3>
 <div class="paragraph">
 <p>Spring Cloud Gateway的自動配置是通過配置屬性 <code>spring.cloud.gateway.enabled</code> 及類 <code>org.springframework.web.reactive.DispatchHandler</code> 激活的，且 <code>spring.cloud.gateway.enabled</code> 缺省值為 <code>true</code> ，<code>DispatchHandler</code> 則被包含在 spring-cloud-starter-gateway` 閶接引用的 <code>spring-webflux</code> 中，所以引入 <code>spring-cloud-starter-gateway</code> 就會激活自動配置，無需使用特定的注解。</p>
 </div>
@@ -1196,7 +1251,6 @@ public DiscoveryClientRouteDefinitionLocator discoveryClientRouteDefinitionLocat
 <pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">...
 public static List&lt;PredicateDefinition&gt; initPredicates() {
 	ArrayList&lt;PredicateDefinition&gt; definitions = new ArrayList&lt;&gt;();
-	// TODO: add a predicate that matches the url at /serviceId?
 
 	// add a predicate that matches the url at /serviceId/**
 	PredicateDefinition predicate = new PredicateDefinition();
@@ -1218,7 +1272,7 @@ public static List&lt;FilterDefinition&gt; initFilters() {
 	filter.addArg(REPLACEMENT_KEY, replacement);
 	definitions.add(filter);
 
-        return definitions;
+  return definitions;
 }
 ...</code></pre>
 </div>
@@ -1351,6 +1405,9 @@ public XForwardedHeadersFilter xForwardedHeadersFilter() {
 </tr>
 </table>
 </div>
+</div>
+<div class="sect2">
+<h3 id="運行">運行</h3>
 <div class="paragraph">
 <p>最後，在命令行中執行：</p>
 </div>
@@ -1361,6 +1418,7 @@ public XForwardedHeadersFilter xForwardedHeadersFilter() {
 </div>
 <div class="paragraph">
 <p>網關就會監聽在端口 <code>9101</code>，可以通過URL <code><a href="http://localhost:9101/&lt;serviceId&gt" class="bare">http://localhost:9101/&lt;serviceId&gt</a>;</code> 訪問所有注冊在Eureka的微服務了。</p>
+</div>
 </div>
 </div>
 </div>
@@ -1391,7 +1449,7 @@ public XForwardedHeadersFilter xForwardedHeadersFilter() {
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1<br>
-Last updated 2020-09-06 07:40:06 UTC
+Last updated 2020-09-20 07:47:41 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
