@@ -1624,7 +1624,6 @@ public void testSaveAndGetOne() throws Exception {
 
 其它ProductImage應用編程接口測試與此類似，這𥚃就不贅述了，詳情請參閱源碼。
 
-[sectlinks=api-doc]
 == API 文檔
 
 使用Spring REST Docs，從應用編程接口測試中生成API文檔。
