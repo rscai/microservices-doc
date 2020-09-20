@@ -1,12 +1,17 @@
 = Inventory
 :icons: font
 ifndef::imagesdir[:imagesdir: images]
+ifndef::commondir[:commondir: zh_TR/common]
 
 == 目標
 
 本章中，我們將基於 Spring Boot 開發提供 RESTful API 的 Inventory 微服務。我們將學習：
 
+* 使用 Spring Web MVC 創建 RESTful Web 服務
+* 使用 Spring HATEOAS 創建遵循 HATEOAS 原則的 RESTful Web 服務
 * 使用 Spring Data/Spring Data JPA 訪問關係式數據庫（本例中使用 MySQL）
+* 使用 Eureka Discovery Client 注冊服務
+* 使用 Spring Security 實現基於 URL 的訪問控制
 
 == 設計
 
@@ -64,7 +69,6 @@ class InventoryItemQuantityChange <<entity>> {
 }
 @enduml
 ....
-
 
 === 架構
 
@@ -196,22 +200,67 @@ ____
 
 JPA 提供了一組方法，使應用開發者可以聲明對象模型與關係式模型之間的映射。類映射為表，對象映射為行，屬性映射為列。
 
+=== 數據庫事務
+
+[quote, 數據庫事務, https://zh.wikipedia.org/zh-cn/数据库事务]
+____
+數據庫事務（簡穪：事務）是數據庫管理系統執行過程中的一個邏輯單位，由一個有限的數據庫操作序列構成。
+
+概要
+
+數據庫事務通常包含了一個序列的對數據庫的讀/寫操作。包含有以下兩個目的：
+
+1. 為數據庫操作序列提供了一個從失敗中恢復到正常狀態的方法，同時提供了數據庫即使在異常狀態下仍能保持一致性的方法。
+2. 當多個應用程序在並發訪問數據庫時，可以在這些應用程序之間提供一個隔離方法，以防止彼此的操作互相干擾。
+
+當事務被提供給了數據庫管理系統（DBMS），則 DBMS 需要確保該事務中的所有操作都成功完成且其結果被永久保存在數據庫中，如果事務中有的操作沒有成功完成，則事務中的所有操作都需要回滾，迴到事務執行前的狀態；同時，該事務對數據庫或者其他事務的執行無影響，所有的事務都好像在獨立的運行。
+
+ACID 性質
+
+並非任意的對數據庫的操作序列都是數據庫事務。數據庫事務拥有以下四個特性，習慣上被穪之為 ACID 特性。
+
+* 原子性（Atomicity）：事務作為一個整體被執行，包含在其中的對數據庫的操作要麼全部被執行，要麼都不執行。
+* 一致性（Consistency）：事務應確保數據庫的狀態從一個一致狀態轉變為另一個一致狀態。一致狀態的含義是數據庫中的數據應滿足完整性約束。
+* 隔離性（Isolation）：多個事務並發執行時，一個事務的執行不應影響其他事務的執行。
+* 持久性（Durability）：已被提交的事務對數據庫的修改應該永久保存在數據庫中。
+____
+
 == 實現
 
-使用 Spring Initializr 生成項目骨架，並導入 IntelliJ IDEA.
+最簡單的創建一個新的 Spring Boot 應用方法是使用 https://start.spring.io[Spring Initializr]。使用瀏覽器訪問 https://start.spring.io :
 
-TBD
+* Project 選擇 Gradle Project，使用 Gradle 構建我們的項目；
+* Language 選擇 Java；
+* Spring Boot 撰擇 2.2.7 或其它 2.2.x 版本，最新版（訖今為止）的 Spring Cloud Hoxton 兼容 Spring Boot 2.2.x；
+* Project Metadata 部份，Group 填 `io.github.rscai.microservices`，Artifact 填 `inventory`，Name 填 `catalog`，Packaging 撰 Jar，Java 撰擇版本 8；
+* Dependencies 選擇
+** Spring Web
+** Spring HATEOAS
+** Spring Data JPA
+** Eureka Discovery Client
+** Spring Security
+
+image::06-Inventory/generate-project-by-spring-initializr.png[]
+
+單擊**GENERATE**，Spring initializr 就會生成 ZIP 格式的項目文件。
+
+將 `inventory.zip` 解壓後得到一個 Spring Boot 項目。其中：
+
+include::{commondir}/gradle-project-structure-basic.adoc[]
+
+將 inventory 項目導入 IntelliJ IDEA。首先，打開 Intellij IDEA，然後，單繫 Import Project，選定 catalog 項目目錄，再然後選擇以 Gradle 項目形式導入。IntelliJ IDEA 會自動初始執行 Gradle 配置，下載 `/gradle/wrapper/gradle-wrapper.properties` 中指定版本的 Gradle。
 
 === 構建
 
 首先，引入構建插件。
 
 .build.gradle
+[source, groovy]
 ----
 plugins {
     id 'org.springframework.boot' version '2.2.2.RELEASE' // <1>
     id 'io.spring.dependency-management' version '1.0.8.RELEASE' // <2>
-	id 'java'
+    id 'java'
     id "io.freefair.lombok" version "4.1.6"
     id "org.sonarqube" version "2.7.1"
     id 'jacoco'
@@ -220,12 +269,13 @@ plugins {
 
 ...
 ----
-<1> 引入 Spring Boot 插件，其版本決定了引入的 Spring Boot 庫的版本。所以有了 Spring Boot 插件，就無需顯示指定各個 Spring Boot 庫的版本了。
+<1> 引入 Spring Boot 插件，其版本決定了引入的 Spring Boot 庫的版本。所以有了 Spring Boot 插件，就無需顯式指定各個 Spring Boot 庫的版本了。
 <2> 引入 Spring 依賴管理插件。
 
 然後，引入依賴。
 
 .build.gradle
+[source, groovy]
 ----
 ...
 
@@ -739,28 +789,38 @@ public class InventoryItemController {
 
 ===== 鍳權
 
+首先，創建配置類 `SecurityConfig`，繼承 `WebSecurityConfigurerAdapter`，䨱寫方法以配置鍳權及 OAuth2 相關的信息。
+
 .SecurityConfig.java
 [source, java]
 ----
 @Profile("!test")
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+@EnableWebSecurity // <1>
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true) // <2>
+public class SecurityConfig extends WebSecurityConfigurerAdapter { // <3>
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http
-        .csrf().disable()
-        .authorizeRequests()
-        .anyRequest().authenticated()
+        .csrf().disable() // <4>
+        .authorizeRequests() // <5>
+        .anyRequest().authenticated() // <6>
         .and()
-        .oauth2ResourceServer()
-        .jwt();
+        .oauth2ResourceServer() // <7>
+        .jwt(); // <8>
   }
 }
 ----
-<1>
-<2>
+<1> 使用注解 `@EnableWebSecurity` 激活針對 Spring MVC 應用的訪問控制。針對 Spring WebFlux 應用的訪問控制由注解 `@EnableWebFluxSecurity` 激活。
+<2> 使用注解 `@EnableGlobalMethodSecurity` 激活基於方法的訪問控制。
+<3> Spring Security 提供了 `WebSecurityConfigurerAdapter` 作為配置擴展點。`SecurityConfig` 繼承 `WebSecurityConfigurerAdapter`，通過覆寫方法實現自定義配置。
+<4> 關閉 CSRF。
+<5> 獲取基於 URL 的認證面置器。
+<6> 配置所有請求都應被認證。
+<7> 配置本應用以資源服務器的身份在 OAuth2 協議中工作。
+<8> 使用 JWT 格式的 OAuth2 令牌。
+
+然後，在 Controller 中以方法層級鍳權實現訪問控制。
 
 .InventoryItemController.java
 [source, java]
@@ -776,17 +836,181 @@ public class InventoryItemController {
   ...
   @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, "application/hal+json"})
   @ResponseStatus(HttpStatus.CREATED)
-  @PreAuthorize(AUTHORITY_INVENTORY_WRITE)
+  @PreAuthorize(AUTHORITY_INVENTORY_WRITE) // <2>
   public EntityModel<InventoryItem> create(@RequestBody InventoryItem entity) {
     InventoryItem createdOne = repository.save(entity);
     return new EntityModel<>(createdOne, itemLinks(createdOne));
   }
   ...
 ----
+<1> 使用注解 `@PreAuthorize` 以 Spring-EL 聲明必需的權限。`@PreAuthorize` 可以作用於方法也可作用於整個類。當作用於整個類時，等同於作用於該類所有的方法。
+<2> `@PreAuthorize` 作用於方法，是在類級的 `@PreAuthorize` 的基礎上再附加權限要求。比如，要調用方法`create(@RequestBody InventoryItem entity)`，請求者必須滿足 `hasAuthority('SCOPE_inventory.read')` 和 `hasAuthority('SCOPE_inventory.write')`。
 
 === 測試
 
-TBD
+本例中，我們集成JUnit和Spring MVC Test框架，實現應用編程接口測試。
+
+首先，引入測試所需的依賴。
+
+.build.gradle
+[source, groovy]
+....
+...
+dependencies {
+    asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+    implementation 'org.springframework.security:spring-security-oauth2-jose'
+    runtimeOnly 'mysql:mysql-connector-java'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    } // <1>
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    testImplementation 'com.h2database:h2' // <2>
+    testImplementation 'org.springframework.security:spring-security-test' // <3>
+}
+...
+....
+<1> 通過 `spring-boot-starter-test` 引入 `org.springframework.boot:spring-boot-test-autoconfigure`, `org.springframework.boot:springzboot-test`, `org.junit.jupiter:junit-jupiter` 和 `org.mockito:mockito-junit-jupiter`。此顯式排除了 `org.junit.vintage:junit-vintage-engine`，因本例僅使用 JUnit 5 兼容的 API。
+<2> 使用 H2 在 JUnit 測試中 Mock 關係式數據庫。
+<3> `spring-security-test` 提供了在測試中 Mock 認證鍳權相關信息的工具。
+
+然後，激活 MockMVC 自動配置和引入補助 Bean。
+
+.InventoryItemControllerTest.java
+[source, java]
+....
+...
+@ActiveProfiles("test") // <1>
+@Import(RestDocsMockMvcConfiguration.class)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT) // <2>
+@AutoConfigureMockMvc // <3>
+@AutoConfigureRestDocs
+public class InventoryItemControllerTest {
+  ...
+  @Autowired
+  private InventoryItemRepository inventoryItemRepository; // <4>
+  @Autowired
+  private MockMvc mvc; // <5>
+  @Autowired
+  private ObjectMapper objectMapper; // <6>
+  ...
+....
+<1> 使用注解 `ActiveProfiles` 顯式聲明本測試所應用的 Profile，用以排除其它測試環境不兼容的配置，如單點登入等。
+<2> 使用注解 `org.springframework.boot.test.context.SpringBootTest` 聲明測試用Spring上下文。 `@SpringBootTest` 可以指定上下文配置類，這點我們使用生產代碼相同的應用入口類配置測試上下文。
+<3> 使用注解 `org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc` 聲明配置MockMvc，然後就可以在測試代碼中注入MockMvc Bean了。
+<4> 使用注解 `org.springframework.beans.factory.annotation.Autowired` 聲明注入 `InventoryItemRepository`，用以預置測試數據。
+<5> 使用注解 `org.springframework.beans.factory.annotation.Autowired` 聲明注入MockMvc。
+<6> 使用注解 `org.springframework.beans.factory.annotation.Autowired` 聲明注入ObjectMapper。MockMvc是以包裝了HTTP請求和响應的 `HttpServletRequest` 和 `HttpServletResponse` 的形式與DispatcherServlet通信的，所以需要構造和解析JSON格式的請求體和响應體。在測試代碼中使用與被測試代碼相同皂JSON序列化和反序列化實現可以避免編解碼不一致的麻煩。
+
+再然後，使用 Repository 預置測試數據。
+
+.InventoryItemControllerTest.java
+[source, java]
+....
+...
+  private String itemIdA;
+  private String itemIdB;
+  private String itemIdC;
+
+
+  @BeforeEach
+  public void setup() {
+    InventoryItem itemA = new InventoryItem();
+    itemA.setProductId(PRODUCT_ID_A);
+    itemA.setUnitPrice(BigDecimal.valueOf(123.45));
+    itemA.setQuantity(100);
+    itemIdA = inventoryItemRepository.save(itemA).getId(); // <1>
+
+    InventoryItem itemB = new InventoryItem();
+    itemB.setProductId(PRODUCT_ID_B);
+    itemB.setUnitPrice(BigDecimal.valueOf(456.78));
+    itemB.setQuantity(200);
+    itemIdB = inventoryItemRepository.save(itemB).getId();
+
+    InventoryItem itemC = new InventoryItem();
+    itemC.setProductId(PRODUCT_ID_C);
+    itemC.setUnitPrice(BigDecimal.valueOf(789.01));
+    itemC.setQuantity(300);
+    itemIdC = inventoryItemRepository.save(itemC).getId();
+  }
+...
+....
+<1> 利用現成的 InventoryItemRepository 預置數據。
+
+再然後，執行測試。
+
+.InventoryItemControllerTest.java
+[source, java]
+....
+...
+  @Test // <1>
+  @WithMockUser(username = "inventory_ops", authorities = {SCOPE_INVENTORY_READ,
+      SCOPE_INVENTORY_WRITE}) // <2>
+  public void testCreateAndGet() throws Exception {
+    final String productId = "P123456";
+    final int quantity = 12;
+    final BigDecimal unitPrice = BigDecimal.valueOf(12.12);
+
+    final InventoryItem input = new InventoryItem();
+    input.setProductId(productId);
+    input.setQuantity(quantity);
+    input.setUnitPrice(unitPrice);
+
+    String createResponse = mvc.perform( // <3>
+        post(ENDPOINT).accept(MediaType.APPLICATION_JSON_VALUE, APPLICATION_HAL)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(input))) // <4>
+            .andDo(print())
+        .andExpect(status().isCreated()) // <5>
+        .andExpect(jsonPath("$.productId", is(productId))) // <6>
+        .andExpect(jsonPath("$.quantity", is(quantity)))
+        .andExpect(jsonPath("$.unitPrice", is(closeTo(unitPrice.doubleValue(), 0.0001))))
+        .andExpect(jsonPath("$.createdAt", notNullValue()))
+        .andExpect(jsonPath("$.updatedAt", notNullValue()))
+        .andDo(
+            document("inventoryItem/create", itemLinks(), itemRequestFields(), itemResponseField()))
+        .andReturn().getResponse().getContentAsString(); // <7>
+
+    String newId = Stream
+        .of(objectMapper.readTree(createResponse).at("/_links/self/href").asText().split("/"))
+        .reduce((first, second) -> second).orElse(null); // <8>
+
+    mvc.perform( // <9>
+        get(ENDPOINT + "/{id}", newId).accept(MediaType.APPLICATION_JSON_VALUE, APPLICATION_HAL))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.productId", is(productId)))
+        .andExpect(jsonPath("$.quantity", is(quantity)))
+        .andExpect(jsonPath("$.unitPrice", is(closeTo(unitPrice.doubleValue(), 0.0001))))
+        .andExpect(jsonPath("$.createdAt", notNullValue()))
+        .andExpect(jsonPath("$.updatedAt", notNullValue())).andDo(
+        document("inventoryItem/getOne", itemLinks(),
+            pathParameters(parameterWithName("id").description("inventory item's id")),
+            itemResponseField()));
+  }
+...
+....
+<1> 使用 JUnit 的注解 `@Test` 聲明此方法為測試。
+<2> 使用 security-test 的注解 `@WithMockUser` 模擬認證信息。
+<3> 使用 MockMvc 的 `perform` 方法嚮測試目標發送 POST 請求，以觸發創建倉儲項操作。
+<4> 使用 `ObjectMapper` 將 `InventoryItem` 對象序列為 JSON，作為 POST 請求體發送給 RESTFul 服務。
+<5> 使用 `org.springframework.test.web.servlet.result.MockMvcResultMatchers.status` 檢驗返回狀態碼是否為 `201 Created`。
+<6> 使用 `org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath` 檢驗 JSON 格式響應體的內容。
+<7> `org.springframework.test.web.servlet.ResultActions` 的 `andExpect` 祗能執行檢驗，若要穫取響應的內容則需使用其 `andReturn` 方法。此處使用 `andReturn` 方法穫取字符串格式的響應體。
+<8> 從字符串形式的響應體中解析出新創建倉儲項的唯一標識。
+<9> 使用 MockMvc 的 `perform` 方法獲取新創建倉儲項，以驗證倉儲項確實被創建。
+
+=== API 文檔
+
+使用Spring REST Docs，從應用編程接口測試中生成API文檔。已在 <<02-Catalog.adoc#api-文檔,API 文檔>> 中詳細描述。
+
+== 總結
+
+本章我們使用 Spring Web MVC 和 Spring HATEOAS 創建遵循 HATEOAS 原則的 RESTful Web 服務，使用 Spring Data JPA 訪問關係式數據庫，使用 Eureka Discovery Client 將自身注冊至 Eureka 服務注冊處，使用 Spring Security 以 OAuth2 協議與單點登入服務集成並實現服務端鍳權。
 
 == 參考
 

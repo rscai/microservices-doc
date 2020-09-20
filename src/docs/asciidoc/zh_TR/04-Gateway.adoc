@@ -9,11 +9,13 @@ ifndef::source-highlighter[:source-highlighter: highlightjs]
 * 使用Spring Cloud Gateway實現API Gateway
 * 集成 Spring Cloud Gateway 與 Eureka，自動發現服務並路由
 
-== 理解API Gateway模式
+== 設計
+
+=== 理解API Gateway模式
 
 在微服務架構中，每一個微服務都曝露一組細粒度的通信終點。在此架構下，客戶端與微服務之間的通信方式有客戶端微服務直接通信和API Gateway模式兩種。
 
-=== 客戶端與微服務直接通信
+==== 客戶端與微服務直接通信
 
 在客戶端與微服務直接通信模式中，微服務運行在受信任網絡中，客戶端（如運行在Web瀏覧器中的網頁腳本、移動設備中的應用等）運行在非受信任網絡中。微服務與微服務之間直接通過REST終點通信，客戶端與微服務之間也直接通過REST終點通信。所有的微服務都運行在受信任網絡中，所以來自微服務的請求都是可信的。但是來自微服務的請求和來自客戶端（運行在不受信任網絡）的請求共用通信終點，微服務無法區分它們，所以微服務祗能把所有請求都當作不可信請求處理，校驗所有請求的認證信息。
 
@@ -92,7 +94,7 @@ WebBrowser <-- catalogService
 * 客戶端邏輯複雜，需顯式處理服務發現及負載均衡。
 * 服務端與客戶端網絡沒有有效隔離，應用需承担更多的安全職責。
 
-=== API Gateway模式
+==== API Gateway模式
 
 API Gateway模式在微服務和客戶端之間增加一個服務。微服務依舊是運行在受信任的網絡中，客戶端運行在受信任網絡之外。從受信任網絡之外不能直接訪問任何微服務，客戶端僅能訪問API Gateway，API Gateway從服務注冊處發現微服務，再將請求路由給微服務。
 
@@ -172,7 +174,7 @@ WebBrowser <-- APIGateway
 * 增加通信延遲。
 * 有單點故障風險。
 
-== 理解Spring Cloud Gateway
+=== 理解Spring Cloud Gateway
 
 [quote, Spring Cloud Gateway, https://spring.io/projects/spring-cloud-gateway]
 ____
@@ -260,7 +262,7 @@ public class AfterRoutePredicateFactory
 
 路由過濾器可以修改進的HTTP請求或出的HTTP响應。過濾器一般僅作用於單個路由，但Spring Cloud Gateway也支持全局過濾器。全局過濾器作用於所有路由。
 
-過濾器的實現與斷言類似，路由特定的過濾器實現為兼容接口 `org.springframework.cloud.gateway.filter.GatewayFilter` 的對象，全局過濾器則是實現接口 `org.springframework.cloud.gateway.filter.GlobalFilter` 的對象。以路由特性過濾器工廠 `org.springframework.cloud.gateway.filter.factory.AddRequest'HeaderGatewayFilterFactory` 為例，過濾器工廠以annoymous內部類的形式定義兼容類，再構造對象。
+過濾器的實現與斷言類似，路由特定的過濾器實現為兼容接口 `org.springframework.cloud.gateway.filter.GatewayFilter` 的對象，全局過濾器則是實現接口 `org.springframework.cloud.gateway.filter.GlobalFilter` 的對象。以路由特性過濾器工廠 `org.springframework.cloud.gateway.filter.factory.AddRequestHeaderGatewayFilterFactory` 為例，過濾器工廠以annoymous內部類的形式定義兼容類，再構造對象。
 
 .AddRequestHeaderGatewayFilterFactory.java
 [source, java]
@@ -319,7 +321,7 @@ public class ForwardRoutingFilter implements GlobalFilter, Ordered {
 }
 ----
 
-== 理解Cross-Origin Resource Sharing(CORS)
+=== 理解Cross-Origin Resource Sharing(CORS)
 
 [quote, 跨來源資源共用（CORS）, https://developer.mozilla.org/zh-TW/docs/Web/HTTP/CORS]
 ____
@@ -371,7 +373,7 @@ CORS以網域、請求方法和請求頭三個方面控制跨來源資源共用�
 |Access-Control-Max-Age
 |CORS响應，CORS預檢响應
 |秒數
-|`Access-Control-Allow-Methods` 和 `Access-'control-Allow-Headers` 的有效期限。
+|`Access-Control-Allow-Methods` 和 `Access-Control-Allow-Headers` 的有效期限。
 
 |Access-Control-Expose-Headers
 |CORS响應，CORS預檢响應
@@ -436,11 +438,30 @@ Client <- Server: 200 OK\nAccess-Control-Allow-Origin: *
 
 == 實現
 
-首先，借助Spring Initializr生成項目骨架。
+最簡單的創建一個新的 Spring Boot 應用方法是使用 https://start.spring.io[Spring Initializr]。使用瀏覽器訪問 https://start.spring.io :
 
-TBD
+* Project 選擇 Gradle Project，使用 Gradle 構建我們的項目；
+* Language 選擇 Java；
+* Spring Boot 撰擇 2.2.7 或其它 2.2.x 版本，最新版（訖今為止）的 Spring Cloud Hoxton 兼容 Spring Boot 2.2.x；
+* Project Metadata 部份，Group 填 `io.github.rscai.microservices`，Artifact 填 `gateway`，Name 填 `eureka`，Packaging 撰 Jar，Java 撰擇版本 8；
+* Dependencies 選擇
+** Gateway
+** Eureka Discovery Client
+** OAuth2 Client
 
-然後，打開 `build.gradle` 做一些必要的配置。
+image::04-Gateway/generate-project-by-spring-initializr.png[]
+
+單擊**GENERATE**，Spring initializr 就會生成 ZIP 格式的項目文件。
+
+將 `gateway.zip` 解壓後得到一個 Spring Boot 項目。其中：
+
+include::{commondir}/gradle-project-structure-basic.adoc[]
+
+將 gateway 項目導入 IntelliJ IDEA。首先，打開 Intellij IDEA，然後，單繫 Import Project，選定 eureka 項目目錄，再然後選擇以 Gradle 項目形式導入。IntelliJ IDEA 會自動初始執行 Gradle 配置，下載 `/gradle/wrapper/gradle-wrapper.properties` 中指定版本的 Gradle。
+
+=== 構建
+
+本項目使用 Gradle 構建。Gradle 構建過程主要通過 `build.gradle` 描述。
 
 .build.gradle
 [source, groovy]
@@ -502,6 +523,8 @@ bootRun {
 ----
 ./gradlew bootRun -Dspring.profiles.active=dev
 ----
+
+=== 配置
 
 Spring Cloud Gateway的自動配置是通過配置屬性 `spring.cloud.gateway.enabled` 及類 `org.springframework.web.reactive.DispatchHandler` 激活的，且 `spring.cloud.gateway.enabled` 缺省值為 `true` ，`DispatchHandler` 則被包含在 spring-cloud-starter-gateway` 閶接引用的 `spring-webflux` 中，所以引入 `spring-cloud-starter-gateway` 就會激活自動配置，無需使用特定的注解。
 
@@ -585,7 +608,6 @@ public DiscoveryClientRouteDefinitionLocator discoveryClientRouteDefinitionLocat
 ...
 public static List<PredicateDefinition> initPredicates() {
 	ArrayList<PredicateDefinition> definitions = new ArrayList<>();
-	// TODO: add a predicate that matches the url at /serviceId?
 
 	// add a predicate that matches the url at /serviceId/**
 	PredicateDefinition predicate = new PredicateDefinition();
@@ -607,7 +629,7 @@ public static List<FilterDefinition> initFilters() {
 	filter.addArg(REPLACEMENT_KEY, replacement);
 	definitions.add(filter);
 
-        return definitions;
+  return definitions;
 }
 ...
 ....
@@ -710,6 +732,8 @@ server:
 * 然後允許與所有網域共用資源 `allowedOrigins: '*'`
 * 再然後允許CORS請求使用任意標頭 `allowedHeaders: '*'`
 * 再然後允許CORS請求使用任意方法 `allowedMethods: '*'`
+
+=== 運行
 
 最後，在命令行中執行：
 

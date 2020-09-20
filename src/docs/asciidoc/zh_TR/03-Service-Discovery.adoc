@@ -1,13 +1,16 @@
 = 服務注冊與發現「Service Registry & Discovery」
 :icons: font
 ifndef::imagesdir[:imagesdir: images]
+ifndef::commondir[:commondir: zh_TR/common]
 
 == 目標
 
 * 理解服務注冊與發現「Service Registry and Discovery」模式
 * 使用Eureka實現服務注冊與發現
 
-== 理解服務注冊與發現「Service Registry & Discovery」
+== 設計
+
+=== 理解服務注冊與發現「Service Registry & Discovery」
 
 服務注冊與發現「Service Registry and Discovery」（有時穪為服務注冊「Service Registry」或服務發現「Service Discovery」是微服務架構中常用的模式。
 
@@ -73,7 +76,7 @@ deactivate serviceRegistry
 @enduml
 ....
 
-== 理解Eureka
+=== 理解Eureka
 
 Eureka是由Netflix捐贈給開源社區的基於Spring Boot的服務注冊與發現實現。
 
@@ -187,7 +190,7 @@ eureka:
 <2> 顯式關閉從對方同步服務注冊元數據。
 <3> 即使以單獨模式運行，依舊要顯式聲明服務諯（即自身）URL。
 
-=== 協議
+==== 協議
 
 Eureka服務端開放RESTFul風格的Web服務，客戶端和結對的其它服務端可以通過此RESTFul Web服務注冊和發現服務。Eureka維護的核心元數據是應用「application」和實例「instance」。
 
@@ -441,7 +444,27 @@ Connection: keep-alive
 
 == 實現
 
-供由 Spring Cloud Netflix，可以輕鬆地實現基於 Eureka 的服務注冊與發現。
+借由 Spring Cloud Netflix，可以輕鬆地實現基於 Eureka 的服務注冊與發現。
+
+最簡單的創建一個新的 Spring Boot 應用方法是使用 https://start.spring.io[Spring Initializr]。使用瀏覽器訪問 https://start.spring.io :
+
+* Project 選擇 Gradle Project，使用 Gradle 構建我們的項目；
+* Language 選擇 Java；
+* Spring Boot 撰擇 2.2.7 或其它 2.2.x 版本，最新版（訖今為止）的 Spring Cloud Hoxton 兼容 Spring Boot 2.2.x；
+* Project Metadata 部份，Group 填 `io.github.rscai.microservices`，Artifact 填 `eureka`，Name 填 `eureka`，Packaging 撰 Jar，Java 撰擇版本 8；
+* Dependencies 選擇
+** Eureka Server
+
+image::03-Service-Discovery/generate-project-by-spring-initializr.png[]
+
+單擊**GENERATE**，Spring initializr 就會生成 ZIP 格式的項目文件。
+
+將 `eureka.zip` 解壓後得到一個 Spring Boot 項目。其中：
+
+include::{commondir}/gradle-project-structure-basic.adoc[]
+
+將 eureka 項目導入 IntelliJ IDEA。首先，打開 Intellij IDEA，然後，單繫 Import Project，選定 eureka 項目目錄，再然後選擇以 Gradle 項目形式導入。IntelliJ IDEA 會自動初始執行 Gradle 配置，下載 `/gradle/wrapper/gradle-wrapper.properties` 中指定版本的 Gradle。
+
 
 === 創建Eureka服務端
 

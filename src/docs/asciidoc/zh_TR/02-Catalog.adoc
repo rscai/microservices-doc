@@ -862,9 +862,9 @@ Spring REST Docs為請求行，頭和消息體分別提供了Snippet。這些Sni
 * Spring Boot 撰擇 2.2.7 或其它 2.2.x 版本，最新版（訖今為止）的 Spring Cloud Hoxton 兼容 Spring Boot 2.2.x；
 * Project Metadata 部份，Group 填 `io.github.rscai.microservices`，Artifact 填 `catalog`，Name 填 `catalog`，Packaging 撰 Jar，Java 撰擇版本 8；
 * Dependencies 選擇
-  * Spring Web
-  * Spring Data MongoDB
-  * Rest Repositories
+** Spring Web
+** Spring Data MongoDB
+** Rest Repositories
 
 image::02-Catalog/generate-project-by-spring-initializr.png[]
 
@@ -1624,7 +1624,8 @@ public void testSaveAndGetOne() throws Exception {
 
 其它ProductImage應用編程接口測試與此類似，這𥚃就不贅述了，詳情請參閱源碼。
 
-== API文檔
+[sectlinks=api-doc]
+== API 文檔
 
 使用Spring REST Docs，從應用編程接口測試中生成API文檔。
 

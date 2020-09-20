@@ -10,7 +10,9 @@ ifndef::source-highlighter[:source-highlighter: highlightjs]
 * 使用 Spring Cloud Security 實現 OAuth 認證與授權
 * 在 API Gateway 實現認證
 
-== 認證與授權
+== 設計
+
+=== 認證與授權
 
 [quote, 身份認證, https://zh.wikipedia.org/wiki/身份认证]
 ____
@@ -26,7 +28,7 @@ ____
 
 一次資源訪問行為可描述為：某人對某物做某個行為。認證是驗證某人為何人，而授權則驗證某人可否對某物做某個行為。舉個例子，類目管理員添加新的商品。當中，人為類目管理員，物為新的商品，行為為添加。認證階段驗證其人是否真為所宣穪的類目管理員，授權階段則驗證類目管理員是否有權添加新的商品。
 
-== 設計
+=== 架構
 
 按照 OAuth 協議實現單點登入模式。
 採用單點登入模式。採用 Cloud Foundry 的 UAA 實現認證與授權。在 Gateway處認證校驗。各個服務再作具體的授權校驗。
@@ -584,7 +586,7 @@ scim:
 
 網關要校驗所有請求，若請求未認證則引導至 UAA 做認證與授權，若請求已認證則將訪問令牌一同轉發給後端服務。
 
-首先，在 Gradle 構建文件中引入依賴。
+首先，在 gateway 的 Gradle 構建文件中引入依賴。
 
 .build.gradle
 [source, groovy]
@@ -939,7 +941,7 @@ interface WithMockUser <<annotation>> {
 }
 ....
 
-=== 系統集成測試
+=== 端到端測試
 
 將 UAA、Catalog 服務、Eureka 和網關全都運行在同一個環境，執行端到端的測試。
 
@@ -1078,6 +1080,10 @@ gateway --> browser: products
 24. UAA 返回公鑰給 Catalog 服務；
 25. Catalog 服務校驗過訪問令牌及其包含的職權後，返回受保護的資源給網關；
 26. 網關把 Catalog 服務的响應轉發給瀏覧器。
+
+== 總結
+
+本章我們瞭解了認證與授權，OAuth2 協議；使用 Spring Cloud Security 在網關上實現單點登入模式；使用 Spring Security 實現服務端鋻權。
 
 == 參考
 

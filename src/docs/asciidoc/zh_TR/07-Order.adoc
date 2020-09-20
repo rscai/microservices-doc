@@ -1,16 +1,21 @@
 = 訂單服務「Order Service」
-::icons: font
+:icons: font
 ifndef::imagesdir[:imagesdir: images]
 ifndef::source-highlighter[:source-highlighter: highlightjs]
+ifndef::commondir[:commondir: zh_TR/common]
 
 == 目標
 
 本章中，我們將基於Spring Boot開發RESTFul風格的訂單服務。我們將學習：
 
-* 使用Spring Data JPA訪問MySQL數據庫
-* 使用
+* 使用 Spring Web 和 Spring HATEOAS 創建遵循 HATEOAS 原則的 RESTful Web 服務
+* 使用 Spring Data JPA 訪問關係式數據庫
+* 使用 Eureka Discovery Client 將自身注冊至服務注冊處
+* 使用 OpenFeign 訪問 RESTful Web 服務
+* 使用 Spring for RabbitMQ 訪問 RabbitMQ
+* 使用 Spring Security 按照 OAuth2 協議與單點登入服務集成並實現服務端鍳權
 
-== 需求分析
+== 設計
 
 === 用例
 
@@ -19,22 +24,32 @@ ifndef::source-highlighter[:source-highlighter: highlightjs]
 ....
 @startuml
 left to right direction
-:Customer: --> (Create order)
-:Customer: --> (Add item)
-:Customer: --> (Submit order)
-:Customer: --> (Cancel rder)
-:Customer: --> (Pay order)
-:Customer: --> (Close order)
-:OrderOps: --> (Start order delivery)
-:OrderOps: --> (Complete order Delivery)
+actor "顧客" as customer
+actor "訂單運營" as orderOps
+
+package "訂單營運" {
+      usecase "創建訂單" as createOrder
+      usecase "提交訂單" as submitOrder
+      usecase "取消訂單" as cancelOrder
+      usecase "開始訂單交付" as startOrderDelivery
+      usecase "完成訂單交付" as completeOrderDelivery
+      usecase "關閉訂單" as closeOrder
+}
+
+customer --> createOrder
+customer --> submitOrder
+customer --> cancelOrder
+customer --> closeOrder
+orderOps --> startOrderDelivery
+orderOps --> completeOrderDelivery
 @enduml
 ....
 
-顧客「Customer」和訂單運營人員「OrderOps」兩個用戶⻆色參與訂單處理業務。
+顧客和訂單運營兩個用戶⻆色參與訂單處理業務。
 
-作為一名顧客，我可以創建訂單「Order」，並嚮其中添加任意數量的商品「Product」；創建訂單之後，我可以提交訂單或取消訂單；提交訂單之後，我可以支付訂單；一但我支付了訂單，系統應立即開始交付訂單；當我確認訂單已被交付，我可以關閉訂單。
+作為一名顧客，我可以創建訂單「Order」、提交訂單或取消訂單。當訂單完成交付後，我可以關閉訂單。
 
-作為一名訂單運營人員，我可以將已支付的「Paid」訂單標記為交付中「On Delivery」；當確認訂單已實際被交付時，可以將訂單標記為已交付「Delivered」。
+作為一名訂單運營，我可以將已提交的訂單開始訂單交付，當確認訂單已實際被交付時，可以完成訂單交付。
 
 === 領域模型
 
@@ -67,7 +82,7 @@ Order "1" o-- "1..*" OrderItem
 @enduml
 ....
 
-訂單處理是圍繞領域模型**訂單「Order」**。訂單紀錄了一竹竹中手**購買**活動的全部信息，包括購買商品清單數量、金額、顧客信息等。一筆真實的**購買**活動由多個線上線下子活動組成，所以訂單模型實體拥有較長的生命週期，及多個週期階段。
+訂單處理是圍繞領域模型**訂單「Order」**。訂單紀錄了**購買**活動的全部信息，包括購買商品清單數量、金額、顧客信息等。一筆真實的**購買**活動由多個線上線下子活動組成，所以訂單模型實體拥有較長的生命週期，及多個週期階段。
 
 .Order State
 [plantuml, order-state, png]
@@ -77,8 +92,7 @@ Order "1" o-- "1..*" OrderItem
 OPEN -> SUBMITTED: submit
 OPEN --> CANCELLED: cancel
 CANCELLED --> [*]
-SUBMITTED -> PAID: pay
-PAID -> ON_DELIVERY: start delivery
+SUBMITTED -> ON_DELIVERY: start delivery
 ON_DELIVERY -> DELIVERED: complete delivery
 DELIVERED --> CLOSED: close
 CLOSED --> [*]
@@ -88,47 +102,81 @@ CLOSED --> [*]
 * **OPEN** 當訂單被顧客創建時，其處於 `OPEN` 狀態。
 * **SUBMITTED** 顧客可以提交**OPEN**狀態的訂單，提交後的訂單處於**SUBMITTED**狀態。
 * **CANCELLED** 顧客也可以取消**OPEN**狀態的訂單。
-* **PAID** 顧客針對**SUBMITTED**狀態的訂單進行支付。顧客其實是與第三方支付提供商「Payment Provider」交互，支付提供商嚮本系統通知支付結果。支付成功後，訂單狀態為**PAID**。
-* **ON_DELOVERY** 訂單運營人員可以將**PAID**訂單標記為**ON_DELIVERY**以開始交付。
+* **ON_DELOVERY** 訂單運營人員可以將**SUBMITTED**訂單標記為**ON_DELIVERY**以開始交付。
 * **DELIVERED** 當訂單運營人員確認訂單已被交付時，將訂單標記為**DELIVERED**。
 * **CLOSED** 顧客關閉已交付的訂單。
 
-== 設計
+=== 架構
 
-=== 領域模型
+整體採用 **網關模式** 和 **服務注冊與發現模式**，訂單服務將自身注冊於由 Eureka 實現的服務注冊服務；所有外部請求都發送至網關，網關從 Eureka 發現訂單服務的實例，將請求路由給訂單服務的實例；訂單服務在處理請求時可能需要通過 RESTFul API 訪問倉儲服務；訂單服務在處理請求時可能生產消息並發佈至消息隊列 submit-order-saga，訂單服務同時是該消息隊列唯一的訂閱者；訂單服務維護獨有的 MySQL 實現的數據庫（其被訂單服務獨佔但被多個訂單服務實例共享）。
 
-.Order
-[plantuml, order-class, png]
+[plantuml, order-service-architecture]
 ....
 @startuml
-enum Order.State {
-     OPEN
-     SUBMITTED
-     PAID
-     ON_DELIVERY
-     DELIVERED
-     CLOSED
-     CANCELLED
-}
-class Order <<Entity>> {
-      -id: String
-      -amount: BigDecimal
-      -customerId: String
-      -items: List<OrderItem>
-      -state: Order.State
-      +submit(): boolean
-      +pay(): boolean
-      +startDelivery(): boolean
-      +completeDelivery(): boolean
-      +close(): boolean
-      +cancel(): boolean
-}
-class OrderItem {
-      -productId: String
-      -quanlity: int
-}
+boundary "網關" as gateway
+component "Eureka" as eureka
+component "訂單服務" as orderService
+component "倉儲服務" as inventoryService
+queue "submit-order-saga" as submitOrderQueue
+database "訂單數據庫 (MySQL)" as orderDB
+
+gateway .> eureka: 發現服務
+gateway --> orderService: 路由
+orderService .> eureka: 注冊服務
+orderService --> orderDB: 讀/寫
+orderService -left-> inventoryService: RESTful 請求
+orderService --> submitOrderQueue: 發佈消息/訂閱消息
 @enduml
 ....
+
+訂單服務自身採用經典的分層架構。由外至內分別為：
+
+* Controller 層，負責RESTful 請求/響應與對象模型之間的映射；
+* Service 層，包含業務邏輯和其它服務的本地代理；
+* Repository 層，負責數據查詢與持久化。
+
+[plantuml, order-service-layer]
+....
+@startuml
+package "訂單服務" {
+  package "Controller" {
+    [OrderController]
+  }
+  package "Service" {
+    [OrderService]
+    [InventoryClient]
+    [SubmitOrderSagaHandler]
+  }
+  package "Repository" {
+    [OrderRepository]
+  }
+
+  [OrderController] --> [OrderService]: call
+  [OrderController] --> [InventoryClient]: call
+  [OrderController] --> [OrderRepository]: call
+  [OrderService] --> [OrderRepository]: call
+  [SubmitOrderSagaHandler] --> [OrderRepository]: call
+}
+
+package "倉儲服務" {
+  interface "RESTFul" as inventoryRest
+}
+
+package "RabbitMQ" {
+  queue "submit-order-saga" as submitOrderSagaQueue
+}
+
+[InventoryClient] -left-> inventoryRest: HTTP
+[OrderService] -right-> submitOrderSagaQueue: publish
+submitOrderSagaQueue -left-> [SubmitOrderSagaHandler]: deliver
+@enduml
+....
+
+`OrderController` 基於 Spring MVC 構建，嚮外提供 RESTful 風格的 API。
+
+Service 層中，`InventoryClient` 代理與倉儲服務之間的通信；`OrderService` 負責業務邏輯；`SubmitOrderSagaHandler` 負則監聽和處理提交訂單 Saga 相關消息；消息隊列採用 RabbitMQ 實現，`OrderService` 會嚮消息隊列發佈消息，`SubmitOrderSagaHandler` 訂閱訂單提交 Saga 相關消息。
+
+訂單數據的事務性要求較高，所以數據採用支持事務的 MySQL InnoDB 引擎實現。相對應地，`OrderRepository` 基於 Spring Data JPA 實現。
 
 === RESTFul API
 
@@ -148,11 +196,6 @@ class OrderItem {
 
 |取消訂單
 |/orders/<id>/cancel
-|PUT
-|`id` 訂單唯一標識
-
-|支付訂單
-|/orders/<id>/pay
 |PUT
 |`id` 訂單唯一標識
 
@@ -182,9 +225,2079 @@ class OrderItem {
 |`page` 分頁索引，從 `0` 開始；`size` 分頁大小，默認 `10`
 |===
 
+提交訂單操作需要同時銷減庫存和更改訂單狀態。若銷減庫存失敗則不應更改訂單狀態，若更改訂單狀態失敗則應回補庫存。這裏涉及到了**分佈式事務**。
+
+.提交訂單序列圖
+[plantuml, order-submit-order-sequence]
+----
+@startuml
+participant "訂單服務" as orderService
+participant "倉儲服務" as inventoryService
+
+autonumber
+[-> orderService: 提交訂單
+activate orderService
+activate inventoryService
+group 原子操作
+    orderService -> inventoryService: 銷減庫存
+    orderService -> orderService: 更改訂單狀態
+end
+[<-- orderService
+deactivate orderService
+deactivate inventoryService
+@enduml
+----
+
+=== MySQL
+
+[quote, MySQL, https://zh.wikipedia.org/zh-cn/MySQL]
+____
+MySQL（官方发音为/maɪ ˌɛskjuːˈɛl/“My S-Q-L”，但也经常被错误读作/maɪ ˈsiːkwəl/“My Sequel”）原本是一个开放源码的关系数据库管理系统，原开发者为瑞典的MySQL AB公司，该公司于2008年被昇阳微系统（Sun Microsystems）收购。2009年，甲骨文公司（Oracle）收购昇阳微系统公司，MySQL成为Oracle旗下产品。
+
+MySQL在过去由于性能高、成本低、可靠性好，已经成为最流行的开源数据库，因此被广泛地应用在Internet上的中小型网站中。随着MySQL的不断成熟，它也逐渐用于更多大规模网站和应用，比如维基百科、Google和Facebook等网站。非常流行的开源软件组合LAMP中的“M”指的就是MySQL。
+
+但被甲骨文公司收购后，Oracle大幅调涨MySQL商业版的售价，且甲骨文公司不再支持另一个自由软件项目OpenSolaris的发展，因此导致自由软件社区们对于Oracle是否还会持续支持MySQL社区版（MySQL之中唯一的免费版本）有所隐忧，MySQL的创始人麦克尔·维德纽斯以MySQL为基础，成立分支计划MariaDB。而原先一些使用MySQL的开源软件逐渐转向MariaDB或其它的数据库。例如维基百科已于2013年正式宣布将从MySQL迁移到MariaDB数据库。
+____
+
+MySQL 的一大特性就是可插拔的存儲引擎架構。截止版本 8.0，MySQL 支持 10 種存儲引擎：
+
+[qyote, Chapter 16 Alternative Storage Engines, https://dev.mysql.com/doc/refman/8.0/en/storage-engines.html]
+____
+InnoDB::
+MySQL 8.0 的默認存儲引擎。InnoDB 是 MySQL 的事務安全（符合 ACID）存儲引擎，具有提交，回滾和崩潰焂復功能來保護用戶數據。InnoDB 行級鎖定（無需升級為更粗粒度的鎖定）和 Oracle 風格的一致非鎖定讀取可提高多用戶並發性和性能。InnoDB 將用戶數據存儲在聚集索引中，以減少基於主鍵的常見查詢的I/O。為了維護數據完整性，InnoDB 還支持 FOREIGN KEY 引用完整性約束。
+
+MyISAM::
+这類表佔用資源很少。表級鎖定限制了讀/寫工作負載中的性能，因此它通常用於 Web 和數據倉庫配置中的只讀或只讀工作負載中。
+
+Memory::
+將所有數據存儲在 RAM 中，以便在需要快速查找非關鍵數據的環境中進行快速訪問。
+
+CSV::
+它的表實際上是帶有逗號分隔值的文本文件。CSV 表充許您以 CSV 格式導入或轉儲數據，以便與讀取和寫入相同格式的腳本和應用程序交換數據。由於 CSV 表未建立索引，因此通常在正常操作期間將數據保留在 InnoDB 表中，而僅在導入或導出階段使用 CSV 表。
+
+Archive::
+這些緊湊的，未編制索引的表旨在用於存儲和檢索大量很少參考的歷史、存儲或安全審核信息。
+
+Blackhole::
+Blackhole 存儲引擎接受但不存儲數據，類似於 Unix 的 `/dev/null` 設備。查詢總是返回一個空集。這些表可用於將 DML 語句發送到從屬服務器的複制配置中，但是主服務器不會保留其自己的數據副本。
+
+NDB::
+（也穪為 NDBCLUSTER）該集群數據庫引擎特別適合需要盡可能高的正常運行時間和可用性的應用程序。
+
+Merge::
+使 MySQL DBA 或開發人員可以在邏輯上對一系列相同的 MyISAM 表進行分組並將它們作為一個對象引用。適用於 VLDB 環境，例如數據倉庫。
+
+Federated::
+提供鏈接單獨的 MySQL 服務器以從許多物理服務器創建一個邏輯數據庫的能力。非常適合於分佈式或數據集市環境。
+
+Example::
+該引擎作為 MySQL 源代碼中的示例，說明了如何開始編寫新的存儲引擎。它主要是開發人員感興趣的。此存儲引擎是什麼都不做的"存根"。您可以使用此引擎創建表，但是不能將數據存儲在表中或從表中檢索數據。
+____
+
+=== 分佈式事務
+
+分佈式事務是涉及兩個或以上網絡主機的數據庫事務。通常，主機提供事務資源，而事務管理器則負則創建和管理包含所有針對這些資源的操作的全局事務。
+
+
+[quote, CAP定理, https://zh.wikipedia.org/wiki/CAP定理]
+____
+在理論計算機科學中，CAP 定理（CAP theorem），又被穪作布魯爾定理（Brewer's theorem），它指出對於一個分布式計算系統來說，不可能同時滿足以下三點：
+
+* 一致性（Consistency）等同於所有節點訪問同一份最新的數據副本
+* 可用性（Availability）每次請求都能獲取到非錯的響應 -- 但是不保證獲取的數據為最新數據
+* 分區容錯性（Partition tolerance）以實際效果而言，分區相當於對通信的時限要求。系統如果不能在時限內逹成數據一致性，就意味著發生了分區的情況，必須就當前操作在C和A之間做出選擇。
+____
+
+根據分布傾系統的 CAP 定理，實現 ACID 事務需要付出很大的成本來維護可用性，所以為了保障可用性而總結出一套弱化的事務特性：
+
+* 基本可用（Basically Available）：系統能够基本運行、一直提供服務。
+* 軟狀態（Soft-state）：系統不要求一直保持強一致狀態。
+* 最終一致性（Eventual consistency）：系統需要在某一時刻後逹到一致性要求。
+
+簡穪 BASE，與 ACID 相對應（acid 為"酸"的英文名穪，base 為"碱"的英文名穪）。
+
+分佈式事務實現按照對業務代碼的影響大致分為無侵入式和侵入式兩類。無侵入式有兩階段交（2PC）和增強型三階段提交（3PC）等，侵入式有補贘事務（TCC）和Saga等。
+
+==== 2PC
+
+2PC（two phase commit）兩階段提交顧名思義它分成兩個階段，先由一方進行提議（propose）並收集其它節點的反饋（vote），再根據反饋決定提交（commit）或中止（abort）事務。提議的節點穪為協調者（coordinator），其它參與決議的節點穪為參與者（participants，或 cohosts）。
+
+.2PC
+[plantuml,2PC]
+....
+@startuml
+participant "協調者" as coordinator
+participant "參與者甲" as participantA
+participant "參與者乙" as participantB
+participant "參與者丙" as participantC
+
+autonumber
+
+activate coordinator
+activate participantA
+activate participantB
+activate participantC
+
+group 階段一
+    coordinator -> participantA: propose
+    coordinator -> participantB: propose
+    coordinator -> participantC: propose
+    participantA --> coordinator: vote
+    participantB --> coordinator: vote
+    participantC --> coordinator: vote
+end
+group 階段二
+    alt 所有參與者都可以提交
+        coordinator -> participantA: commit
+        coordinator -> participantB: commit
+        coordinator -> participantC: commit
+    else
+        coordinator -> participantA: abort
+        coordinator -> participantB: abort
+        coordinator -> participantC: abort
+    end
+end
+@enduml
+....
+
+在階段一中，協調者發起一個事務提交提議，同時分別問詢各參與者是否接受。
+
+在階段二中，協調者根據參與者的反饋，若所有參與都同意事務提交提議則通知各個參與者提交事務，若有任一參與者不同意提議則通知各個參與者中止事務。
+
+==== 三階段提交（3PC）
+
+三階段提交在兩階段提交的基礎上增加了 CanCommit 階段，並引入了超時機制。一旦事務參與者遲遲收不到協調者的 Commit 消息，則自動提交本地事務，如此相對有效地解決了兩階段提交中協調者單點故障的問題。
+
+.三階段提交（3PC）
+[plantuml, 3PC]
+....
+@startuml
+participant "協調者" as coordinator
+participant "參與者甲" as participantA
+participant "參與者乙" as participantB
+participant "參與者丙" as participantC
+
+autonumber
+
+activate coordinator
+activate participantA
+activate participantB
+activate participantC
+
+group 階段一
+    coordinator -> participantA: CanCommit
+    coordinator -> participantB: CanCommit
+    coordinator -> participantC: CanCommit
+    coordinator -> participantD: CanCommit
+    participantA --> coordinator: Yes/No
+    participantB --> coordinator: Yes/No
+    participantC --> coordinator: Yes/No
+    participantD --> coordinator: Yes/No
+end
+group 階段二
+    alt 所有參與者都可以提交
+        coordinator -> participantA: PreCommit
+        coordinator -> participantB: PreCommit
+        coordinator -> participantC: PreCommit
+        coordinator -> participantD: PreCommit
+        participantA --> coordinator: Yes/No
+        participantB --> coordinator: Yes/No
+        participantC --> coordinator: Yes/No
+        participantD --> coordinator: Yes/No
+    else
+        coordinator -> participantA: Abort
+        coordinator -> participantB: Abort
+        coordinator -> participantC: Abort
+        coordinator -> participantD: Abort
+    end
+end
+group 階段三
+    alt 所有參與者都 PreCommit 成功
+        coordinator -> participantA: DoCommit
+        coordinator -> participantB: DoCommit
+        coordinator -> participantC: DoCommit
+        coordinator -> participantD: DoCommit
+    else
+        coordinator -> participantA: Abort
+        coordinator -> participantB: Abort
+        coordinator -> participantC: Abort
+        coordinator -> participantD: Abort
+    end
+end
+@enduml
+....
+
+第一階段，事務協調者詢問所有參與者"是否可以提交本地事務（CanCommit）？"。
+
+第二階段，事務協調者根據第一階段中參與者的響應，若所有參與者皆響應"可以提交本地事務"則通知所有參與者預提交本地事務（PreCommit），若有任一參與者響應不能提交本地事務則通知所有參與者中止事務。
+
+第三階段，事務協調者根據第二階段中參與者的響應，若所有參與者預提交（PreCommit）都成功則通知所有參與者完成提交（DoCommit），若有任一參與者預提交失敗則通估所有參與者中止事務。參與者若在限定時間內沒有收到協調者的任何通知（DoCommit 或中止），則自行提交本地事務。
+
+==== 補贘事務（TCC）
+
+TCC（Try-Confirm-Cancel）又穪補贘事務，其核心思想是"針對每個操作都要注冊一個與其對應的確認和補贘（撤銷操作）"。它分為三個階段：
+
+* Try 階段：主要是針對業務系統做檢測和資源預留；
+* Confirm 階段：確認執行業務操作；
+* Cancel 階段：取消已執行的業務操作。
+
+.補贘事務（TCC）
+[plantuml, TCC]
+....
+@startuml
+participant "協調服務" as coordinator
+participant "服務甲" as serviceA
+participant "服務乙" as serviceB
+
+autonumber
+
+activate coordinator
+activate serviceA
+activate serviceB
+
+coordinator -> serviceA: Try
+coordinator -> serviceB: Try
+serviceA --> coordinator: Yes/No
+serviceB --> coordinator: Yes/No
+alt 所有服務參與者 Try 階段都響應 Yes
+    coordinator -> serviceA: Confirm
+    coordinator -> serviceB: Confirm
+    serviceA --> coordinator: Yes/No
+    serviceB --> coordinator: Yes/No
+end
+alt 任一服務參與者 Confirm 階段響應 No
+    coordinator -> serviceA: Cancel
+    coordinator -> serviceB: Cancel
+end
+@enduml
+....
+
+Try 階段，協調服務分別調用服務參與者的 Try 接口去作檢測和資源預留。若所有服務參與者 Try 都成功，則協調服務分別調用每一個服務參與者的 Confirm 接口以提交業務操作。若有任一服務參與者 Confirm 失敗，則㔹調服務分別調用每一個服務參與者的 Cancel 接口以補贘（撤銷）已提交的業務操作，使所有服務參與者管理的數據狀態回復至本次事務之前的狀態。
+
+==== Saga
+
+Saga 模型將一組本地事務組成串行的序列。每一個本地事務都在自已的數據庫中做數據變更，在完成數據變更後發送消息或事件給下一個本地事務。如果任一本地事務失敗了，則反序執行補贘事務，回滾之前本地事務所作的變更。
+
+舉個例子，一個原子操作由銷減庫存和更改訂單狀態兩個操作組成，且兩個操作分別由倉儲服務和訂單服務執行。應用 Saga 模式則創建一個由倉儲服務銷減庫存和訂單服務更改訂單狀態兩個本地事務組成。先執行第一個本地事務"倉儲服務銷減庫存"，然後發佈消息觸發下一個本地事務"訂單服務更改訂單狀態"。
+
+[plantuml]
+....
+digraph d {
+    rankdir=LR
+    ta [shape=box, label="倉儲服務\n銷減庫存"]
+    tb [shape=box, label="訂單服務\n更改訂單狀態"]
+
+    ta -> tb [label="消息/事件"]
+}
+....
+
+若其中某一個本地事務失敗，如"訂單服務更改訂單狀態"失敗，則進入回滾。
+
+[plantuml, saga-rollback]
+....
+digraph d {
+    rankdir=LR
+    ra [shape=box, label="倉儲服務\n回補庫存"]
+    rb [shape=box, label="訂單服務\n回復訂單狀態"]
+    ra -> rb [label="消息/事件"]
+}
+....
+
+=== 提交訂單
+
+本例採用 Saga 實現提交訂單分佈式事務。
+
+提交訂單操作由兩個本地事務「出庫」和「標記訂單狀態為已提交」組成。對應「出庫」的補贘事務為「入庫」，對應（標記訂單狀態為已提交」的補贘事務為「回復訂單狀態為OPEN」。Saga 協調負責依序調用服務執行本地事務，並在本地事務失敗時反序調用服務執行補贘事務。
+
+.提交訂單 Saga
+[plantuml, submit-order-saga]
+....
+@startuml
+|Saga協調者|
+start
+:創建Saga;
+|倉儲服務|
+:出庫;
+|訂單服務|
+:標記訂單狀態為已提交;
+|Saga協調者|
+:結束Saga;
+end
+@enduml
+....
+
+首先，Saga協調者創建Saga；然後，調用倉儲服務執行出庫，將訂單中所包含的商品項從倉儲項中減除；再然後，調用訂單服務標記訂單狀態為已提交；最後，結束Saga。
+
+若中途任一本地事務失敗則反序調用補贘事務。比如，當標記訂單狀態為已提交失敗時，調用出庫的補贘事務入庫，以扺銷出庫所產生的數據變更。
+
+.提交訂單 Saga 回滾
+[plantuml, submit-order-saga-rollback]
+....
+@startuml
+|Saga協調者|
+start
+|倉儲服務|
+:入庫;
+|Saga協調者|
+:標記Saga失敗;
+end
+@enduml
+....
+
+本例中，Saga 協調者由訂單服務兼任。
+
+從另一個⻆度講，Saga 模式是把同時執行/回滾的本地事務串行化，先正序逐一執行本地事務，若任一本地事務失敗則反序逐一執行補贘事務。本例使用消息通信機制實現本地事務串行化。
+
+提交訂單 Saga 定義了兩個前嚮操作、兩個補贘操作和兩個 Saga 基礎操作（結束 Saga 和標記 Saga 失敗）。但當最後一個本地事務成功時，全局事務就已完成了，所以最後一個本地事務的補贘事務永遠不會被執行。所以提交訂單 Saga 僅包含五個操作：出庫、入庫、標記訂單狀態為已提交、結束 Saga 和標記 Saga 失敗。同時定義了五種事件，用以驅動五個操作。
+
+|===
+|輸入消息|操作|輸出消息
+
+|CREATED
+|出庫
+|DECREASED_INVENTORY （操作成功）
+DECREASED_INVENTORY_ROLLBACK（操作失敗）
+
+|DECREASED_INVENTORY
+|標記訂單狀態為已提交
+|SUMITTED_STATUS（操作成功）
+SUBMITTED_STATUS_ROLLBACK（操作失敗）
+
+|SUMITTED_STATUS
+|結束 Saga
+|SUBMITTED_STATUS_ROLLBACK（操作失敗）
+
+|DECREASED_INVENTORY_ROLLBACK
+|標記 Saga 失敗
+|
+
+|SUBMITTED_STATUS_ROLLBACK
+|入庫
+|DECREASED_INVENTORY_ROLLBACK
+|===
+
+* 當 Saga 協調者（訂單服務兼任）收到消息 CREATED，則調用倉儲服務執行出庫。若出庫成功則發送消息 DECREASED_INVENTORY 給 Saga 協調者（通過消息隊列）；若出庫失敗則發送消息 DECREASED_INVENTORY_ROLLBACK 給 Saga 協調者。
+* 當 Saga 協調者收到消息 DECREASED_INVENTORY，則調用訂單服務（自身）執行標記訂單狀態為已提交。若標記訂單狀態成功則發送消息 SUBMITTED_STATUS 給 Saga 協調者；若失敗則發送消息 SUBMITTED_STATUS_ROLLBACK 給 Saga 協調者。
+* 當 Saga 協調者收到消息 SUBMITTED_STATUS，則結束 Saga。若結束 Saga 成功則消息鏈結束，不再發送新消息；若失敗則發送消息 SUBMITTED_STATUS_ROLLBACK 給 Saga 協調者。
+* 當 Saga 協調者收到消息 DECREASED_INVENTORY_ROLLBACK，則標記 Saga 失敗。無論成功與否，Saga 協調者都不再發送消息。若失敗則 Saga 協調者不嚮消息服務確認收到消息，消息服務會重發消息給 Saga 協調者以逹到重試的目的。
+* 當 Saga 協調者收到消息 SUBMITTED_STATUS_ROLLBACK，則調用倉儲服務執行入庫。若入庫成功則嚮 Saga 協調者發送消息 DECREASED_INVENTORY_ROLLBACK；若失敗則不確認收到消息，則消息服務會重發消息以逹到重試的目的。
+
+=== 消息隊列
+
+[quote, 消息隊列, https://aws.amazon.com/cn/message-queue/?nc1=h_ls]
+____
+消息隊列是一種異步的服務間通信方式，適用於無服務器和微服務架構。消息在被處理和刪除之前一直存儲在隊列上。每條消息僅可被一位用戶處理一次。消息隊列可被用於分離重量級處理、緩衝或批處理工作以及緩解高𡶶工作負載。
+
+在現代雲架構中，應用程序被分解為多個規模較小且更易於開發、部署和維護的獨立構建塊。消息隊列可為這些分佈式應用程序提供通信和協調。消息隊列可以顯著簡化分離應用程序的編碼，同時提高性能、可靠性和可擴展性。
+
+借助消息隊列，系統的不同部分可相互通信並異步執行處理操作。消息隊列提供一個臨時存儲消息的輕量級緩衝區，以及允許軟件組件連接到隊列以發送和接收消息的終端節點。這些消息通常較小，可以是請求、恢復、錯誤消息或明文消息等。要發送消息時，一個名為"創建器"的組件會將消息添加到隊列。消息將存儲在隊列中，直至名為"處理器"的另一組件檢索該消息並執行相關操作。
+____
+
+==== AMQP
+
+[quote, 高級消息隊列協議, https://zh.wikipedia.org/zh-cn/高级消息队列协议]
+____
+高級消息隊列協議即 Advanced Message Queuing Protocol （AMQP）是面嚮消息中間件提供的開放的應用層協議，其設計目的是對於消息的排序、路由（包括點對點和訂閱-發佈）、保持可靠性、保證安全性。AMQP 規範了消息傳遞方和接收方的行為，以使消息在不同的提供商之間實現互操作性，就像 SMTP，HTTP，FTP 等協議可以創建交互系統一樣。與先前的中間件標準（如 Java 消息服務）不同的是，JMS 在特定的 API 接口層面和實現行為上進行了統一，而高級消息隊列協議則關注於各種消息如何以字節流的形式進行傳遞。因此，使用了符合協議實現的任意應用程序之間可以保持對消息的創建、傳遞。
+
+高級消息隊列協議是一種二進制應用層協議，用於應對廣泛的面嚮消息應用程序的支持。協議提供了消息流控制，保證的一個消息對象的傳遞過程，如至多一次、保證多次、僅有一次等，和基於 SASL 和 TSL 的身份驗證和消息加密。
+
+高級消息隊列協議對於實現有如下規定：
+
+1. 類型系統
+2. 對穪的異步消息傳遞
+3. 標準的、可擴展的消息格式
+4. 標準的、可擴展的消息存儲池
+
+高級消息隊列協議最早在 2003 年由 John O'Hara 在摩根大通提出。初始設計方案在 2004 年中至 2006 年中由摩根大通發佈，由 iMatix 公司編寫協議文檔和一個 C 語言實現。2005 年摩根大通推動了包括思科系統、紅帽公司、iMatix、IONA 技術等公司組成了一個工作組。摩根大通和紅帽公司合作開發了 Apache Qpid，該客戶端最初由 Java 編寫，後轉嚮 C++；Rabbit 技術公司獨立用 Erlang 開發了 RabbitMQ。
+
+早先版本的協議包括版本 0-8，2006 年 6 月發佈；版本 0-9，2006 年 12 月發佈；版本 0-9-1，2008 年 11 月發佈。這些版本與後來的 1.0 系列有很大的不同。
+
+2001 年 8 月，高級消息隊列協議工作組公佈其改組方十女火，作為 OASIS 成員運作。高級消息隊列協議 1.0 版本在 2011 年 10 月 30 日發表。該版本在 2014 年四月成為 ISO/IEC 國際標準。
+____
+
+AMQP 模型定義了 **Publisher**、**Exchange**、**Queue** 和 **Consumer**。Publisher 將消息發佈至 Exchange；Exchange 按照被穪為 Binding 的規則將消息復制至 Queue；Consumer 可以訂閱 Queue，然後代理將 Queue 中的消息交付給訂閱該 Queue 的 Consumer，Consumer 也可以主動地從 Queue 中拉取消息。
+
+[plantuml]
+....
+@startuml
+component Publisher
+folder {
+  queue Exchange
+  queue Queue
+}
+component Consumer
+
+Publisher -> Exchange: 發佈
+Exchange -> Queue: 路由
+Queue -> Consumer: 消費
+@enduml
+....
+
+===== Exchange
+
+將消息從 Exchange 路由（復制）至 Queue 的算法基於 Exchange 類型和被穪為 Binding 的規則。AMQP 定義了四種 Exchange 類型：
+
+Direct exchange:: 
+Direct exchange 基於消息的 routing key 路由消息。Queue 綁定到 Exchange 時聲明自己的 routing key。當 Exchange 收到新消息則比較消息中的 routing key 與 Queue 的 routing key，若將消息路由至 Queue。
+
+[plantuml]
+....
+@startuml
+left to right direction
+storage Exchange
+queue EU
+queue NAM
+queue APAC
+
+Exchange --> EU : routing_key=EU
+Exchange --> NAM : routing_key=NAM
+Exchange --> APAC : routing_key=APAC
+@enduml
+....
+
+Fanout exchange::
+Fanout exchange 將消息路由給所有綁定的 Queue，其非常適合用於廣播消息。
+
+[plantuml]
+....
+@startuml
+left to right direction
+storage Exchange
+queue QueueA
+queue QueueB
+queue QueueC
+
+Exchange --> QueueA
+Exchange --> QueueB
+Exchange --> QueueC
+....
+
+Topic Exchange::
+Topic exchange 基於 routing key 和綁定模式路由消息至一或多個 Queue。其多於實現複雜的發佈/訂閱模式。
+
+Headers Exchange::
+Headers exchange 基於消息頭路由消息。
+
+===== Queue
+
+AMQP 模型中的 Queue 跟其它消息系統類似，其被用於存儲被 Consumer 消費的消息。
+
+===== 消息確認
+
+Consumer 消息消費由消息接收和消息處理前後兩步組成。Consumer 接收消息之後，可能由於業務條件約束或應用崩潰而不能完成消息處理。Consumer 需要一種機制，在完成消息處理後告知消息代理消息已被消費。這種機制被穪為 **消息確認（Message Acknowledgements）**。
+
+AMQP 定義了兩種消息確認模式：
+
+* 隠式確認，Consumer 成功接收消息等同於確認；
+* 顯式確認，Consumer 需嚮代理發送確認。
+
+==== RabbitMQ
+
+[quote, RabbitMQ, https://zh.wikipedia.org/wiki/RabbitMQ]
+____
+RabbitMQ 是實現了進階訊息佇列協定（AMQP）的開源訊息代理軟體（亦穪訊息導向介面）。RabbitMQ 伺服器是用 Erlang 語言編寫的，而群集和故障轉移是構建在開放電信平台框架上的。所有主要的程式語言均有與代理介面通訊的客戶端函式庫。
+
+RabbitMQ 服務支援下列作業系統：
+
+* Linux
+* Windows，NT 到 10
+* Windows Server 2003 到 2016
+* macOS
+* Solaris
+* FeeBSD
+* TRU64
+* VxWorks
+
+RabbitMQ 支援下列程式語言：
+
+* Python
+* Java
+* Ruby
+* PHP
+* C#
+* JavaScript
+* Go
+* Elixir
+* Objective-C
+* Swift
+____
+
+==== Spring AMQP
+
+Spring AMQP 項目將核心 Spring 概念應用於基於 AMQP 消息通信解決方案的開發中。其以"模板"的形式提供了發送和接收消息的高階抽象。其同時以"listner container"提供針對消息驅動 POJO 的支持。
 
 == 實現
 
+最簡單的創建一個新的 Spring Boot 應用方法是使用 https://start.spring.io[Spring Initializr]。使用瀏覽器訪問 https://start.spring.io :
 
+* Project 選擇 Gradle Project，使用 Gradle 構建我們的項目；
+* Language 選擇 Java；
+* Spring Boot 撰擇 2.2.7 或其它 2.2.x 版本，最新版（訖今為止）的 Spring Cloud Hoxton 兼容 Spring Boot 2.2.x；
+* Project Metadata 部份，Group 填 `io.github.rscai.microservices`，Artifact 填 `order`，Name 填 `catalog`，Packaging 撰 Jar，Java 撰擇版本 8；
+* Dependencies 選擇
+** Spring Web
+** Spring HATEOAS
+** Spring Data JPA
+** Eureka Discovery Client
+** OpenFeign
+** Spring for RabbitMQ
+** Spring Security
+** OAuth2 Resource Server
+** MySQL Driver
+
+image::07-Order/generate-project-by-spring-initializr.png[]
+
+單擊**GENERATE**，Spring initializr 就會生成 ZIP 格式的項目文件。
+
+將 `order.zip` 解壓後得到一個 Spring Boot 項目。其中：
+
+include::{commondir}/gradle-project-structure-basic.adoc[]
+
+將 order 項目導入 IntelliJ IDEA。首先，打開 Intellij IDEA，然後，單繫 Import Project，選定 catalog 項目目錄，再然後選擇以 Gradle 項目形式導入。IntelliJ IDEA 會自動初始執行 Gradle 配置，下載 `/gradle/wrapper/gradle-wrapper.properties` 中指定版本的 Gradle。
+
+=== 構建
+
+首先，引入構建插件。
+
+.build.gradle
+[source, groovy]
+----
+plugins {
+    id 'org.springframework.boot' version '2.2.2.RELEASE' // <1>
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE' // <2>
+    id 'java'
+    id "io.freefair.lombok" version "4.1.6"
+    id "org.sonarqube" version "2.7.1"
+    id 'jacoco'
+    id 'org.asciidoctor.convert' version '1.5.9.2'
+}
+...
+----
+<1> 引入 Spring Boot 插件，其版本決定了引入的 Spring Boot 庫的版本。所以，有了 Spring Boot 插件就無需顯式指定各個 Spring Boot 庫的版本了。
+<2> 引入 Spring 依賴管理插件。
+
+然後，引入依賴。
+
+.build.gradle
+[source, groovy]
+----
+...
+ext {
+    snippetsDir = file('build/generated-snippets')
+    set('springCloudVersion', "Hoxton.SR1") // <1>
+}
+
+dependencies {
+    asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+    implementation 'org.springframework.boot:spring-boot-starter-web' // <2>
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas' // <3>
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // <4>
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client' // <5>
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign' // <6>
+    implementation 'org.springframework.amqp:spring-rabbit' // <7>
+    implementation 'org.springframework.cloud:spring-cloud-starter-security' // <8>
+    implementation 'org.springframework.cloud:spring-cloud-starter-oauth2' // <9>
+    implementation 'org.springframework.security:spring-security-oauth2-resource-server' // <10>
+    implementation 'org.springframework.security:spring-security-oauth2-jose' // <11>
+    runtimeOnly 'mysql:mysql-connector-java' // <12>
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'com.h2database:h2'
+    testImplementation 'org.springframework.amqp:spring-rabbit-test'
+    testImplementation 'org.springframework.amqp:spring-rabbit-junit'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}" // <12>
+    }
+}
+...
+----
+<1> 將 Spring Cloud 版本定義為變量，便於引用及統一管理。Spring Cloud 與 Spring Boot 之間的版本兼容性發佈在 https://spring.io/projects/spring-cloud#overview
++
+.Release train Spring Boot compatibility
+|===
+|Release Train|Boot Version
+
+|Hoxton
+|2.2.x
+
+|Greenwich
+|2.1.x
+
+|Finchley
+|2.0.x
+
+|Edgware
+|1.5.x
+
+|Dalston
+|1.5.x
+|===
+<2> `spring-boot-starter-web` 引入了 Spring MVC 相關的庫。
+<3> `spring-boot-starter-hateoas` 引入了 HATEOAS 相關庫，用以實現 Level 3 RESTFul 服務。
+<4> `spring-boot-start-data-jpa` 引入了 Spring Data JPA 相關的庫，用以實現以 JPA 訪問關係式數據庫的倉庫「Repository」。
+<5> `spring-cloud-starter-betflix-eureka-client` 引入了 Eureka 客戶端庫，用以實現將本服務注冊至 Eureka，以便網關及其它服務發現。
+<6> `org.springframework.cloud:spring-cloud-starter-openfeign` 引入 Spring Cloud OpenFeign 相關的庫。Feign 是一個聲明式的 Web Service 客戶端。其使編寫 Web Service 客戶端變得更容易。創建一個接口並用注解就可以使用 Feign。Spring Cloud OpenFeign 通過自動配置並綁定 Spring Environment 和其它 Spring 編程模型慣用語以集成 OpenFeigh 和 Spring Boot 應用。
+<7> `org.springframework.amqp:spring-rabbit` 引入 Spring AMQP 中針對 RabbitMQ 的集成支持。
+<8> `spring-boot-starter-security` 引入 Spring Security 相關的庫，用以實現請求安全控制。
+<9> `org.springframework.cloud:spring-cloud-starter-oauth2` 引入 Spring Security OAuth2 集成相關的庫。
+<10> `spring-security-oauth2-resource-server` 提供 OAuth2 資源服務器的實現，以便將本服務以資源服務器的⻆色集成進 OAuth2 機制中。
+<11> `spring-security-oauth2-jose` 提供了對 JWT 令牌的支持。
+<12> 本服務使用 MySQL 作為數據庫實現，所以需在運行時提供 MySQL 驅動。
+<13> 通過引入 `org.springframework.cloud:spring-cloud-dependencies` BOM 來管理 Spring Cloud 庫的版本。
+
+=== Controller
+
+Controller 層負責 RESTFul 風格請求與處理方法之間的映射，HAL 格式的請求體/響應體與 Java 對象之間的映射及鍳權。
+
+==== 配置
+
+.OrderApplication.java
+[source, java]
+----
+@SpringBootApplication // <1>
+@EnableHypermediaSupport(stacks = WebStack.WEBMVC, type = HypermediaType.HAL) // <2>
+@EnableFeignClients
+public class OrderApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(OrderApplication.class, args);
+	}
+
+}
+----
+<1> 注解 `@SpringBootApplication` 包含了 `@EnableAutoConfiguration`，當 Spring MVC 的 Auto-Configurer 出現在 Class Path 時就會被自動激活；
+<2> 使用注解 `@EnableHypermediaSupport` 激活超媒體（HATEOAS）支持。HATEOAS 對 Spring MVC 的兩個技術棧（WEBMVC 和 WEBFLUX）都提供了支持。HATEOAS 同時支時 HAL （http://stateless.co/hal_specification.html, https://tools.ietf.org/html/draft-kelly-json-hal-05）、HAL-FORMS （https://rwcbook.github.io/hal-forms/）、COLLECTION+JSON （http://amundsen.com/media-types/collection/format/）和 UBER（https://rawgit.com/uber-hypermedia/specification/master/uber-hypermedia.html）四種超媒體類型。本例拥用 HAL 類型超媒體。
+
+==== OrderController
+
+.OrderController.java
+[source, java]
+----
+@RestController // <1>
+@ExposesResourceFor(Order.class)
+@RequestMapping("orders") // <2>
+public class OrderController {
+
+  private static final String AUTHORITY_ORDER_USE = "hasAuthority('SCOPE_order.use')";
+  private static final String AUTHORITY_ORDER_OPERATE = "hasAuthority('SCOPE_order.operate')";
+  private final EntityLinks entityLinks;
+  @Autowired
+  private OrderRepository orderRepository; // <3>
+  @Autowired
+  private OrderService orderService; // <4>
+  @Autowired
+  private PagedResourcesAssembler<Order> pagedResourcesAssembler;
+  @Autowired
+  private InventoryClient inventoryClient; // <5>
+
+...
+----
+<1> 使用注解 `@RestController` 聲明此 Controller 是一個 RESTFul 風格的 Controller，輸入請求體將被按 JSON 或 XML 格式反序列化為 Java 對象，方法返回值將按 JSON 或 XML 格式序列化為響應體。
+<2> 使用注解 `@RequestMapping` 將所有到路徑 `orders` 及其子路徑的請求都映射到該 Controller。
+<3> 使用注解 `@Autowired` 自動裝配訂單模型專屬的倉庫 `OrderRepository`。
+<4> 使用注解 `@Autowired` 自動裝配訂單模型專屬的服務 `OrderService`。
+<5> 使用注解 `@Autowired` 自動裝配倉儲服務 OpenFeign 代理 `InventoryClient`。
+
+.請求/方法映射
+|===
+|請求方法|URL|處理方法
+
+|POST
+|/orders
+|`create`
+
+|PUT
+|/orders/{id}/submit
+|`submit`
+
+|PUT
+|/orders/{id}/cancel
+|`cancel`
+
+|PUT
+|/orders/{id}/startDelivery
+|`startDelivery`
+
+|PUT
+|/orders/{id}/completeDelivery
+|`completeDelivery`
+
+|PUT
+|/orders/{id}/close
+|`close`
+
+|GET
+|/orders/{id}
+|`getOne`
+
+|GET
+|/orders/search/stateIn
+|`searchByStateIn`
+
+|GET
+|/orders/search/customerId
+|`searchByCustomerId`
+|===
+
+===== create
+
+創建訂單業務需要訂單服務和倉儲服務兩個微服務協作完成。
+
+用戶通過客戶端（Web 客戶端或App）訪問**類目服務**和**倉儲服務**獲取**商品**唯一標識、庫存和單價，然後構造訂單並發送給訂單服務。訂單需要校驗訂單中的商品類目、商品單價及訂單總價。因為，1）在客戶端從倉儲服務獲取商品庫存到創建訂單之間，實際的商品庫存有可能改變；2）在客戶端從倉儲服務獲取商品單價到創建訂單之間，實際的商品單價可能改變；3）客戶端可能出錯，生成的訂單內容有誤，需要用最新準確的數據去校正；4）創建訂單請求可能來自惡意用戶，商品單價總價等數據皆偽造。
+
+.創建訂單
+[plantuml, create-order-sequence]
+....
+@startuml
+participant "客戶端" as client
+participant "類目服務" as catalogService
+participant "倉儲服務" as inventoryService
+participant "訂單服務" as orderService
+
+autonumber
+
+client -> catalogService ++ : getOne(productId)
+return product
+client -> inventoryService ++ : searchByProductId(productId)
+return inventoryItem
+create entity "訂單" as order
+client -> order: <<new>>
+client -> orderService ++ : create(order)
+loop for each order.items
+    orderService -> inventoryService ++ : searchByProductIdIn(productIds)
+    return inventoryItems: List<inventoryItem>
+    orderService -> orderService: item.setUnitPrice(inventoryItem.getUnitPrice())
+end
+orderService -> orderService: order.setAmount(...)
+orderService -> orderService: orderRepository.save(order)
+return order
+@enduml
+....
+
+1. 客戶端訪問類目服務，獲取商品詳情；
+2. 類目返回商品詳情；
+3. 客戶端訪問倉儲服務，獲取庫存、單價等信息；
+4. 倉儲服務返回倉儲信息；
+5. 客戶端基於獲取到的商品和倉儲信息構造訂單；
+6. 客戶端將訂單發送給訂單服務，請求創建訂單；
+7. 訂單服務針對訂單中的商品，逐一嚮倉儲服務請獲取倉儲信息；
+8. 倉儲服務返回倉儲信息；
+9. 訂單服務使用從倉儲服務獲取到的最新商品單價更新訂單中的單價；
+10. 訂單根㯫最新單價計算訂單總價；
+11. 訂單服務將更正過的訂單通過 OrderRepository 保存至數據庫；
+12. 訂單服務將創建後的訂單返回給客戶端。
+
+.OrderController.java
+[source, java]
+----
+...
+  @PostMapping // <1>
+  @ResponseStatus(HttpStatus.CREATED) // <2>
+  @PreAuthorize(AUTHORITY_ORDER_USE)
+  public EntityModel<Order> create(@RequestBody Order order) { // <3>
+    order.setState(State.OPEN);
+    for (OrderItem item : order.getItems()) {
+      Collection<EntityModel<InventoryItem>> inventoryItems = inventoryClient
+          .searchByProductIdIn(Collections.singletonList(item.getProductId()), PageRequest.of(0, 1))
+          .getContent(); // <4>
+      item.setUnitPrice(Objects.requireNonNull(inventoryItems.stream().findFirst()
+          .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT,
+              String.format("Can not find product %s from Inventory", item.getProductId()))
+          ).getContent()).getUnitPrice()); // <5>
+    }
+    BigDecimal amount = order.getItems().stream().map(orderItem ->
+        orderItem.getUnitPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity()))
+    ).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+    order.setAmount(amount); // <6>
+    
+    EntityModel<Order> createdOne = new EntityModel<>(orderRepository.save(order)); // <7>
+    createdOne.add(itemLinks(Objects.requireNonNull(createdOne.getContent()))); // <8>
+    return createdOne;
+  }
+...
+----
+<1> 使用注解 `@PostMapping` 將 POST 請求映射至此方法，並聲明祗接受請求體媒體類型為 `application/json` 或 `application/hal+json` 的 POST 請求。
+<2> 使用注解 `@ResponseStatus` 聲明在成功响應時响應碼為201 Created。
+<3> 使用注解 `@RequestBody` 聲明將請求體解碼為 `Order` 類型對象並作為實參傳給該方法。
+<4> 通過 `InventoryClient` 訪問倉儲服務獲取最新的倉儲信息，包括庫存和單價。借助 Open Feign，應用開發者只需定義接口 `InventoryClient`，Open Feign會自動生成訪問目標微服務的實現。
+<5> 使用從倉儲服務獲取到的最新單價更正訂單中的商品單價。
+<6> 根據最新的單價計算訂單總價。
+<7> 使用`OrderRepository`將訂單保存至數據庫，並將結果包裝為 HATEOAS 兼容的 `EntityModel`。
+<8> 再添加一些 HATEOAS 兼容的**鏈接**。
+
+===== submit
+
+.提交訂單
+[plantuml, submit-order-sequence]
+....
+@startuml
+participant "客戶端" as client
+participant "訂單服務" as orderService
+queue "RabbitMQ" as rabbitMQ
+
+autonumber
+
+client -> orderService ++ : submit(order)
+create entity submitOrderSaga
+orderService -> submitOrderSaga: <<new>>
+orderService -> rabbitMQ: submitOrderSaga
+@enduml
+....
+
+1. 客戶端向訂單服務提交訂單；
+2. 訂單服務創建一個 `submitOrderSaga` 以追踪整個提交訂單分布式事務；
+3. 訂單服務將 `submitOrderSaga` 發送給 RabbitMQ，整個 Saga 的消息通信都是通過 RabbitMQ 實現的；
+4. 訂單服務響應客戶端提交訂單成功，此時提交訂單事務還沒有完成，訂單服務僅是告知提交訂單請求被受理了。
+
+.OrderController.java
+[source, java]
+----
+...
+  @PutMapping("{id}/submit") // <1>
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize(AUTHORITY_ORDER_USE)
+  public void submit(@PathVariable("id") String id) { // <2>
+    Order order = orderRepository.findById(id).orElseThrow(
+        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            String.format("Order %s is not found", id))); // <3>
+    if (!orderService.submit(order)) { // <4>
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          String.format("Can not submit Order %s", id));
+    }
+  }
+...
+----
+<1> 使用注解 `@PutMapping` 聲明此方法響應對 `{id}/submit` 的 PUT 請求；
+<2> 使用注解 `@PathVariable` 將 URL 中的資源標識映射為實參 `id`；
+<3> 校驗訂單是否存在，若否則響應異常；
+<4> 調用 `OderService` 處理訂單提交。 
+
+===== cancel
+
+.OrderController.java
+[source, java]
+----
+...
+  @PutMapping("{id}/cancel") // <1>
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize(AUTHORITY_ORDER_USE)
+  public void cancel(@PathVariable("id") String id) { // <2>
+    Order order = orderRepository.findById(id).orElseThrow(
+        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            String.format("Order %s is not found", id))); // <3>
+    if (!order.cancel()) { // <4>
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          String.format("Can not cancel Order %s", id));
+    }
+    orderRepository.save(order);
+  }
+...
+----
+<1> 使用注解 `@PutMapping` 聲明此方法響應對 `{id}/cancel` 的 PUT 請求；
+<2> 使用注解 `@PathVariable` 將 URL 中的資源標識映射為實參 `id`；
+<3> 校驗訂單是否存在，若否則響應異常；
+<4> 調用 `Order.cancel()` 方法轉移訂單狀態，若轉移失敗則響應異常；
+<5> 調用 `OrderRepository` 將轉移狀態後的訂單保存至數據庫。
+
+===== startDelivery
+
+.OrderController.java
+[source, java]
+----
+...
+  @PutMapping("{id}/startDelivery") // <1>
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize(AUTHORITY_ORDER_OPERATE)
+  public void startDelivery(@PathVariable("id") String id) { // <2>
+    Order order = orderRepository.findById(id).orElseThrow(
+        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            String.format("Order %s is not found", id))); // <3>
+    if (!order.startDelivery()) { // <4>
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          String.format("Can not start delivery Order %s", id));
+    }
+    orderRepository.save(order); // <5>
+  }
+...
+----
+<1> 使用注解 `@PutMapping` 聲明此方法響應對 `{id}/startDelivery` 的 PUT 請求；
+<2> 使用注解 `@PathVariable` 將 URL 中的資源標識映射為實參 `id`；
+<3> 校驗訂單是否存在，若否則響應異常；
+<4> 調用 `Order.startDelivery()` 方法轉移訂單狀態，若轉移失敗則響應異常；
+<5> 調用 `OrderRepository` 將轉移狀態後的訂單保存至數據庫。
+
+===== completeDelivery
+
+.OrderController.java
+[source, java]
+----
+...
+  @PutMapping("{id}/completeDelivery") // <1>
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize(AUTHORITY_ORDER_OPERATE)
+  public void completeDelivery(@PathVariable("id") String id) { // <2>
+    Order order = orderRepository.findById(id).orElseThrow(
+        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            String.format("Order %s is not found", id))); // <3>
+    if (!order.completeDelivery()) { // <4>
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          String.format("Can not complete delivery Order %s", id));
+    }
+    orderRepository.save(order); // <5>
+  }
+...
+----
+<1> 使用注解 `@PutMapping` 聲明此方法響應對 `{id}/completeDelivery` 的 PUT 請求；
+<2> 使用注解 `@PathVariable` 將 URL 中的資源標識映射為實參 `id`；
+<3> 校驗訂單是否存在，若否則響應異常；
+<4> 調用 `Order.startDelivery()` 方法轉移訂單狀態，若轉移失敗則響應異常；
+<5> 調用 `OrderRepository` 將轉移狀態後的訂單保存至數據庫。
+
+===== close
+
+.OrderControler.java
+[source, java]
+----
+...
+  @PutMapping("{id}/close") // <1>
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize(AUTHORITY_ORDER_USE)
+  public void close(@PathVariable("id") String id) { // <2>
+    Order order = orderRepository.findById(id).orElseThrow(
+        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            String.format("Order %s is not found", id))); // <3>
+    if (!order.close()) { // <4>
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          String.format("Can not close Order %s", id));
+    }
+    orderRepository.save(order); // <5>
+  }
+...
+----
+<1> 使用注解 `@PutMapping` 聲明此方法響應對 `{id}/close` 的 PUT 請求；
+<2> 使用注解 `@PathVariable` 將 URL 中的資源標識映射為實參 `id`；
+<3> 校驗訂單是否存在，若否則響應異常；
+<4> 調用 `Order.close()` 方法轉移訂單狀態，若轉移失敗則響應異常；
+<5> 調用 `OrderRepository` 將轉移狀態後的訂單保存至數據庫。
+
+===== getOne
+
+.OrderController.java
+[source, java]
+----
+...
+  @GetMapping("{id}") // <1>
+  @PreAuthorize(AUTHORITY_ORDER_USE)
+  public EntityModel<Order> getOne(@PathVariable("id") String id) { // <2>
+    Order order = orderRepository.findById(id).orElseThrow(
+        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            String.format("Order %s is not found", id))); // <3>
+
+    EntityModel<Order> foundOne = new EntityModel<>(order); // <4>
+    foundOne.add(itemLinks(order)); // <5>
+    return foundOne;
+  }
+...
+----
+<1> 使用注解 `@PutMapping` 聲明此方法響應對 `{id}` 的 GET 請求；
+<2> 使用注解 `@PathVariable` 將 URL 中的資源標識映射為實參 `id`；
+<3> 調用 `OrderRepository.fundById` 加載目標訂單對象，若未找到則響應異常；
+<4> 將訂單對象包裝為 HATEOAS 兼容的 `EntityModel` 對象；
+<5> 添加 HATEOAS 兼容的鏈接。
+
+===== searchByStateIn
+
+.OrderController.java
+[source, java]
+----
+...
+  @GetMapping("search/stateIn") // <1>
+  @PreAuthorize(AUTHORITY_ORDER_USE)
+  public PagedModel<EntityModel<Order>> searchByStateIn(@RequestParam("state") State[] states, // <2>
+      @NotNull Pageable pageable) {
+    Page<Order> orders = orderRepository.findByStateIn(states, pageable); // <3>
+    return pagedResourcesAssembler.toModel(orders); // <4>
+  }
+...
+----
+<1> 使用注解 `@PutMapping` 聲明此方法響應對 `search/stateIn` 的 GET 請求；
+<2> 使用注解 `@RequestParam` 將請求查詢項中的 `state` 映射至方法參數 `states`；
+<3> 調用 `OrderRepository.findByStateIn` 分項查詢訂單；
+<4> 借助 `pagedResourcesAssembler` 將分頁查詢結果包裝為 HATEOAS 兼容的對象。
+
+===== searchByCustomerId
+
+.OrderController.java
+[source, java]
+----
+...
+  @GetMapping("search/customerId") // <1>
+  @PreAuthorize(AUTHORITY_ORDER_OPERATE)
+  public PagedModel<EntityModel<Order>> searchByCustomerId(
+      @RequestParam("customerId") String customerId, // <2>
+      @NotNull Pageable pageable) {
+    Page<Order> orders = orderRepository.findByCustomerId(customerId, pageable); // <3>
+    return pagedResourcesAssembler.toModel(orders); // <4>
+  }
+...
+----
+<1> 使用注解 `@PutMapping` 聲明此方法響應對 `search/customerId` 的 GET 請求；
+<2> 使用注解 `@RequestParam` 將請求查詢項中的 `customerId` 映射至方法參數 `customerId`；
+<3> 調用 `OrderRepository.findByCustomerId` 分項查詢訂單；
+<4> 借助 `pagedResourcesAssembler` 將分頁查詢結果包裝為 HATEOAS 兼容的對象。
+
+=== Service
+
+Service 層要處理複雜的業務操作和與其它服務的通信。
+
+* `InventoryClient` 代理與倉儲服務之間的通信
+* `SubmitOrderSagaHandler` 實現提交訂單 Saga 事務
+* `OrderService` 處理複雜的訂單業務邏輯
+
+==== InventoryClient
+
+基於 Spring OpenFeign 實現 RESTful 風格的倉儲服務本地代理，替調用方隔離遠程服務調用的細節，降低代碼耦合性，減少讓人厭煩的模板代碼。
+
+首先，激活 OpenFeign 自動配置。
+
+.OrderApplication
+[source, java]
+----
+@SpringBootApplication
+@EnableHypermediaSupport(stacks = WebStack.WEBMVC, type = HypermediaType.HAL)
+@EnableFeignClients // <1>
+public class OrderApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(OrderApplication.class, args);
+	}
+
+}
+----
+<1> 使用注解 `@EnableFeignClients` 聲明激活 OpenFeign 自動配置，其掃描被注解 `@FeignClient` 修飾的接口，為其生成實現 Bean。
+
+然後，為生成的 OpenFeign 客戶端配置 OAuth 認證服務地址和用戶凭證。訂單服務以自己獨立的身份訪問倉儲服務。
+
+.FeignClientConfig.java
+[source, java]
+----
+@Profile("!test")
+@Configuration
+public class FeignClientConfig {
+
+  @Value("${feign.oauth.access-token-uri}")
+  private String accessTokenUri;
+  @Value("${feign.oauth.client.id}")
+  private String clientId;
+  @Value("${feign.oauth.client.secret}")
+  private String clientSecret;
+  @Value("${feign.oauth.client.scope}")
+  private String scope;
+  @Value("${feign.oauth.client.username}")
+  private String username;
+  @Value("${feign.oauth.client.password}")
+  private String password;
+  @Value("${feign.oauth.authorization-grant-type}")
+  private String grantType = "password";
+
+  @Bean
+  FeignRequestInterceptor oauth2FeignRequestInterceptor() { // <1>
+    return new FeignRequestInterceptor(new DefaultOAuth2ClientContext(), resource());
+  }
+
+  private OAuth2ProtectedResourceDetails resource() { // <2>
+    ResourceOwnerPasswordResourceDetails resourceDetails = new ResourceOwnerPasswordResourceDetails();
+    resourceDetails.setUsername(username);
+    resourceDetails.setPassword(password);
+    resourceDetails.setAccessTokenUri(accessTokenUri);
+    resourceDetails.setClientId(clientId);
+    resourceDetails.setClientSecret(clientSecret);
+    resourceDetails.setGrantType(grantType);
+    resourceDetails.setScope(Arrays.asList(scope.split(",")));
+    return resourceDetails;
+  }
+
+  @Bean
+  public Retryer feignRetryer() { // <3>
+    return new Retryer.Default(100, TimeUnit.SECONDS.toMillis(1), 2); // this will retry once
+  }
+}
+----
+<1> 通過 `FeignRequestInterceptor` 配置 OAuth2 認證。所有的微服務，包括倉儲服務，都在 OAuth2 的保護之下。訂單服務慾訪問倉儲服務，需嚮 OAuth2 認證服務認證並授權；
+<2> 在此，訂單服務同時扮演 OAuth2 中的 **客戶** 和 **資源所有者** 兩個⻆色。為此，我們為訂單服務單獨定義一個 `clientId` 和 `username`；
+<3> 通過 Bean `Retryer` 配置超時與重試。
+
+最後，聲明倉儲服務的代理客戶端。
+
+.InventoryClient.java
+[source, java]
+----
+@FeignClient("inventory") // <1>
+public interface InventoryClient {
+
+  @GetMapping(value = "/inventoryItems/search/productIdIn", consumes = "application/hal+json") // <2>
+  PagedModel<EntityModel<InventoryItem>> searchByProductIdIn(
+      @RequestParam("productId") List<String> productIds, Pageable pageable);
+
+  @PostMapping(value = "/inventoryItemQuantityChanges", consumes = "application/hal+json") // <3>
+  List<EntityModel<InventoryItemQuantityChange>> changeInventoryItemQuantity(
+      @RequestBody List<InventoryItemQuantityChange> changes);
+}
+----
+<1> 使用注解 `@FeignClient` 聲明此接口是一個Feign Client，OpenFeign 會為其生成一個實現 Bean。
+<2> 使用與 Spring MVC 相同的請求映射注解 `@GetMapping` 來描述此方法對應倉儲服務的 `GET /iventoryItems/search/productIdIn`，請求參數也用 Spring MVC 相同的注解 `@RequestParam`聲明。
+<3> 使用與 Spring MVC 相同的請求映射注解 `@PostMapping` 來描述此方法對應倉儲服務的 `POST /inventoryItemQuantityChanges`，請求體也用 Spring MVC 相同的注解 `@RequestBody`聲明。
+
+==== SubmitOrderSagaHandler
+
+Saga 事務以消息驅動的模式運行，`SubmitOrderSagaHandler` 負責接收和處理提交訂單 Saga 事務消息，並發佈消息以驅動 Saga 事務的下一步。
+
+首先，基於 Spring AMQP 配置與消息隊列服務之間的連接。
+
+.RabbitConfig.java
+[source, java]
+----
+@Profile("!test") // <1>
+@Configuration // <2>
+public class RabbitConfig {
+
+  @Value("${mq.submit-order-saga.hostname}") // <3>
+  private String hostname;
+  @Value("${mq.submit-order-saga.port}") // <4>
+  private int port;
+  @Value("${mq.submit-order-saga.queue.name}") // <5>
+  private String queueName;
+  @Value("${mq.submit-order-saga.exchange}") // <6>
+  private String exchange;
+
+  @Bean
+  public ConnectionFactory connectionFactory() { // <7>
+    return new CachingConnectionFactory(hostname, port);
+  }
+
+  @Bean
+  public AmqpAdmin amqpAdmin() { // <8>
+    return new RabbitAdmin(connectionFactory());
+  }
+
+  @Bean
+  public RabbitTemplate rabbitTemplate() { // <9>
+    RabbitTemplate template = new RabbitTemplate(connectionFactory());
+    template.setMessageConverter(jsonMessageConverter());
+    template.setExchange(exchange);
+    return template;
+  }
+
+  @Bean
+  public Queue myQueue() {
+    return new Queue(queueName);
+  }
+
+  @Bean
+  public Jackson2JsonMessageConverter jsonMessageConverter() { // <10>
+    Jackson2JsonMessageConverter jsonConverter = new Jackson2JsonMessageConverter();
+    jsonConverter.setClassMapper(classMapper());
+    return jsonConverter;
+  }
+
+  @Bean
+  public DefaultClassMapper classMapper() {
+    DefaultClassMapper classMapper = new DefaultClassMapper();
+    Map<String, Class<?>> idClassMapping = new HashMap<>();
+    idClassMapping.put(SubmitOrderSaga.class.getName(), SubmitOrderSaga.class);
+    classMapper.setIdClassMapping(idClassMapping);
+    return classMapper;
+  }
+}
+----
+<1> 使用注解 `@Profile` 聲明此配置在除 `test` 之外的 profile 中生效。因為在測試埸景中不會提供消息隊列服務。
+<2> 使用注解 `@Configuration` 聲明此類為配置類，在應用初始時應套用本類中的配置。
+<3> 使用注解 `@Value` 注入消息隊列服務的主機名。
+<4> 使用注解 `@Value` 注入消息隊列服務的端口號。
+<5> 使用注解 `@Value` 注入消息隊列名。
+<6> 使用注解 `@Value` 注入 Exchange 名。
+<7> 以 Bean 形式定義消息隊列服務的連接工廠。
+<8> 以 Bean 形式定義 `AmqpAdmin` 用以創建隊列等操作。
+<9> 以 Bean 形式定義 `RabbitTemplate` 用以發佈和拉取消息。
+<10> 以 Bean 形式定義 `Jackson2JsonMessageConverter` 用以消息和 Java 對象之間的序列化和反序列化。
+
+消息隊列的連接信息通過 application.yml 配置。
+
+.application-dev.yml
+[source, yaml]
+----
+...
+mq:
+  submit-order-saga:
+    hostname: localhost # <1>
+    port: 5672 # <2>
+    exchange: amq.direct # <3>
+    routing-key: submit-order-saga # <4>
+    queue:
+      name: submit-order-saga // # <5>
+...
+----
+<1> 消息隊列服務主機名。
+<2> 消息隊列服務端口號。
+<3> 使用預定義的 Exchange `amq.direct`。`amq.direct` 是 Direct Exchange，其基於 routing key 路由消息。隊列 `submit-order-saga` 在綁定時聲明 routing key 為 `submit-order-saga`，所以所有帶有相同 routing key 的消息都會被路由到隊列 `submit-order-saga`。
+<4> 聲明 routing key 為 `submit-order-saga`。
+<5> 聲明隊列名為 `submit-order-saga`。
+
+然後，定義 `SubmitOrderSagaHandler`，以監聽模式接收並處理提交訂單 Saga 事務消息。
+
+.SubmitOrderSagaHandler.java
+[source, java]
+----
+@Slf4j
+@Component // <1>
+public class SubmitOrderSagaHandler {
+
+  @Autowired
+  private RabbitTemplate rabbitTemplate; // <2>
+  @Autowired
+  private InventoryClient inventoryClient; // <3>
+  @Autowired
+  private OrderRepository orderRepository; // <4>
+  @Autowired
+  private PlatformTransactionManager transactionManager; // <5>
+  @Value("${mq.submit-order-saga.routing-key}")
+  private String routingKey; // <6>
+
+  @RabbitListener(queues = "${mq.submit-order-saga.queue.name}") // <7>
+  public void processSubmitOrderEvent(@Payload SubmitOrderSaga event) throws SagaException {
+    log.debug(String.format("Received message %s", event.toString()));
+    if (SubmitOrderSaga.CREATED.equals(event.getStep())) { // <8>
+      SubmitOrderSaga saga = decreaseInventory(event);
+      rabbitTemplate.convertAndSend(routingKey, saga);
+    } else if (SubmitOrderSaga.DECREASED_INVENTORY.equals(event.getStep())) { // <9>
+      SubmitOrderSaga saga = submitStatus(event);
+      rabbitTemplate.convertAndSend(routingKey, saga);
+    } else if (SubmitOrderSaga.DECREASED_INVENTORY_ROLLBACK.equals(event.getStep())) { // <10>
+      markRollback(event);
+      // final state ROLLBACK
+    } else if (SubmitOrderSaga.SUBMITTED_STATUS.equals(event.getStep())) { // <11>
+      markCompleted(event);
+      // final state COMPLETED
+    } else if (SubmitOrderSaga.SUBMITTED_STATUS_ROLLBACK.equals(event.getStep())) { // <12>
+      SubmitOrderSaga saga = rollbackDecreaseInventory(event);
+      rabbitTemplate.convertAndSend(routingKey, saga);
+    } else {
+      log.info(String.format("received ended saga %s", event.toString()));
+    }
+  }
+...
+----
+<1> 使用注解 `@Component` 聲明此類為 Component Bean。
+<2> 使用注解 `@Autowired` 注入 `RabbitTemplate`。
+<3> 使用注解 `@Autowired` 注入 `InventoryClient`。
+<4> 使用注解 `@Autowired` 注入 `OrderRepository`。
+<5> 使用注解 `@Autowired` 注入 `PlatformTransactionManager`。
+<6> 使用注解 `@Value` 注入提交訂單 Saga 所使用的消息隊列 routing key。
+<7> 使用注解 `@RabbitListener` 將方法 `processSubmitOrderEvent` 注冊為消息監聽器，所監聽的隊列由屬性 `mq.submit-order-saga.queue.name` 注入。
+<8> 當收到事件 CREATED，則執行出庫。若成功則將事件 DECREASED_INVENTORY 以 Saga 對象形式發佈至消息隊列；若失敗則將事件 DESCREASED_INVENTORY_ROLLBACK 以 Saga 對象的形式發佈至消息队列。
+<9> 當收到事件 DECREASED_INVENTORY，則執行標記訂單狀態為已提交。若成功則將事件 SUBMITTED_STATUS 以 Saga 對象形式發佈至消息隊列；若失敗則將事件 SUBMITTED_STATUS_ROLLBACK 以 Saga 對象形式發佈至消息隊列。
+<10> 當收到事件 DECREASED_INVENTORY_ROLLBACK，則執行標記 Saga 失敗。無論成功與否都不再嚮外發佈消息。
+<11> 當收到事件 SUBMITTED_STATUS，則執行結束 Saga。無論成功與否都不再嚮外發佈消息。
+<12> 當收到事入 SUBMITTED_STATUS_ROLLBACK，則執行入庫以補贘出庫操作產的數據變更。若成功則將事件 DECREASED_INVENTORY_ROLLBACK 以 Saga 對象形式發佈至消息隊列。
+
+.SubmitOrderSagaHandler.java
+[source, java]
+----
+...
+private SubmitOrderSaga decreaseInventory(SubmitOrderSaga saga) throws SagaException {
+    try {
+      Optional<Order> orderOptional = orderRepository.findById(saga.getOrderId());
+      if (!orderOptional.isPresent()) { // <1>
+        saga.setStep(Saga.ROLLBACK);
+        return saga;
+      }
+      Order order = orderOptional.get();
+      List<String> productIds = order.getItems().stream().map(OrderItem::getProductId)
+          .collect(Collectors.toList());
+      try {
+        Map<String, InventoryItem> itemIndexByProductId = inventoryClient
+            .searchByProductIdIn(productIds, PageRequest.of(0, productIds.size())).getContent()
+            .stream().collect(Collectors.toMap(inventoryItemEntityModel -> Objects
+                    .requireNonNull(inventoryItemEntityModel.getContent()).getProductId(),
+                EntityModel::getContent));
+        Stream<Optional<InventoryItemQuantityChange>> changes = order.getItems().stream()
+            .map(item -> {
+              if (!itemIndexByProductId.containsKey(item.getProductId())) {
+                return Optional.empty();
+              }
+              InventoryItem inventoryItem = itemIndexByProductId.get(item.getProductId());
+              InventoryItemQuantityChange change = new InventoryItemQuantityChange();
+              change.setId(String.format("order-order%s-%s", order.getId(), inventoryItem.getId()));
+              change.setInventoryItemId(inventoryItem.getId());
+              change.setQuantityChange(-item.getQuantity());
+              return Optional.of(change);
+            });
+        List<InventoryItemQuantityChange> validChanges = changes.filter(Optional::isPresent).map(
+            Optional::get).collect(
+            Collectors.toList());
+        if (order.getItems().size() != validChanges.size()) {
+          throw new SagaException("can not find inventory item for some product");
+        }
+
+        inventoryClient.changeInventoryItemQuantity(validChanges); // <2>
+      } catch (FeignException ex) {
+        log.error(ex.getMessage(), ex);
+        saga.setStep(SubmitOrderSaga.DECREASED_INVENTORY_ROLLBACK);
+        return saga;
+      }
+      saga.setStep(SubmitOrderSaga.DECREASED_INVENTORY); // <3>
+      return saga;
+    } catch (TransactionException | DataAccessException ex) {
+      log.error(ex.getMessage(), ex);
+      throw new SagaException(ex.getMessage(), ex);
+    }
+  }
+...
+----
+<1> 首先，檢查訂單是否存在。
+<2> 然後，調用倉儲服務出庫。
+<3> 若出庫成功，則將事件 DECREASED_INVENTORY 賦於 Saga 對象。
+
+.SubmitOrderSagaHandler.java
+[source, java]
+----
+...
+  private SubmitOrderSaga submitStatus(SubmitOrderSaga saga) throws SagaException {
+    Optional<Order> orderOptional = orderRepository.findById(saga.getOrderId());
+    if (!orderOptional.isPresent()) { // <1>
+      saga.setStep(SubmitOrderSaga.SUBMITTED_STATUS_ROLLBACK);
+      return saga;
+    }
+    Order order = orderOptional.get();
+    if (!order.submit()) {
+      saga.setStep(SubmitOrderSaga.SUBMITTED_STATUS_ROLLBACK);
+    } else {
+      saga.setStep(SubmitOrderSaga.SUBMITTED_STATUS);
+    }
+    try {
+      return buildTransactionTemplate().execute(status -> { // <2>
+        orderRepository.save(order);
+        return saga;
+      });
+    } catch (TransactionException | DataAccessException ex) {
+      log.error(ex.getMessage(), ex);
+      throw new SagaException(ex.getMessage(), ex);
+    }
+  }
+...
+----
+<1> 首先，檢查訂單是否存在。
+<2> 然後，轉換訂單狀態並調用 `OrderRepository` 將新狀態持久化至數據庫。若成功則將事件 SUBMITTED_STATUS 賦於 Saga 對象；若失敗則將事件 SUBMITTED_STATUS_ROLLBACK 賦於 Saga 對象。
+
+.SubmitOrderSagaHandler.java
+[source, java]
+----
+...
+  private SubmitOrderSaga rollbackDecreaseInventory(SubmitOrderSaga saga) throws SagaException {
+    try {
+      Optional<Order> orderOptional = orderRepository.findById(saga.getOrderId());
+      if (!orderOptional.isPresent()) { // <1>
+        saga.setStep(Saga.ROLLBACK);
+        return saga;
+      }
+      Order order = orderOptional.get();
+      List<String> productIds = order.getItems().stream().map(OrderItem::getProductId)
+          .collect(Collectors.toList());
+      Map<String, InventoryItem> itemIndexByProductId = inventoryClient
+          .searchByProductIdIn(productIds, PageRequest.of(0, productIds.size())).getContent()
+          .stream().collect(Collectors.toMap(inventoryItemEntityModel -> Objects
+                  .requireNonNull(inventoryItemEntityModel.getContent()).getProductId(),
+              EntityModel::getContent));
+      Stream<Optional<InventoryItemQuantityChange>> changes = order.getItems().stream()
+          .map(item -> {
+            if (!itemIndexByProductId.containsKey(item.getProductId())) {
+              return Optional.empty();
+            }
+            InventoryItem inventoryItem = itemIndexByProductId.get(item.getProductId());
+            InventoryItemQuantityChange change = new InventoryItemQuantityChange();
+            change.setId(String.format("order-order%s-%s", order.getId(), inventoryItem.getId()));
+            change.setInventoryItemId(inventoryItem.getId());
+            change.setQuantityChange(item.getQuantity());
+            return Optional.of(change);
+          });
+      List<InventoryItemQuantityChange> validChanges = changes.filter(Optional::isPresent)
+          .map(Optional::get).collect(Collectors.toList());
+      if (validChanges.size() != order.getItems().size()) {
+        throw new SagaException("can not find inventory item for some product");
+      }
+      try {
+        inventoryClient.changeInventoryItemQuantity(validChanges); // <2>
+      } catch (FeignException ex) {
+        log.error(ex.getMessage(), ex);
+        return saga;
+      }
+      saga.setStep(SubmitOrderSaga.DECREASED_INVENTORY_ROLLBACK); // <3>
+      return saga;
+    } catch (TransactionException | DataAccessException ex) {
+      log.error(ex.getMessage(), ex);
+      throw new SagaException(ex.getMessage(), ex);
+    }
+  }
+...
+----
+<1> 首先，檢查訂單是否存在。
+<2> 然後，調用倉儲服務入庫。
+<3> 若出庫成功，則將事件 DECREASED_INVENTORY_ROLLBACK 賦於 Saga 對象。
+
+.SubmitOrderSagaHandler.java
+[source, java]
+----
+...
+  private SubmitOrderSaga markRollback(SubmitOrderSaga saga) throws SagaException {
+    try {
+      saga.setStep(Saga.ROLLBACK); // <1>
+      return saga;
+    } catch (TransactionException | DataAccessException ex) {
+      log.error(ex.getMessage(), ex);
+      throw new SagaException(ex.getMessage(), ex);
+    }
+  }
+...
+----
+<1> 標記 Saga 為 ROLLBACK。
+
+.SubmitOrderSagaHandler.java
+[source, java]
+----
+...
+  private SubmitOrderSaga markCompleted(SubmitOrderSaga saga) throws SagaException {
+    try {
+      saga.setStep(Saga.COMPLETED); // <1>
+      return saga;
+    } catch (TransactionException | DataAccessException ex) {
+      log.error(ex.getMessage(), ex);
+      throw new SagaException(ex.getMessage(), ex);
+    }
+  }
+...
+----
+<1> 標記 Saga 為 COMPLETED。
+
+==== OrderService
+
+典型的分層架構 Web 應用中，**Controller** 負責輸入/輸出解析與轉換，**Service** 層負責處理業務邏輯，**Repository** 負責數據持久化。在業務邏輯比較簡單的情況下，**Service** 可以被省略，其功能被分散到 **Controller** 和 **Repository** 中。提交訂單的業務邏輯比較複雜，所以將其移至 **Service** 中實現。
+
+.OrderService.java
+[source, java]
+----
+@Service // <1>
+public class OrderService {
+
+  @Autowired // <2>
+  private OrderRepository repository;
+  @Autowired // <3>
+  private RabbitTemplate amqpTemplate;
+  @Value("${mq.submit-order-saga.routing-key}") // <3>
+  private String routingKey;
+
+  public boolean submit(final Order order) {
+    if (!order.submit()) { // <4>
+      return false;
+    }
+    // publish create SubmitOrderSaga event
+    SubmitOrderSaga declareEvent = new SubmitOrderSaga();
+    declareEvent.setOrderId(order.getId());
+    declareEvent.setStep(Saga.CREATED);
+    amqpTemplate.convertAndSend(routingKey, declareEvent); // <5>
+    return true;
+  }
+}
+----
+<1> 使用注解 `@Service` 聲明該類為 **Service** Bean。此處的 **Service** 是借用領域驅動設計（Domain Driven Design）中的概念。Spring 並沒有區分 `@Service` 和 `@Component` 修飾的 Bean，但某些應用可以通過掃描 Class Path 以偵測 Service Bean。
+<2> 使用注解 `@Autowired` 注入 `OrderRepository`。
+<3> 使用注解 `@Autowired` 注入 `RabbitTemplate`。
+<4> 調用 `Order.submit()` 轉換訂單狀態。`Order.submit()` 檢查狀態轉換是否符合預定的規則，若否則立即響應失敗‧
+<5> 將 Saga 作為消息發送給消息服務。
+
+=== Repository
+
+基於 Spring Data JPA 實現訪問 MySQL 的 Repository。
+
+==== OrderRepository
+
+首先，定義對象/關係式模型映射。
+
+.Order.java
+[source, java]
+----
+@Relation(collectionRelation = "orders")
+@Data
+@Entity // <1>
+@Table(name = "t_order", // <2>
+    indexes = {@Index(name = "idx_state", columnList = "state", unique = false),
+        @Index(name = "idx_customer_id", columnList = "customer_id", unique = false)})
+public class Order {
+...
+  @Id
+  @GeneratedValue(generator = "system-uuid")
+  @GenericGenerator(name = "system-uuid", strategy = "uuid")
+  private String id; // <3>
+  @Column(nullable = false, scale = 2)
+  private BigDecimal amount; // <4>
+  @Column(name="customer_id", nullable = false)
+  private String customerId; // <5>
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "order_item", joinColumns = @JoinColumn(name = "order_id"))
+  private List<OrderItem> items; // <6>
+  @Enumerated(EnumType.STRING)
+  private State state; // <7>
+  @CreationTimestamp
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date createdAt; // <8>
+  @UpdateTimestamp
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date updatedAt; // <9>
+...
+}
+----
+<1> 使用注解 `@Entity` 聲明此類為 JPA 實體。
+<2> 使用注解 `@Table` 顯式聲明此類映射的關係式表為 `t_order`，並顯式分別定義在列 `state` 上的非唯一索引，和在列 `customer_id` 上的非唯一索引。
+<3> 使用注解 `@Id` 聲明屬性 `id` 是唯標識，並組合注解 `@GeneratedValue` 和 `@GenericGenerator` 聲明此列的值以 UUID 的方式自動生成。
+<4> 使用注解 `@Column` 顯式聲明屬性 `amount` 所映射的列為不可空，且小數點後保留兩位精度。
+<5> 使用注解 `@Column` 顯式聲明屬性 `customerId` 所映射的列名為 `customer_id`且不可為空。
+<6> 使用注解 `@Column` 顯式聲明屬性 `items` 為集合屬性，其值映射為關联表 `order_item`。
+<7> 使用注解 `@Enumerated` 顯式聲明屬性 `state` 是枚舉類型，在從 Java 對象映射為關係式模型時其值應被轉換為字符串類型，反之亦然。
+<8> 使用注解 `@Temporal` 顯式聲明屬性 `createdAt` 映射為 TIMESTAMP 類型的列，並使用注解 `@CreationTimestamp` 聲明應在創建（INSERT）實體（record）時為其生成值。
+<9> 使用注解 `@Temporal` 顯式聲明屬性 `updatedAt` 映射為 TIMESTAMP 類型的列，並使用注解 `@UpdateTimestamp` 聲明應在更新（UPDATE）實體（record）時為其生成新的值。
+
+然後，聲明接口 `OrderRepository` 並繼承自 `PagingAndSortingRepository`。
+
+.OrderRepository
+[source, java]
+----
+@Repository // <1>
+public interface OrderRepository extends PagingAndSortingRepository<Order, String> { // <2>
+  Page<Order> findByCustomerId(String customerId, Pageable pageable); // <3>
+  Page<Order> findByStateIn(State[] states, Pageable pageable); // <4>
+}
+----
+<1> 使用注解 `@Repository` 聲明此接口為倉庫，Spring Data 在構建上下文時將為其生成一個實現類並初始化 Bean。
+<2> 擴展接口 `@PagingAndSortingRepository`，並聲明實體類型為 `Order`，唯一標識類型為 `String`。
+<3> 聲明按 `customerId` 分頁查找訂單方法。
+<4> 聲明按 `state` 分頁查找訂單方法。
+
+== 測試
+
+=== 單元測試
+
+`SubmitOrderSagaHandler` 的實現比較複雜，有必要對其建立細粒度的單元測試。
+
+==== SubmitOrderSagaHandlerTest
+
+.SubmitOrderSagaHandlerTest.java
+[source, java]
+----
+@ActiveProfiles("test") // <1>
+@SpringBootTest // <2>
+public class SubmitOrderSagaHandlerTest {
+
+  private static final String PRODUCT_ID_A = "productA";
+  private static final String PRODUCT_ID_B = "productB";
+  private static final String CUSTOMER_ID_A = "customerA";
+  @MockBean
+  private RabbitTemplate mockAmqpTemplate; // <3>
+  @MockBean
+  private InventoryClient mockInventoryClient; // <4>
+  @Autowired
+  private OrderRepository orderRepository; // <5>
+  @Autowired
+  private PagedResourcesAssembler<InventoryItem> pagedResourcesAssembler;
+  @Autowired
+  private SubmitOrderSagaHandler testObject; // <6>
+
+  private String orderIdA;
+
+  @BeforeEach
+  public void setUp() { // <7>
+    Order order = new Order();
+    order.setCustomerId(CUSTOMER_ID_A);
+    order.setItems(Arrays.asList(new OrderItem(PRODUCT_ID_A, 2, BigDecimal.TEN),
+        new OrderItem(PRODUCT_ID_B, 3, BigDecimal.TEN)));
+    order.setAmount(BigDecimal.valueOf(50));
+    order.setState(State.OPEN);
+    orderIdA = orderRepository.save(order).getId();
+  }
+
+  @AfterEach
+  public void tearDown() { // <8>
+    orderRepository.deleteAll();
+  }
+...
+----
+<1> 使用注解 `@ActiveProfiles` 聲明當前激活的 profile 是 `test`。
+<2> 使用注解 `org.springframework.boot.test.context.SpringBootTest` 聲明測試用Spring上下文。 `@SpringBootTest` 可以指定上下文配置類，這點我們使用生產代碼相同的應用入口類配置測試上下文。
+<3> 使用注解 `@MockBean` 聲明一個 `RabbitTemplate`  Mock Bean，該 Mock Bean 會替換掉其它 Bean 所引用的 `RabbitTemplate` Bean。
+<4> 使用注解 `@MockBean` 聲明一個 `InventoryClient` Mock Bean，該 Mock Bean 會替換掉其它 Bean 所引用的 `InventoryCleint` Bean。
+<5> 使用注解 `@Autowired` 注入 `OrderRepository`，用以預置和檢驗訂單數據。
+<6> 使用注解 `@Autowired` 注入測試對象。
+<7> 借助 `OrderRepository` 預置 OPEN 狀態的訂單數據。
+<8> 借助 `OrderRepository` 清理所有訂單數據，以防測試之間互相干擾。
+
+成功提交訂單的案例從 `CREATED` 狀態的 SubmitOrderSaga 開始。
+
+* `SubmitOrderSagaHandler` 從消息隊列收到 `CREATED` 狀態的 Saga，調用 `InventoryClient.searchByProductIn` 查找訂單包含商品的倉儲項，再調用 `InventoryClient.changeInventoryItemQuantity` 出庫，再將 Saga 的狀態轉移至 `DECREASED_INVENTORY` 並發佈至消息隊列；
+* `SubmitOrderSagaHandler` 從消息隊列收到 `DECREASED_INVENTORY` 狀態的 Saga，將訂單狀態轉移至 `SUBMITTED`，且將 Saga 的狀態轉移至 `SUBMITTED_STATUS` 並發佈至消息隊列；
+* `SubmitOrderSagaHandler` 從消息隊列收到 `SUBMITTED_STATUS` 狀態的 Saga，不再嚮消息隊列發佈任何消息，也不更改訂單狀態。
+
+.SubmitOrderSagaHandlerTest.java
+[source, java]
+----
+...
+@Test
+  public void testSubmitOrderSuccess() throws Exception {
+
+    // mock for decreasing inventory item quantity
+    InventoryItem itemA = new InventoryItem();
+    itemA.setId("itemA");
+    itemA.setProductId(PRODUCT_ID_A);
+    itemA.setQuantity(100);
+    itemA.setUnitPrice(BigDecimal.TEN);
+    InventoryItem itemB = new InventoryItem();
+    itemB.setId("itemA");
+    itemB.setProductId(PRODUCT_ID_B);
+    itemB.setQuantity(200);
+    itemB.setUnitPrice(BigDecimal.TEN);
+    PageImpl<InventoryItem> page = new PageImpl<>(Arrays.asList(itemA, itemB),
+        PageRequest.of(0, 10), 2);
+    PagedModel<EntityModel<InventoryItem>> inventoryItems = pagedResourcesAssembler.toModel(page);
+    when(mockInventoryClient.searchByProductIdIn(anyList(), any(Pageable.class)))
+        .thenReturn(inventoryItems);
+    when(mockInventoryClient.changeInventoryItemQuantity(anyList()))
+        .thenAnswer(invocation -> invocation.getArgument(0)); // <1>
+
+    ArgumentCaptor<Object> sagaCaptor = ArgumentCaptor.forClass(Object.class);
+
+    SubmitOrderSaga saga = new SubmitOrderSaga();
+    saga.setOrderId(orderIdA);
+    saga.setStep(Saga.CREATED);
+
+    testObject.processSubmitOrderEvent(saga); // <2>
+
+    // verify mq
+    verify(mockAmqpTemplate).convertAndSend(anyString(), sagaCaptor.capture()); // <3>
+    assertThat(sagaCaptor.getValue(), instanceOf(SubmitOrderSaga.class));
+    SubmitOrderSaga decreasedInventorySaga = (SubmitOrderSaga) sagaCaptor.getValue();
+    assertThat(decreasedInventorySaga.getStep(), is(SubmitOrderSaga.DECREASED_INVENTORY));
+    assertThat(decreasedInventorySaga.getOrderId(), is(orderIdA));
+    // verify DB
+    assertThat(orderRepository.findById(orderIdA)
+            .<AssertionError>orElseThrow(() -> fail("can not find order")).getState(),
+        is(State.OPEN)); // <4>
+
+    // submit status
+    clearInvocations(mockAmqpTemplate); // <5>
+
+    testObject.processSubmitOrderEvent(decreasedInventorySaga); // <6>
+
+    // verify mq
+    verify(mockAmqpTemplate).convertAndSend(anyString(), sagaCaptor.capture()); // <7>
+    assertThat(sagaCaptor.getValue(), instanceOf(SubmitOrderSaga.class));
+    SubmitOrderSaga submittedStatusSaga = (SubmitOrderSaga) sagaCaptor.getValue();
+    assertThat(submittedStatusSaga.getStep(), is(SubmitOrderSaga.SUBMITTED_STATUS));
+    assertThat(submittedStatusSaga.getOrderId(), is(orderIdA));
+    // verify DB
+    assertThat(
+        orderRepository.findById(orderIdA).<AssertionError>orElseThrow(
+            () -> fail("can not find order")).getState(),
+        is(State.SUBMITTED)); // <8>
+
+    // complete saga
+    clearInvocations(mockAmqpTemplate); // <9>
+
+    testObject.processSubmitOrderEvent(submittedStatusSaga); // <10>
+
+    // verify mq
+    verify(mockAmqpTemplate, times(0)).convertAndSend(anyString(), sagaCaptor.capture()); // <11>
+
+    // verify DB
+    assertThat(
+        orderRepository.findById(orderIdA).<AssertionError>orElseThrow(
+            () -> fail("can not find order")).getState(),
+        is(State.SUBMITTED)); // <12>
+
+  }
+...
+----
+<1> Mock `InventoryClient` 的 `searchByProductIn` 和 `changeInventoryItemQuantity` 方法，返回預設的值。
+<2> 構造 `CREATED` 狀態的 `SubmitOrderSaga`，將其作為參數調用測試對象的 `processSubmitOrderEvent`，模擬從消息隊列收到消息。
+<3> 檢驗其是否調用了 `mockAmqpTemplate.convertAndSend` 方法嚮消息隊列發送消息，並使用 Mockito 的 Captor 截獲實參，檢驗實參內容是否符合預期。
+<4> 使用 `OrderRepository` 從數據庫加載訂單對象，檢驗其狀態是否為預期的 `OPEN`。
+<5> 清理 `mockAmqpTemplate` 上的所有方法調用記錄，以免混淆後續方法調用檢驗。
+<6> 把之前截獲的消息作為參數再一次調用測試對象的 `processSubmitOrderEvent` 方法，模擬從消息隊列接收到該消息。
+<7> 檢驗其是否調用了 `mockAmqpTemplate.convertAndSend` 方法嚮消息隊列發送消息，並使用 Mockito 的 Captor 截獲消息對象，檢驗消息內容是否符合預期。
+<8> 使用 `OrderRepository` 從數據庫加載訂單對象，並檢驗訂單狀態是否為預期的 `SUNMITTED`。
+<9> 清理 `mockAmqpTemplate` 上的所有方法調用記錄，以免混淆後續方法調用檢驗。
+<10> 把之前截獲的消息作為參數，再一次調用測試對象的 `processSubmitOrderEvent` 方法，模擬從消息隊列接收到該消息。
+<11>  檢驗其應未調用 `mockAmqpTemplate.convertAndSend` 方法嚮消息隊列陷送消息。
+<12> 使用 `OrderRepository` 從數據庫加載訂單對象，檢驗其狀態是否為預期的 `SUBMITTED`。
+
+因出庫失敗而失敗的提交訂單案例從 `CREATED` 狀態的 `SubmitOrderSaga` 開始。
+
+* `SubmitOrderSagaHandler` 從消息隊列收到 `CREATED` 狀態的 Saga，調用 InventoryClient.searchByProductIn` 查找訂單包含商品的倉儲項，再調用 `InventoryClient.changeInventoryItemQuantity` 出庫，但 `InventoryClient.changeInventoryItemQuantity` 響應失敗，將 Saga 的狀態轉移至 `DECREASED_INVENTORY_ROLLBACK` 並發送至消息隊列；
+* `SubmitOrderSagaHandler` 從消息隊列收到 `DECREASED_INVENTORY_ROLLBACK` 狀態的 Saga，不再嚮消息隊列發送任何消息，也不更改訂單的狀態。
+
+.SubmitOrderSagaHandlerTest.java
+[source, java]
+----
+...
+  @Test
+  public void testSubmitOrderFailOnDecreaseInventory() throws Exception {
+    // mock for decreasing inventory fail
+    InventoryItem itemA = new InventoryItem();
+    itemA.setId("itemA");
+    itemA.setProductId(PRODUCT_ID_A);
+    itemA.setQuantity(100);
+    itemA.setUnitPrice(BigDecimal.TEN);
+    InventoryItem itemB = new InventoryItem();
+    itemB.setId("itemA");
+    itemB.setProductId(PRODUCT_ID_B);
+    itemB.setQuantity(200);
+    itemB.setUnitPrice(BigDecimal.TEN);
+    PageImpl<InventoryItem> page = new PageImpl<>(Arrays.asList(itemA, itemB),
+        PageRequest.of(0, 10), 2);
+    PagedModel<EntityModel<InventoryItem>> inventoryItems = pagedResourcesAssembler.toModel(page);
+    when(mockInventoryClient.searchByProductIdIn(anyList(), any(Pageable.class)))
+        .thenReturn(inventoryItems); // <1>
+    when(mockInventoryClient.changeInventoryItemQuantity(anyList()))
+        .thenThrow(new Conflict("decrease inventory failed", Request.create(HttpMethod.POST,
+            StringUtils.EMPTY, Collections.emptyMap(), new byte[]{}, StandardCharsets.UTF_8),
+            new byte[]{})); // <2>
+
+    ArgumentCaptor<Object> sagaCaptor = ArgumentCaptor.forClass(Object.class);
+
+    SubmitOrderSaga saga = new SubmitOrderSaga();
+    saga.setOrderId(orderIdA);
+    saga.setStep(Saga.CREATED);
+
+    testObject.processSubmitOrderEvent(saga); // <3>
+
+    // verify mq
+    verify(mockAmqpTemplate).convertAndSend(anyString(), sagaCaptor.capture()); // <4>
+    assertThat(sagaCaptor.getValue(), instanceOf(SubmitOrderSaga.class));
+    SubmitOrderSaga decreaseInventoryRollbackSaga = (SubmitOrderSaga) sagaCaptor.getValue();
+    assertThat(decreaseInventoryRollbackSaga.getStep(),
+        is(SubmitOrderSaga.DECREASED_INVENTORY_ROLLBACK));
+    assertThat(decreaseInventoryRollbackSaga.getOrderId(), is(orderIdA));
+    // verify DB
+    assertThat(orderRepository.findById(orderIdA)
+            .orElseThrow(() -> new AssertionError("required order, but missed")).getState(),
+        is(State.OPEN)); // <5>
+
+    // mark rollback
+    clearInvocations(mockAmqpTemplate); // <6>
+
+    testObject.processSubmitOrderEvent(decreaseInventoryRollbackSaga); // <7>
+
+    // verify mq
+    verify(mockAmqpTemplate, times(0)).convertAndSend(anyString(), sagaCaptor.capture()); // <8>
+
+    // verify DB
+    assertThat(orderRepository.findById(orderIdA)
+            .orElseThrow(() -> new AssertionError("required order, but missed")).getState(),
+        is(State.OPEN)); // <9>
+  }
+...
+----
+<1> Mock `InventoryClient` 的 `searchByProductIn` 方法，返回預設的值。
+<2> Mock `InventoryClient` 的 `changeInventoryItemQuantity` 方法，返回失敗。
+<3> 構造 `CREATED` 狀態的 `SubmitOrderSaga`，將其作為參數調用測試對象的 `processSubmitOrderEvent`，模擬從消息隊列女收到 `CREATED` Saga 消息。
+<4> 檢驗其是否調用了 `mockAmqpTemplate.convertAndSend` 方法嚮消息隊列發送消息，並使用 Mockito 的 Captor 截獲傳遞的參數，檢驗是否為預期的 `DECREASED_INVENTORY_ROLLBACK` 狀態的 Saga。
+<5> 使用 `OrderRepository` 從數據庫加載訂單對象，檢驗其狀態是否為預期的 `OPEN`。
+<6> 清理 `mockAmqpTemplate` 上的所有方法調用記錄，以免混淆後續方法調用檢驗。
+<7> 把之前截獲的消息作為參數再一次調用測試對象的 `processSubmitOrderEvent` 方法，模擬從消息隊列接收到該消息。
+<8> 檢驗其應未調用 `mockAmqpTemplate.convertAndSend` 方法嚮消息隊列發送任何消息。
+<9> 使用 `OrderRepository` 從數據庫加載訂單對象，檢驗其狀態是否為預期的 `OPEN`。
+
+=== API 測試
+
+API 測試將 Controller 及其所依賴的所有對象都組裝起來，測試 RESTFul API 的行為。所依賴的外部對象，如倉儲服務、消息隊列和數據庫，不在測試範圍內，所以都用 Mock 代替。倉儲服務和消息隊列都是都通本地代理訪問，所以 mock 代理是簡單有效的方式。數據庫則用輕量型、SQL 兼容的 H2 mock。
+
+[plantuml, order-service-api-test-architecture]
+....
+@startuml
+package "訂單服務" {
+  package "Controller" {
+    [OrderController]
+  }
+  package "Service" {
+    [mockInventoryClient] #aqua
+    [OrderService]
+    [mockAmqpTemplate] #aqua
+  }
+  package "Repository" {
+    [OrderRepository]
+  }
+
+  database h2 #aqua
+
+  [OrderController] --> [mockInventoryClient]: call
+  [OrderController] --> [OrderService]: call
+  [OrderController] --> [OrderRepository]: call
+  [OrderService] --> [OrderRepository]: call
+  [OrderService] -right-> [mockAmqpTemplate]: call
+  [OrderRepository] --> h2
+}
+@enduml
+....
+
+先 Mock 一個全局的、在測試階段有效的 `RabbitTemplate`，使依賴 `RabbitTemplate` 的 Bean 可以初始化成功。
+
+.TestRabbitConfig.java
+[source, java]
+----
+@Profile("test") // <1>
+@Configuration
+public class RabbitTestConfig {
+
+  @Bean
+  public TestRabbitTemplate template() throws IOException {
+    return new TestRabbitTemplate(connectionFactory()); // <2>
+  }
+
+  @Bean
+  public ConnectionFactory connectionFactory() throws IOException {
+    ConnectionFactory factory = mock(ConnectionFactory.class); // <3>
+    Connection connection = mock(Connection.class);
+    Channel channel = mock(Channel.class);
+    when(factory.createConnection()).thenReturn(connection);
+    when(connection.createChannel(anyBoolean())).thenReturn(channel);
+    when(channel.isOpen()).thenReturn(true);
+    return factory;
+  }
+}
+----
+<1> 使用注解 `@Profile` 聲明此配置僅在 `test` profile 中生效。
+<2> 借助 `TestRabbitTemplate` mock RabbitTemplate。
+<3> 使用 Mockito Mock `ConnectionFactory`, `Connection` 和 `Channel`。
+
+接下來就創建 API 測試。首先，使用注解激活配置並引入補助 beans。
+
+.OrderControllerTest.java
+[source, java]
+----
+@ActiveProfiles("test") // <1>
+@SpringBootTest // <2>
+@AutoConfigureMockMvc // <3>
+@AutoConfigureRestDocs
+public class OrderControllerTest {
+
+  private static final String CUSTOMER_ID_A = "customerA";
+  private static final String PRODUCT_ID_A = "productA";
+  private static final String PRODUCT_ID_B = "productB";
+  private static final String APPLICATION_HAL = "application/hal+json";
+  private static final String SCOPE_ORDER_USE = "SCOPE_order.use";
+  private static final String SCOPE_ORDER_OPERATE = "SCOPE_order.operate";
+  @Autowired
+  private MockMvc mvc; // <4>
+  @Autowired
+  private ObjectMapper objectMapper; // <5>
+  @Autowired
+  private OrderRepository orderRepository; // <6>
+  @MockBean
+  private InventoryClient mockInventoryClient; // <7>
+  @MockBean
+  private RabbitTemplate mockAmqpTemplate; // <8>
+  @Autowired
+  private PagedResourcesAssembler<InventoryItem> pagedResourcesAssembler; // <9>
+...
+----
+<1> 使用注解 `@ActiveProfiles` 聲明當前激活的 profile 是 `test`。
+<2> 使用注解 `@SpringBootTest` 聲明測試用 Spring 上下文。`@SpringBootTest` 可以指定上下文配置類，這𥚃我們使用與生產代碼相同的 Spring 上下文。
+<3> 使用注解 `@AutoConfigureMockMvc` 激活 MockMvc 的自動配置。
+<4> 使用注解 `@Autowired` 注入自動配置的 `MockMvc`。
+<5> 使用注解 `@Autowired` 注入 Spring MVC 使用的 `ObjectMapper` bean，用於將 Java 對象轉換為 JSON 格式的請求體，和將 JSON 格式的響應體轉換為 Java 對象。使用與 Spring MVC 相同的 `ObjectMapper` bean 可以避免應配置差異產生的麻煩。
+<6> 使用注解 `@Autowired` 注入 `OrderRepository`，用以補助預置和檢驗訂單數據。
+<7> 使用注解 `@MockBean` mock 一個 `InventoryClient`。
+<8> 使用注解 `@MockBean` mock 一個 `RabbitTemplate`。
+<9> 使用注解 `@Autowired` 注入 `PagedResourcesAssembler<InventoryItem>`，用以補助 mock HATEOAS 風格的 `InventoryClient` 響應。
+
+再然後，預置數據。
+
+.OrderControllerTest.java
+[source, java]
+----
+...
+  private String openOrderId; // <1>
+  private String submittedOrderId;
+  private String onDeliveryOrderId;
+  private String deliveredOrderId;
+  private String closedOrderId;
+  private String cancelledOrderId;
+
+  @BeforeEach
+  private void setUp() { // <2>
+    Order openOrder = new Order();
+    openOrder.setCustomerId(CUSTOMER_ID_A);
+    openOrder
+        .setItems(Arrays.asList(new OrderItem(PRODUCT_ID_A, 2, BigDecimal.ONE),
+            new OrderItem(PRODUCT_ID_B, 3, BigDecimal.ONE)));
+    openOrder.setAmount(BigDecimal.valueOf(123.45));
+    openOrder.setState(State.OPEN);
+
+    openOrderId = orderRepository.save(openOrder).getId();
+
+    Order submittedOrder = new Order();
+    submittedOrder.setCustomerId(CUSTOMER_ID_A);
+    submittedOrder
+        .setItems(Arrays.asList(new OrderItem(PRODUCT_ID_A, 2, BigDecimal.ONE),
+            new OrderItem(PRODUCT_ID_B, 3, BigDecimal.ONE)));
+    submittedOrder.setAmount(BigDecimal.valueOf(456.78));
+    submittedOrder.setState(State.SUBMITTED);
+    submittedOrderId = orderRepository.save(submittedOrder).getId();
+
+...
+
+    Order cancelledOrder = new Order();
+    cancelledOrder.setCustomerId(CUSTOMER_ID_A);
+    cancelledOrder
+        .setItems(Arrays.asList(new OrderItem(PRODUCT_ID_A, 2, BigDecimal.ONE),
+            new OrderItem(PRODUCT_ID_B, 3, BigDecimal.ONE)));
+    cancelledOrder.setAmount(BigDecimal.valueOf(123.45));
+    cancelledOrder.setState(State.CANCELLED);
+    cancelledOrderId = orderRepository.save(cancelledOrder).getId();
+  }
+
+  @AfterEach
+  private void tearDown() {
+    orderRepository.deleteAll(); // <3>
+  }
+...
+----
+<1> 將預置的訂單唯一標識聲明為字段，以便測試方法引用。
+<2> 在 `BeforeEach` 階段使用 `OrderRepository` 預置訂單數據。
+<3> 在 `AfterEach` 階段使用 `OrderRepository` 清理訂單數據，防止多個測試方法之間互相干擾。
+
+再然後，測試創建並讀取訂單案例。
+
+.OrderControllerTest.java
+[source, java]
+----
+...
+@Test
+  @WithMockUser(username = "customer1", authorities = {SCOPE_ORDER_USE})
+  public void testCreateAndGetOne() throws Exception {
+    Map<String, InventoryItem> mockInventoryItems = new HashMap<>();
+    InventoryItem inventoryItemA = new InventoryItem("1", PRODUCT_ID_A, 100,
+        BigDecimal.valueOf(100.00F), new Date(), new Date());
+    mockInventoryItems.put(inventoryItemA.getProductId(), inventoryItemA);
+    InventoryItem inventoryItemB = new InventoryItem("2", PRODUCT_ID_B, 100,
+        BigDecimal.valueOf(200.00F), new Date(), new Date());
+    mockInventoryItems.put(inventoryItemB.getProductId(), inventoryItemB);
+    when(mockInventoryClient.searchByProductIdIn(anyList(), any())).thenAnswer(invocation -> { // <1>
+      final List<?> productIds = invocation.getArgument(0, List.class);
+      final InventoryItem inventoryItem = mockInventoryItems.get(productIds.get(0));
+      return pagedResourcesAssembler.toModel(new PageImpl<>(
+          Collections.singletonList(inventoryItem), PageRequest.of(0, 10), 1));
+    });
+    Order newOne = new Order();
+    newOne.setCustomerId(CUSTOMER_ID_A);
+    newOne.setItems(Arrays.asList(new OrderItem(PRODUCT_ID_A, 2, BigDecimal.ONE),
+        new OrderItem(PRODUCT_ID_B, 3, BigDecimal.ONE)));
+    newOne.setAmount(BigDecimal.ZERO);
+
+    final String createdOneJson = mvc.perform(
+        post("/orders").contentType(MediaType.APPLICATION_JSON).accept(APPLICATION_HAL)
+            .content(objectMapper.writeValueAsString(newOne))) // <2>
+        .andExpect(status().isCreated()) // <3>
+        .andExpect(content().contentTypeCompatibleWith(APPLICATION_HAL))
+        .andExpect(jsonPath("$.customerId", is(CUSTOMER_ID_A)))
+        .andExpect(jsonPath("$.items", hasSize(2)))
+        .andExpect(jsonPath("$.items[0].productId", is(PRODUCT_ID_A)))
+        .andExpect(jsonPath("$.items[0].quantity", is(2)))
+        .andExpect(jsonPath("$.state", is(State.OPEN.toString())))
+        .andExpect(jsonPath("$.amount", is(closeTo(800.00, 0.001))))
+        .andExpect(jsonPath("$.createdAt", notNullValue()))
+        .andExpect(jsonPath("$.updatedAt", notNullValue()))
+        .andDo(document("order/create", itemLinks(), itemRequestFields(), itemResponseFields()))
+        .andReturn().getResponse().getContentAsString();
+
+    String newId = Stream
+        .of(objectMapper.readTree(createdOneJson).at("/_links/self/href").asText().split("/"))
+        .reduce((first, second) -> second).orElse(null); // <4>
+
+    mvc.perform(get("/orders/{id}", newId).accept(APPLICATION_HAL)) // <5>
+        .andExpect(status().isOk()) // <6>
+        .andExpect(content().contentTypeCompatibleWith(APPLICATION_HAL))
+        .andExpect(jsonPath("$.customerId", is(CUSTOMER_ID_A)))
+        .andExpect(jsonPath("$.items", hasSize(2)))
+        .andExpect(jsonPath("$.items[0].productId", is(PRODUCT_ID_A)))
+        .andExpect(jsonPath("$.items[0].quantity", is(2)))
+        .andExpect(jsonPath("$.state", is(State.OPEN.toString())))
+        .andExpect(jsonPath("$.amount", is(closeTo(800.00, 0.001))))
+        .andExpect(jsonPath("$.createdAt", notNullValue()))
+        .andExpect(jsonPath("$.updatedAt", notNullValue()))
+        .andDo(document("order/getOne",
+            pathParameters(parameterWithName("id").description("order's unique identifier")),
+            itemLinks(), itemResponseFields()));
+  }
+...
+----
+<1> 使用 Mockito 的 `when` 和 `thenAnswer` 方法為 `mockInventoryClient` mock 固定的返回值，這裡需要借助 `pagedResourcesAssembler` 構造 HAL 格式的返回值。
+<2> 使用 MockMvc 提供的請求建造器構造 POST 請求，並發送給 MockMvc。MockMvc 會按照請求映射轉發給對應的 Controller 方法。
+<3> 使用 MockMvc 提供的檢驗方法檢驗響應狀態碼是否為預期的 `201 Created`，及響應的其它部份，如響應頭、響應體等。
+<4> 從 HAL 格式的響應體中解析出新創建訂單資源的自身鏈接，並從自身鏈接中解析出唯一標識。
+<5> 使用解析出來的唯一標識和 MockMvc 提供的請求建造器構造 GET 請求　並發送給 MockMvc。
+<6> 使用 MockMvc 提供的檢驗方法檢驗響應狀態碼是否為預期的 `200 OK`，及響應的其它部份，如響應頭、響應體等。
+
+除了提交訂單案例以外，其它案例的 API 測試與創建並讀取訂單案例類似，這裡就不再赘述。
+
+提供訂單案例預期發送消息至消息隊列，所以除了檢驗響應外，還需檢驗是否嚮消息隊列發送了預期的消息。
+
+.OrderControllerTest.java
+[source, java]
+----
+...
+  @Test
+  @WithMockUser(username = "customer1", authorities = {SCOPE_ORDER_USE})
+  public void testSubmitPass() throws Exception {
+    mvc.perform(put("/orders/{id}/submit", openOrderId).accept(APPLICATION_HAL)) // <1>
+        .andExpect(status().isNoContent()) // <2>
+        .andDo(document("order/submit",
+            pathParameters(parameterWithName("id").description("order's unique identifier"))));
+
+    ArgumentCaptor<Object> submitOrderEventCaptor = ArgumentCaptor.forClass(Object.class);
+    verify(mockAmqpTemplate).convertAndSend(anyString(), submitOrderEventCaptor.capture()); // <3>
+    Object submitOrderSaga = submitOrderEventCaptor.getValue();
+    assertThat(submitOrderSaga, instanceOf(SubmitOrderSaga.class)); // <4>
+    assertThat(((SubmitOrderSaga) submitOrderSaga).getOrderId(), is(openOrderId));
+    assertThat(((SubmitOrderSaga) submitOrderSaga).getStep(), is(Saga.CREATED));
+  }
+...
+----
+<1> 使用 MockMvc 提供的請求建造器構造 PUT 請求，並發送給 MockMvc。
+<2> 使用 MockMvc 提供的檢驗方法檢驗響應狀態碼是否為預期的 `204 No Content`。
+<3> 使用 Mockito 的 `verify` 方法和 `ArgumentCaptor` 檢驗其是否調用了 `mockAmqpTemplate` 的 `convertAndSend` 方法發送消息，並截獲消息對象供進一步檢驗。
+<4> 進一步檢驗嚮外發送的消息的內容，訂單唯一標識是否為預期的 `openOrderId`，Saga 步驟是否停留在 `CREATED`。
+
+== 總結
+
+本章我們使用 Spring Web 和 Spring HATEOAS 創建遵循 HATEOAS 原則的 RESTful Web 服務，使用 Spring Data JPA 訪問關係式數據庫，使用 Spring OpenFeign 訪問 RESTful Web 服務，使用 Spring for RabbitMQ 訪問 RabbitMQ，使用 Saga 模式實現分佈式事務。
+
+== 參考
+
+* https://zh.wikipedia.org/zh-cn/MySQL[MySQL]
+* https://dev.mysql.com/doc/refman/8.0/en/storage-engines.html[Chapter 16 Alternative Storage Engines]
+* https://zh.wikipedia.org/wiki/CAP定理[CAP定理]
+* https://docs.oracle.com/cd/B28359_01/server.111/b28310/ds_txns003.htm#ADMIN12222[Two-Phase Commit Mechanism]
+* http://courses.cs.vt.edu/~cs5204/fall00/distributedDBMS/sreenu/3pc.html[Three-Phase Commit Protocal]
+* https://microservices.io/patterns/data/saga.html[Pattern: Saga]
+* https://aws.amazon.com/cn/message-queue/?nc1=h_ls[消息隊列]
+* https://zh.wikipedia.org/zh-cn/高级消息队列协议[高級消息隊列協議]
+* https://www.rabbitmq.com/tutorials/amqp-concepts.html[AMQP 0-9-1 Model Explained]
+* https://zh.wikipedia.org/wiki/RabbitMQ[RabbitMQ]
 
 

@@ -1,20 +1,22 @@
 ----
-  .gitignore
-  build.gradle
-+ gradle
-  + wrapper
-      gradle-wrapper.war
-      gradle-wrapper.properties
-  graldew
-  gradlew.bat
-  HELP.md
-  settings.gradle
-+ src
-  + main
-    - java
-    - resources
-  + test
-    - java
+.
+├── .gitignore
+├── HELP.md
+├── build.gradle
+├── gradle
+│   └── wrapper
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
+├── gradlew
+├── gradlew.bat
+├── settings.gradle
+└── src
+    ├── main
+    │   ├── java
+    │   └── resources
+    └── test
+        └── java
+        └── resources
 ----
 
 * `.gitignore`, 羅列了應被 GIT 忽略的文件和目錄。自動生成及臨時文件及目錄不應被納入版本控制；
