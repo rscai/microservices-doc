@@ -29,13 +29,13 @@ asciidoctor {
         'setanchors': '',
         'idprefix': '',
         'idseparator': '-',
-        'docinfo1': ''
+        'docinfo1': '',
+        'imagesdir': '../images'
     resources {
-        from('src/docs/asciidoc/zh_TR/images') {
+        from('src/docs/asciidoc/images') {
             include '**/*.*'
         }
-
-        into './zh_TR/images'
+        into ('./images')
     }
 }
 

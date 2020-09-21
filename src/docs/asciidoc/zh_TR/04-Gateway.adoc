@@ -1,7 +1,5 @@
 = API Gateway
-:icons: font
-ifndef::imagesdir[:imagesdir: images]
-ifndef::source-highlighter[:source-highlighter: highlightjs]
+ifndef::commondir[:commondir: zh_TR/common]
 
 == 目標
 

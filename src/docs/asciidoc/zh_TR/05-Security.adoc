@@ -1,7 +1,4 @@
 = Security
-:icons: font
-ifndef::imagesdir[:imagesdir: images]
-ifndef::source-highlighter[:source-highlighter: highlightjs]
 
 == 目標
 

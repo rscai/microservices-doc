@@ -1,7 +1,4 @@
 = 訂單服務「Order Service」
-:icons: font
-ifndef::imagesdir[:imagesdir: images]
-ifndef::source-highlighter[:source-highlighter: highlightjs]
 ifndef::commondir[:commondir: zh_TR/common]
 
 == 目標
@@ -815,7 +812,7 @@ dependencies {
 
 dependencyManagement {
     imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}" // <12>
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}" // <13>
     }
 }
 ...
@@ -1098,7 +1095,7 @@ orderService -> rabbitMQ: submitOrderSaga
       throw new ResponseStatusException(HttpStatus.CONFLICT,
           String.format("Can not cancel Order %s", id));
     }
-    orderRepository.save(order);
+    orderRepository.save(order); // <5>
   }
 ...
 ----

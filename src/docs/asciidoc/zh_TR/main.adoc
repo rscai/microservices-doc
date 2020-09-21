@@ -5,14 +5,13 @@
 :toc: left
 :toclevels: 2
 :sectlinks:
-:includedir: zh_TR/
 
-include::{includedir}/00-Introduction.adoc[leveloffset=1]
-include::{includedir}/01-Tools-Setup.adoc[leveloffset=1]
-include::{includedir}/02-Catalog.adoc[leveloffset=1]
-include::{includedir}/03-Service-Discovery.adoc[leveloffset=1]
-include::{includedir}/04-Gateway.adoc[leveloffset=1]
-include::{includedir}/05-Security.adoc[leveloffset=1]
-include::{includedir}/06-Inventory.adoc[leveloffset=1]
-include::{includedir}/07-Order.adoc[leveloffset=1]
+. link:00-Introduction.html[Introduction]
+. link:01-Tools-Setup.html[Tools Setup]
+. link:02-Catalog.html[Catalog]
+. link:03-Service-Discovery.html[Service Discovery]
+. link:04-Gateway.html[Gateway]
+. link:05-Security.html[Security]
+. link:06-Inventory.html[Inventory]
+. link:07-Order.html[Order]
 

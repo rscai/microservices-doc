@@ -1,6 +1,5 @@
 = Catalog Service
 :icons: font
-ifndef::imagesdir[:imagesdir: images]
 ifndef::commondir[:commondir: zh_TR/common]
 
 == 目標

@@ -1,6 +1,4 @@
 = 服務注冊與發現「Service Registry & Discovery」
-:icons: font
-ifndef::imagesdir[:imagesdir: images]
 ifndef::commondir[:commondir: zh_TR/common]
 
 == 目標

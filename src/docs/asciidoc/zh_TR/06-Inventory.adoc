@@ -1,6 +1,4 @@
 = Inventory
-:icons: font
-ifndef::imagesdir[:imagesdir: images]
 ifndef::commondir[:commondir: zh_TR/common]
 
 == 目標
@@ -846,7 +844,7 @@ public class InventoryItemController {
 <1> 使用注解 `@PreAuthorize` 以 Spring-EL 聲明必需的權限。`@PreAuthorize` 可以作用於方法也可作用於整個類。當作用於整個類時，等同於作用於該類所有的方法。
 <2> `@PreAuthorize` 作用於方法，是在類級的 `@PreAuthorize` 的基礎上再附加權限要求。比如，要調用方法`create(@RequestBody InventoryItem entity)`，請求者必須滿足 `hasAuthority('SCOPE_inventory.read')` 和 `hasAuthority('SCOPE_inventory.write')`。
 
-=== 測試
+== 測試
 
 本例中，我們集成JUnit和Spring MVC Test框架，實現應用編程接口測試。
 
@@ -1004,7 +1002,7 @@ public class InventoryItemControllerTest {
 <8> 從字符串形式的響應體中解析出新創建倉儲項的唯一標識。
 <9> 使用 MockMvc 的 `perform` 方法獲取新創建倉儲項，以驗證倉儲項確實被創建。
 
-=== API 文檔
+== API 文檔
 
 使用Spring REST Docs，從應用編程接口測試中生成API文檔。已在 <<02-Catalog.adoc#api-文檔,API 文檔>> 中詳細描述。
 
