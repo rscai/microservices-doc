@@ -462,10 +462,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#業務模型-2">業務模型</a></li>
 <li><a href="#repository">Repository</a></li>
 <li><a href="#controller">Controller</a></li>
-<li><a href="#測試">測試</a></li>
-<li><a href="#api-文檔">API 文檔</a></li>
 </ul>
 </li>
+<li><a href="#測試">測試</a></li>
+<li><a href="#api-文檔">API 文檔</a></li>
 <li><a href="#總結">總結</a></li>
 <li><a href="#參考">參考</a></li>
 </ul>
@@ -522,7 +522,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/diag-1a4eb8fa2d4d66be6d8803c5e43f9ad5.png" alt="diag 1a4eb8fa2d4d66be6d8803c5e43f9ad5" width="198" height="240">
+<img src="../images/diag-1a4eb8fa2d4d66be6d8803c5e43f9ad5.png" alt="diag 1a4eb8fa2d4d66be6d8803c5e43f9ad5" width="198" height="240">
 </div>
 <div class="title">Figure 1. 用例</div>
 </div>
@@ -546,7 +546,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/inventory%20entity.png" alt="inventory entity" width="413" height="148">
+<img src="../images/inventory%20entity.png" alt="inventory entity" width="413" height="148">
 </div>
 <div class="title">Figure 2. 實體模型</div>
 </div>
@@ -555,7 +555,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h3 id="架構">架構</h3>
 <div class="imageblock">
 <div class="content">
-<img src="images/inventory-architecture.png" alt="inventory architecture" width="239" height="286">
+<img src="../images/inventory-architecture.png" alt="inventory architecture" width="239" height="286">
 </div>
 <div class="title">Figure 3. 架構</div>
 </div>
@@ -580,7 +580,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/inventory-layer.png" alt="inventory layer" width="261" height="344">
+<img src="../images/inventory-layer.png" alt="inventory layer" width="261" height="344">
 </div>
 <div class="title">Figure 4. 分層架構</div>
 </div>
@@ -619,7 +619,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/diag-ede71629acf71a887e659167eb46af34.png" alt="diag ede71629acf71a887e659167eb46af34" width="666" height="146">
+<img src="../images/diag-ede71629acf71a887e659167eb46af34.png" alt="diag ede71629acf71a887e659167eb46af34" width="666" height="146">
 </div>
 <div class="title">Figure 5. Repository Pattern</div>
 </div>
@@ -863,7 +863,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/06-Inventory/generate-project-by-spring-initializr.png" alt="generate project by spring initializr">
+<img src="../images/06-Inventory/generate-project-by-spring-initializr.png" alt="generate project by spring initializr">
 </div>
 </div>
 <div class="paragraph">
@@ -1312,7 +1312,7 @@ public class InventoryItem {
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/diag-f154e654dbaeb237858fe0b31294686a.png" alt="diag f154e654dbaeb237858fe0b31294686a" width="449" height="148">
+<img src="../images/diag-f154e654dbaeb237858fe0b31294686a.png" alt="diag f154e654dbaeb237858fe0b31294686a" width="449" height="148">
 </div>
 </div>
 </div>
@@ -1382,7 +1382,7 @@ public class InventoryItemQuantityChange {
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/diag-e1983321d1d252ca9b14ac7bd47df7b4.png" alt="diag e1983321d1d252ca9b14ac7bd47df7b4" width="500" height="123">
+<img src="../images/diag-e1983321d1d252ca9b14ac7bd47df7b4.png" alt="diag e1983321d1d252ca9b14ac7bd47df7b4" width="500" height="123">
 </div>
 </div>
 </div>
@@ -1394,7 +1394,7 @@ public class InventoryItemQuantityChange {
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/JpaRepository-class.png" alt="JpaRepository class" width="377" height="306">
+<img src="../images/JpaRepository-class.png" alt="JpaRepository class" width="377" height="306">
 </div>
 <div class="title">Figure 6. JpaRepository</div>
 </div>
@@ -1879,8 +1879,11 @@ public class InventoryItemController {
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="測試">測試</h3>
+</div>
+</div>
+<div class="sect1">
+<h2 id="測試">測試</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>本例中，我們集成JUnit和Spring MVC Test框架，實現應用編程接口測試。</p>
 </div>
@@ -2116,11 +2119,12 @@ public class InventoryItemControllerTest {
 </table>
 </div>
 </div>
-<div class="sect2">
-<h3 id="api-文檔">API 文檔</h3>
+</div>
+<div class="sect1">
+<h2 id="api-文檔">API 文檔</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>使用Spring REST Docs，從應用編程接口測試中生成API文檔。已在 <a href="02-Catalog.html#api-文檔">API 文檔</a> 中詳細描述。</p>
-</div>
 </div>
 </div>
 </div>
@@ -2154,7 +2158,7 @@ public class InventoryItemControllerTest {
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1<br>
-Last updated 2020-09-20 07:47:41 UTC
+Last updated 2020-09-26 12:53:28 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
