@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<title>Security</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<style>
+/* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
+/* Uncomment @import statement to use as custom stylesheet */
+/*@import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700";*/
+article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section{display:block}
+audio,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}
+a{background:none}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+abbr[title]{border-bottom:1px dotted}
+b,strong{font-weight:bold}
+dfn{font-style:italic}
+hr{-moz-box-sizing:content-box;box-sizing:content-box;height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,*::before,*::after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0;direction:ltr}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:0}
+p{font-family:inherit;font-weight:400;font-size:1em;line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #dddddf;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em;height:0}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{font-size:1em;line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0;font-size:1em}
+ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
+ul.square{list-style-type:square}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+abbr,acronym{text-transform:uppercase;font-size:90%;color:rgba(0,0,0,.8);border-bottom:1px dotted #ddd;cursor:help}
+abbr{text-transform:none}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote cite{display:block;font-size:.9375em;color:rgba(0,0,0,.6)}
+blockquote cite::before{content:"\2014 \0020"}
+blockquote cite a,blockquote cite a:visited{color:rgba(0,0,0,.6)}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt{background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed;word-wrap:break-word}
+:not(pre)>code.nobreak{word-wrap:normal}
+:not(pre)>code.nowrap{white-space:nowrap}
+pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
+pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
+pre>code{display:block}
+pre.nowrap,pre.nowrap pre{white-space:pre;word-wrap:normal}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background:#f7f7f7;border:1px solid #ccc;-webkit-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em white inset;box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em #fff inset;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin-left:auto;margin-right:auto;margin-top:0;margin-bottom:0;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:-ms-flexbox;display:-webkit-flex;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #dddddf;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #e7e7e9;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #e7e7e9;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:100%;background:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:rgba(255,255,255,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #e7e7e9}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+details,.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+details>summary:first-of-type{cursor:pointer;display:list-item;outline:none;margin-bottom:.75em}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+table.tableblock #preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:inherit}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6)}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border-style:solid;border-width:1px;border-color:#e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;-webkit-border-radius:4px;border-radius:4px}
+.exampleblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child{margin-bottom:0}
+.sidebarblock{border-style:solid;border-width:1px;border-color:#dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;-webkit-border-radius:4px;border-radius:4px}
+.sidebarblock>:first-child{margin-top:0}
+.sidebarblock>:last-child{margin-bottom:0}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock>.content>pre{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;overflow-x:auto;padding:1em;font-size:.8125em}
+@media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
+.literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class="highlight"],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
+.literalblock.output pre{color:#f7f7f8;background:rgba(0,0,0,.9)}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:inherit;opacity:.5}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:inherit;opacity:.5}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;-webkit-border-radius:4px;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.prettyprint{background:#f7f7f8}
+pre.prettyprint .linenums{line-height:1.45;margin-left:2em}
+pre.prettyprint li{background:none;list-style-type:inherit;padding-left:0}
+pre.prettyprint li code[data-lang]::before{opacity:1}
+pre.prettyprint li:not(:first-child) code[data-lang]::before{display:none}
+table.linenotable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.linenotable td[class]{color:inherit;vertical-align:top;padding:0;line-height:inherit;white-space:normal}
+table.linenotable td.code{padding-left:.75em}
+table.linenotable td.linenos{border-right:1px solid currentColor;opacity:.35;padding-right:.5em}
+pre.pygments .lineno{border-right:1px solid currentColor;opacity:.35;display:inline-block;margin-right:.75em}
+pre.pygments .lineno::before{content:"";margin-right:-.125em}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.75em;margin-right:.5ex;text-align:right}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract blockquote::before,.quoteblock.excerpt blockquote::before,.quoteblock .quoteblock blockquote::before{display:none}
+.quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.excerpt>blockquote,.quoteblock .quoteblock{padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
+.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
+.quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;text-align:left;margin-right:0}
+table.tableblock{max-width:100%;border-collapse:separate}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content>:last-child{margin-bottom:-1.25em}
+td.tableblock>.content>:last-child.sidebarblock{margin-bottom:0}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>thead>tr>.tableblock,table.grid-all>tbody>tr>.tableblock{border-width:0 1px 1px 0}
+table.grid-all>tfoot>tr>.tableblock{border-width:1px 1px 0 0}
+table.grid-cols>*>tr>.tableblock{border-width:0 1px 0 0}
+table.grid-rows>thead>tr>.tableblock,table.grid-rows>tbody>tr>.tableblock{border-width:0 0 1px}
+table.grid-rows>tfoot>tr>.tableblock{border-width:1px 0 0}
+table.grid-all>*>tr>.tableblock:last-child,table.grid-cols>*>tr>.tableblock:last-child{border-right-width:0}
+table.grid-all>tbody>tr:last-child>.tableblock,table.grid-all>thead:last-child>tr>.tableblock,table.grid-rows>tbody>tr:last-child>.tableblock,table.grid-rows>thead:last-child>tr>.tableblock{border-bottom-width:0}
+table.frame-all{border-width:1px}
+table.frame-sides{border-width:0 1px}
+table.frame-topbot,table.frame-ends{border-width:1px 0}
+table.stripes-all tr,table.stripes-odd tr:nth-of-type(odd),table.stripes-even tr:nth-of-type(even),table.stripes-hover tr:hover{background:#f8f8f7}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{display:table-cell;line-height:1.6;background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+ol>li p,ul>li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+ul.checklist{margin-left:.625em}
+ul.checklist li>p:first-child>.fa-square-o:first-child,ul.checklist li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist li>p:first-child>input[type="checkbox"]:first-child{margin-right:.25em}
+ul.inline{display:-ms-flexbox;display:-webkit-box;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:solid 4px #fff;-webkit-box-shadow:0 0 0 1px #ddd;box-shadow:0 0 0 1px #ddd}
+.imageblock.left{margin:.25em .625em 1.25em 0}
+.imageblock.right{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+.gist .file-data>table{border:0;background:#fff;width:100%;margin-bottom:0}
+.gist .file-data>table td.line-data{width:99%}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background:#00fafa}
+.black{color:#000}
+.black-background{background:#000}
+.blue{color:#0000bf}
+.blue-background{background:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background:#fa00fa}
+.gray{color:#606060}
+.gray-background{background:#7d7d7d}
+.green{color:#006000}
+.green-background{background:#007d00}
+.lime{color:#00bf00}
+.lime-background{background:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background:#7d0000}
+.navy{color:#000060}
+.navy-background{background:#00007d}
+.olive{color:#606000}
+.olive-background{background:#7d7d00}
+.purple{color:#600060}
+.purple-background{background:#7d007d}
+.red{color:#bf0000}
+.red-background{background:#fa0000}
+.silver{color:#909090}
+.silver-background{background:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,span.alt{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background:#fffef7;border-color:#e0e0dc;-webkit-box-shadow:0 1px 4px #e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media print,amzn-kf8{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Security</h1>
+<div class="details">
+<span id="revnumber">version 0.0.1</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#目标">目标</a></li>
+<li><a href="#设计">设计</a>
+<ul class="sectlevel2">
+<li><a href="#认证与授权">认证与授权</a></li>
+<li><a href="#架构">架构</a></li>
+<li><a href="#oauth">OAuth</a></li>
+<li><a href="#spring-security">Spring Security</a></li>
+<li><a href="#spring-cloud-security">Spring Cloud Security</a></li>
+</ul>
+</li>
+<li><a href="#实现">实现</a>
+<ul class="sectlevel2">
+<li><a href="#uaa">UAA</a></li>
+<li><a href="#网关">网关</a></li>
+<li><a href="#资源服务器">资源服务器</a></li>
+</ul>
+</li>
+<li><a href="#测试">测试</a>
+<ul class="sectlevel2">
+<li><a href="#api-测试">API 测试</a></li>
+<li><a href="#端到端测试">端到端测试</a></li>
+</ul>
+</li>
+<li><a href="#总结">总结</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="目标">目标</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>理解认证「Authentication」与授权「Authorization」</p>
+</li>
+<li>
+<p>理解 OAuth 协议</p>
+</li>
+<li>
+<p>使用 Spring Cloud Security 实现 OAuth 认证与授权</p>
+</li>
+<li>
+<p>在 API Gateway 实现认证</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="设计">设计</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="认证与授权">认证与授权</h3>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>身分验证（英语：Authentication）又穪「认证」、「鉴权」，是指通过一定的手段，完成对用户身分的确认。</p>
+</div>
+<div class="paragraph">
+<p>身分验证的目的是确认当前所声穪为某种身分的用户，确实是所声穪的用户。在日常生活中，身分验证并不罕见；比如，通过检查对方的证件，我们一般可以确信对方的身分。虽然日常生活中的这种确认对方身分的做法也属于广义的「身分验证」，但「身分验证」一词更多地被用在电脑、通信等领域。</p>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; 身份认证<br>
+<cite>https://zh.wikipedia.org/wiki/身份认证</cite>
+</div>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>授权（英语：Authorization）一般是指对资讯安全或电脑安全相关的资源定义与授多存取权限，尤指存取控制。动词「授权」可指定义存取策略与接受存取。</p>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; 授权<br>
+<cite>https://zh.wikipedia.org/wiki/授权_(资安)</cite>
+</div>
+</div>
+<div class="paragraph">
+<p>一次资源访问行为可描述为：某人对某物做某个行为。认证是验证某人为何人，而授权则验证某人可否对某物做某个行为。举个例子，类目管理员添加新的商品。当中，人为类目管理员，物为新的商品，行为为添加。认证阶段验证其人是否真为所宣穪的类目管理员，授权阶段则验证类目管理员是否有权添加新的商品。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="架构">架构</h3>
+<div class="paragraph">
+<p>按照 OAuth 协议实现单点登入模式。
+採用单点登入模式。採用 Cloud Foundry 的 UAA 实现认证与授权。在 Gateway处认证校验。各个服务再作具体的授权校验。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/diag-09f27f9d731cd87579ce09029bd37594.png" alt="diag 09f27f9d731cd87579ce09029bd37594" width="201" height="267">
+</div>
+<div class="title">Figure 1. 架构</div>
+</div>
+<div class="paragraph">
+<p>以 Catalog 服务为例，</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/diag-bfc512c9f030fd3ada964c6031c97e55.png" alt="diag bfc512c9f030fd3ada964c6031c97e55" width="498" height="401">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="oauth">OAuth</h3>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>开放授权（OAuth）是一个开放标准，允许用户让第三方应用存取该用户在某一网站上储存的私密的资源（如相片，影片，联络人列表），而无需将用户名穪和密码提供给第三方应用。</p>
+</div>
+<div class="paragraph">
+<p>OAuth 允许用户提供一个权仗，而不是用户名穪和密码来存取他们存放在特定服务提供者的资料。每一个权仗授权一个特定的网站（例如，影片编辑网站）在特定的时段（例如，接下来的2小时内）内存取特定的资源（例如仅仅是某一相簿中的影片）。这样，OAuth 让用户可以授权第三方网站存取他们储存在另外服务提供者的某些特定资讯，而非所有内容。</p>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; 开放授权<br>
+<cite>https://zh.wikipedia.org/wiki/开放授权</cite>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/traditional-authentication-authorization-mechanism.png" alt="traditional authentication authorization mechanism" width="340" height="356">
+</div>
+<div class="title">Figure 2. 传统认证授权机制</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>当用户使用第三方应用时，比如使用图片编辑应用访问在线相册中的相片，第三方应用需从资源服务器处访问资源；</p>
+</li>
+<li>
+<p>资源服务器会要求授权。完整应该是要求先认证再授权。但对任何请求，如果没有声明身分则都被视为匿名用户「Anonynous」；</p>
+</li>
+<li>
+<p>第三方应用像资源所有者即用户请求认证；</p>
+</li>
+<li>
+<p>资源所有者将自已的身分凭证，如密码等，交给第三方应用；</p>
+</li>
+<li>
+<p>第三方应用将资源所有者的身分凭证及资源请求一同提交给资源服务；</p>
+</li>
+<li>
+<p>资源服务器校验身分凭证；</p>
+</li>
+<li>
+<p>资源服务器按照身分授于相应的权限；</p>
+</li>
+<li>
+<p>资源服务器确认第三方应用具有相应的权限后，返回资源。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>该机制的缺点很明显，资源所有者必须将身分凭证交由第三方应用。第三方应用有意滥用或无意泄露都会使资源用者所有的资源都受到非法访问。</p>
+</div>
+<div class="paragraph">
+<p>而 OAuth 避免了第三方应用接触到资源所有者身分凭证。</p>
+</div>
+<div class="paragraph">
+<p>OAuth 定义了四种⻆色：</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">资源所有者「resource owner」</dt>
+<dd>
+<p>一个有能力授予受保护资源访问的实体。当资源所有者为人时，其指代最终用户。</p>
+</dd>
+<dt class="hdlist1">资源服务器「resource server」</dt>
+<dd>
+<p>持有受保护资源的服务器，有能力接受和响应用带有访问令牌的受保护资源请求。</p>
+</dd>
+<dt class="hdlist1">客户「client」</dt>
+<dd>
+<p>代资源所有者执行受保护资源请求与授权的应用。"客户"一词没有指定任何特定的实现特征（比如，无论该应用是运行在服务器、桌面或其它设备上）。</p>
+</dd>
+<dt class="hdlist1">授权服务器「authorization server」</dt>
+<dd>
+<p>在成功认证资源所有者及获取授权后签发访问令牌的服务器。</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>一个典型的 OAuth 认证授权过程如下：</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/oauth2-abstract-protocal-flow.png" alt="oauth2 abstract protocal flow" width="278" height="272">
+</div>
+<div class="title">Figure 3. OAuth2 Abstract Protocal Flow</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>客户向资源所有者请求授权。该授权请求可以是直接发给资源所有者，也可以经由授权服务器中转。</p>
+</li>
+<li>
+<p>客户收到授权补助。该授权补助内容取决于所选用的授权凭证类型。OAuth2 定义了四种授权补助类型。</p>
+</li>
+<li>
+<p>客户向授权服务器提交授权补助以换取访问令牌。</p>
+</li>
+<li>
+<p>授权服务器认证客户，校验授权补助，如有效则颁发访问令牌。</p>
+</li>
+<li>
+<p>客户访问受保护资源，并同时向资源服务器出示访问令牌。</p>
+</li>
+<li>
+<p>资源服务器校验访问令牌，若有效则响应受保护的资源。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>OAuth2 定义了四种授权补助类型：Authorization Code, Implicit, Resource Owner Password Credentials 和 Client Credentials.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Authorization Code</dt>
+<dd>
+<div class="paragraph">
+<p>该类型将授权服务器作为客户与资源所有者之间的媒介。不同于从资源所有者直接请求授权，客户将资源所有者导向授权服务器，授权服务器再将资源所有者导回客户同时带上授权补助。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/oauth2-authorization-grant-type-authorization-code.png" alt="oauth2 authorization grant type authorization code" width="489" height="301">
+</div>
+<div class="title">Figure 4. Authorization Code</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>客户开始这个流程，将资源所有者的用户代理导向授权服务器。客户提供客户标识、请求范围、本地状态和重定向URI，授权服务器会在访问被允许时攴回这些信息给用户代理。</p>
+</li>
+<li>
+<p>资源所有者将自己的身分凭证提交给用户代理。</p>
+</li>
+<li>
+<p>用户代理将身分凭证连同客户标识及重定向URI一起提交给用授权服务器。</p>
+</li>
+<li>
+<p>授权服务器校验客户标识、重定URI及资源所有者身分凭证，若通过则返回授权码给用户代理。</p>
+</li>
+<li>
+<p>用户代理将授权码交给客户。</p>
+</li>
+<li>
+<p>客户向授权服务器提交授权、重定向URI及客户标识。</p>
+</li>
+<li>
+<p>授权服务器将访问令牌发送给客户所提供的重定向URI。</p>
+</li>
+</ol>
+</div>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>在这个认证授权过程中，客户自始至终都没有接触到资源所有者身分凭证，确保了资源所有者的身分凭证不会被客户滥用或泄露。授权服务器将访问令牌发送给合法的重定向URI而非在HTTP响应中返回，阻止了攻击者冒充客户。</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Implicit</dt>
+<dd>
+<div class="paragraph">
+<p>该类型是为运行于浏覧器的客户而优化的简版 Authorization Code 流程。在此流程中，不再颁发授权码给客户，而是直接颁发访问令牌给客户。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/oauth2-authorization-grant-type-implicit.png" alt="oauth2 authorization grant type implicit" width="498" height="301">
+</div>
+<div class="title">Figure 5. Implicit</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>客户开始这个流程，将资源所有者的用户代理导向授权服务器。客户提供客户标识、请求范围、本地状态和重定向URI，授权服务器会在访问被允许时攴回这些信息给用户代理。</p>
+</li>
+<li>
+<p>资源所有者将自己的身分凭证提交给用户代理。</p>
+</li>
+<li>
+<p>用户代理将身分凭证连同客户标识及重定向URI一起提交给用授权服务器。</p>
+</li>
+<li>
+<p>授权服务器将用户代理重定向至之前提供的URI，并将访问令牌以 fragment 的形式附加至 URI。</p>
+</li>
+<li>
+<p>用户代理重定向至URI，该URI一般跟客户强绑定。</p>
+</li>
+<li>
+<p>该URI返回一段可在浏覧器中执行的脚本，该脚本将从 URI 的 fragment 中解出访问令牌。</p>
+</li>
+<li>
+<p>用户代理将访问令牌交给客户。</p>
+</li>
+</ol>
+</div>
+</dd>
+<dt class="hdlist1">Resource Owner Password Credentials</dt>
+<dd>
+<div class="paragraph">
+<p>该类型直接使用资源所有者的密码凭证（如用户名和密码）获取访问令牌。应仅当资源所有者与客户之间高度信任的情况下使用此类型。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/oauth2-authorization-grant-type-resource-owner-password-credentials.png" alt="oauth2 authorization grant type resource owner password credentials" width="197" height="184">
+</div>
+<div class="title">Figure 6. Resource Owner Password Credentials</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>资源所有者将其身分凭证（一般是用户名和密码）提供给客户。</p>
+</li>
+<li>
+<p>客户将资源使用者的身分凭证提交给授权服务器。</p>
+</li>
+<li>
+<p>授权服务器将访问令牌返回给客户。</p>
+</li>
+</ol>
+</div>
+</dd>
+<dt class="hdlist1">Client Credentials</dt>
+<dd>
+<div class="paragraph">
+<p>直接用客户凭证获取访问令牌。此方式类型应仅用于获取客户所拥有的受保资源的访问权限。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/oauth2-authorization-grant-type-client-credentials.png" alt="oauth2 authorization grant type client credentials" width="129" height="155">
+</div>
+<div class="title">Figure 7. Client Credentials</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>客户向授权服务器提交自己的凭证（client_id 和 client_secret）。</p>
+</li>
+<li>
+<p>授权服务器校验客户凭证，若通过则返回访问令牌。</p>
+</li>
+</ol>
+</div>
+</dd>
+</dl>
+</div>
+<div class="sect3">
+<h4 id="access-token">Access Token</h4>
+<div class="paragraph">
+<p>当向资源服务器请求受保护资源时，有三种方式可以传送访问令牌「Access Token」。</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Authorization 请求头</dt>
+<dd>
+<p>当以 Authorization 请求头传送访问令牌时，应使用"Bearer"方案。例如</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="http" class="language-http hljs">GET /resource HTTP/1.1
+Host: server.example.com
+Authorization: Bearer mF_9.B5f-4.1JqM</code></pre>
+</div>
+</div>
+</dd>
+<dt class="hdlist1">Form-Econded 请求体</dt>
+<dd>
+<p>当以请求体的一部份传送访问令牌时，请求体的内容类型必须为 <code>application/x-www-form-urlencoded</code>。例如</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="http" class="language-http hljs">POST /resource HTTP/1.1
+Host: server.example.com
+Content-Type: application/x-www-form-urlencoded
+
+access_token=mF_9.B5f-4.1JqM</code></pre>
+</div>
+</div>
+</dd>
+<dt class="hdlist1">URI 请求参数</dt>
+<dd>
+<p>访问令牌也可以以查询参数 <code>access_token</code> 的形式被传送。例如</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="http" class="language-http hljs">GET /resource?access_token=mF_9.B5f-4.1JqM HTTP/1.1
+Host: server.example.com</code></pre>
+</div>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="spring-security">Spring Security</h3>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Spring Security 是一个强大的，高度可客制化的认证与访问控制框架。其是保护基于 Spring 的应用的事实上的标准。</p>
+</div>
+<div class="paragraph">
+<p>Spring Security 是一个专注于为 Java 应用提供认证与授权的框架。与所有 Spring 项目一样，在发觉其是多么容易地被扩展以满足客户需求才能明白 Spring Security 真实的力量。</p>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; Spring Security<br>
+<cite>https://spring.io/projects/spring-security#overview</cite>
+</div>
+</div>
+<div class="sect3">
+<h4 id="认证">认证</h4>
+<div class="paragraph">
+<p>认证的核心为接口 <code>AuthenticationManager</code> 及其实现 <code>AuthenticationProvider</code>。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/spring-security-authentication-class.png" alt="spring security authentication class" width="598" height="229">
+</div>
+<div class="title">Figure 8. Spring Security Authentication</div>
+</div>
+<div class="paragraph">
+<p><code>AuthenticationManager</code> 仅有一个方法 <code>authenticate()</code>，该只会做三件事：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>若输入的凭证是有效的，则返回一个 <code>Authentication</code> 对象；</p>
+</li>
+<li>
+<p>若输入的凭证是无效的，则抛出一个 <code>AuthenticationException</code>；</p>
+</li>
+<li>
+<p>若无法决定，则返回 <code>null</code>。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>最常用的 <code>AuthenticationManager</code> 实现为 <code>ProviderManager</code>，其将认证工作委派给一串 <code>AuthenticationProvider</code> 实例。<code>AuthenticationProvider</code> 提供了两个方法 <code>authenticate</code> 和 <code>supports</code>。多个 <code>AuthenticationProvider</code> 以责任链模式串联在一起，输入的凭证将逐一经过 <code>AuthenticationProvider</code>。每个 <code>AuthenticationProvider</code> 先用 <code>supports</code> 判断是否支持校验该类型的凭证，若是则使用 <code>authenticate</code> 校验凭证，若否则交由下一个 <code>AuthenticationProvider</code> 处理。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/AuthenticationProvider.png" alt="AuthenticationProvider" width="599" height="90">
+</div>
+<div class="title">Figure 9. AuthenticationProvider</div>
+</div>
+<div class="paragraph">
+<p><code>ProviderManager</code> 本身包含一个可选的上级 <code>AuthenticationManager</code>，通过其实现多级委派。有时应中受保护的资源被分为多个组，每组使用不同的 <code>AuthenticationManager</code>。当当前 <code>AuthenticationManager</code> 无法做出决定时则回退至上级 <code>AuthenticationManager</code>。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="授权">授权</h4>
+<div class="paragraph">
+<p>授权的核心是 <code>AccessDecisionManager</code>。框架提供的三个实现类 <code>AffirmativeBased, ConsensusBased, UnanimousBased</code> 皆以责任链模式将访问决定委派给一串 <code>AccessDecisionVoter</code>。</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">AffirmativeBased</dt>
+<dd>
+<p>若有一个及以上 <code>AccessDecisonVoter</code> 同意则允许，若有一个及以上 <code>AccessDecisionVoter</code> 反对且无任何 <code>AccessDecisionVoter</code> 同意则拒绝。此为默认 <code>AccessDecisionManager</code>。</p>
+</dd>
+<dt class="hdlist1">ConsensusBased</dt>
+<dd>
+<p>若表示同意的 <code>AccessDecisionVoter</code> 大于表示反对的则允许，反之则拒绝。</p>
+</dd>
+<dt class="hdlist1">UnanimousBased</dt>
+<dd>
+<p>若所有 <code>AccessDecisionVoter</code> 都同意则允许，否则拒绝。</p>
+</dd>
+</dl>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/AccessDecisionManager.png" alt="AccessDecisionManager" width="1028" height="367">
+</div>
+<div class="title">Figure 10. AccessDecisionManager</div>
+</div>
+<div class="paragraph">
+<p><code>AccessDecisionVoter</code> 接受一个 <code>authentication</code> 和一个用 <code>ConfigAttributes</code> 装饰的受保护的 <code>Object</code>。<code>Object</code> 是完全通用的的其表示用户想要访问的资源（URL、方法等等）。<code>ConfigAttributes</code> 也是相当地通用，其表示访问 <code>Object</code> 所需要的权限（如拥有某些⻆色）。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/AccessDEcisionVoter.png" alt="AccessDEcisionVoter" width="554" height="141">
+</div>
+<div class="title">Figure 11. AccessDecisionVoter</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="web-security">Web Security</h4>
+<div class="paragraph">
+<p>Java Servlet 定义了请求处理框架。客户端发送过来的请求先经过过泸器「Filter」链，再交由 Servlet 处理。Servlet 处理后的结果再反向经过过泸器链，最后再发回给客户端。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/java-servlet.png" alt="java servlet" width="251" height="506">
+</div>
+<div class="title">Figure 12. Java Servlet Framework</div>
+</div>
+<div class="paragraph">
+<p>Spring MVC 实现了 Servlet <code>DispatcherServlet</code>，将请求导向 Controllers。Spring Security 将 <code>FilterChainProxy</code> 插入到过泸器链中。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/web-security.png" alt="web security" width="362" height="508">
+</div>
+<div class="title">Figure 13. Web Security</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="spring-cloud-security">Spring Cloud Security</h3>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Spring Cloud Security提供了一组原语，用于以最少的麻烦构建安全的应用程序和服务。可通过外部（或集中地）深度配置的声明式模型，可被用于实现包含协作，远程组件，一般还有集中式标识管理服务的大型系统。在 Cloud Foundry 等服务平台中使用其也非常容易。基于 Spring Boot 和 Spring Security OAuth2，我们可以快速地创建实现常见模式（如单点登录、令牌中继和令牌交换）的系统。</p>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; Spring Cloud Security
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="实现">实现</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="uaa">UAA</h3>
+<div class="paragraph">
+<p>User Account and Authentication (UAA) 是一个由 Cloud Foundry 开发并维护的，兼容 OAuth2 的授权服务器实现。UAA 的配置与使用不在本文的范围之内。请使用提供的 Dockerfile 构建 UAA Docker 镜像并运行之：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>在命令行中，克隆包含 UAA Dockerfile 及本文适用的配置文件的 GitHub 仓库：</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">git clone git://github.com/rscai/microservices-uaa.git</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>然后，进入至项目根目录：</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">cd microservices-uaa
+ls</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>可以发现其包含了构建 Docker 镜像所需的 Dockerfile 及 UAA 配置文件：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>Dockerfile
+READ.adoc
+host-manager.xml
+manager.xml
+server.xml
+tomcat-users.xml
+uaa.yml</pre>
+</div>
+</div>
+</li>
+<li>
+<p>构建 Docker 镜像：</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">docker build --tag uaa .</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>创建 Docker 容器并运行（在容器内，UAA监听在端口8090。将其映射至宿主端口9103）：</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">docker run -p 9103:8090 --name=uaa uaa</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>为了方便，客户信息（OAuth2 中的客户）及测试用户信息都硬编码在 uaa.yml 中。</p>
+</div>
+<div class="listingblock">
+<div class="title">uaa.yml</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="yaml" class="language-yaml hljs">...
+
+oauth:
+  user:
+    authorities:
+      - openid
+      - scim.me
+      - password.write
+      - scim.userids
+      - uaa.user
+      - approvals.me
+      - oauth.approvals
+  clients:
+    gateway: <i class="conum" data-value="1"></i><b>(1)</b>
+      name: gateway <i class="conum" data-value="2"></i><b>(2)</b>
+      secret: secret
+      authorized-grant-types: authorization_code <i class="conum" data-value="3"></i><b>(3)</b>
+      scope: uaa.user,openid,profile,email,catalog.read,catalog.write,inventory.read,inventory.write,order.use,order.operate <i class="conum" data-value="4"></i><b>(4)</b>
+      authorities: uaa.resource
+      redirect-uri: http://localhost:9101/login/oauth2/code/gateway <i class="conum" data-value="5"></i><b>(5)</b>
+    service: <i class="conum" data-value="6"></i><b>(6)</b>
+      name: service
+      secret: secret
+      authorized-grant-types: password
+      scope: uaa.user,openid,profile,email,catalog.read,catalog.write,inventory.read,inventory.write,order.use,order.operate
+      authorities: uaa.resource
+scim:
+  groups:
+    email: Access your email address
+    catalog.read: Read catalog <i class="conum" data-value="7"></i><b>(7)</b>
+    catalog.write: Write catalog
+    inventory.read: Read inventory
+    inventory.write: Write inventory
+    order.use: Create, submit, cancel and close owned order
+    order.operate: cancel, mark pay, start delivery and complete order
+  users:
+    - customer1|password|customer1@provider.com|first1|last1|uaa.user,profile,email,catalog.read,inventory.read,order.use <i class="conum" data-value="8"></i><b>(8)</b>
+    - customer2|password|customer2@provider.com|first2|last2|uaa.user,profile,email,catalog.read,inventory.read,order.use
+    - catalog_ops|password|catalog_ops@provider.com|catalog|ops|uaa.user,profile,email,catalog.read,catalog.write
+    - inventory_ops|password|inventory_ops@provider.com|inventory|ops|uaa.user,profile,email,inventory.read,inventory.write
+    - order_ops|password|order_ops@provider.com|order|ops|uaa.user,profile,email,order.use,order.operate
+    - inventory_service|password|inventory_service@provider.com|inventory|service|uaa.user,profile,email,catalog.read
+    - order_service|password|order_service@provider.com|order|service|uaa.user,profile,email,catalog.read,inventory.read,inventory.write
+
+...</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>本例中的网关扮演着 OAuth2 客户的⻆色。所有的客户都需在授权服务器中注册。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>客户名即标识和 secret 被用于认证客户的身份，其一定要与客户侧的一致。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>注册网关仅使用 Authorization Code 类型的授权补助。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>罗列作为客户的网关所可能申请的所有 Scope。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>注册作为客户的网关的重定向URI。授权服务器会比对注册的重定URI和请求授权码时的重定向URI，若不匹配则拒绝颁发授权码。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>注册另一个客户。一个授权服务器可服务多个客户。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>定义 Scope，格式为 <code>&lt;Scope 名穪&gt;:&lt;描述&gt;</code>。UAA 的 Scope 对应为 Spring Security 的职权「Authority」。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>注册用户，格式为 <code>用户名|密码|电邮地址|名|姓|scope 列表（以逗号分隔）</code>。</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="网关">网关</h3>
+<div class="paragraph">
+<p>网关要校验所有请求，若请求未认证则引导至 UAA 做认证与授权，若请求已认证则将访问令牌一同转发给后端服务。</p>
+</div>
+<div class="paragraph">
+<p>首先，在 gateway 的 Gradle 构建文件中引入依赖。</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">...
+
+dependencies {
+	implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	implementation 'org.springframework.cloud:spring-cloud-starter-oauth2' <i class="conum" data-value="1"></i><b>(1)</b>
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client' <i class="conum" data-value="2"></i><b>(2)</b>
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+...</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>spring-cloud-starter-oauth2</code> 引入了依赖 <code>org.springframework.cloud:spring-cloud-security</code> 和 <code>org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure</code>。<code>spring-cloud-security</code> 提供一些用于集成 OAuth 与 Spring Cloud 组件如 Spring Cloud Gateway，Spring Cloud OpenFeign 的类。<code>spring-security-oauth2-autoconfigure</code> 顾名思义，其提供了 OAuth2 相关的自动配置。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><code>spring-boot-starter-oauth2-client</code> 引入了 <code>org.springframework.security:spring-security-oauth2-client</code> 和 <code>org.springframework.security:spring-security-oauth2-jose</code>。</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>然后，通过 Java Config 类 <code>SecurityConfig</code> 配置 <code>SecurityWebFilterChain</code>。</p>
+</div>
+<div class="listingblock">
+<div class="title">SecurityConfig.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package io.github.rscai.microservices.gateway;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+
+@Configuration <i class="conum" data-value="1"></i><b>(1)</b>
+public class SecurityConfig {
+  @Bean
+  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http,
+      ReactiveClientRegistrationRepository clientRegistrationRepository) { <i class="conum" data-value="2"></i><b>(2)</b>
+    // Authenticate through configured OpenID Provider
+    http.oauth2Login(); <i class="conum" data-value="3"></i><b>(3)</b>
+
+    // Require authentication for all requests
+    http.authorizeExchange().anyExchange().authenticated(); <i class="conum" data-value="4"></i><b>(4)</b>
+
+    // Disable CSRF in the gateway to prevent conflicts with proxied service CSRF
+    http.csrf().disable(); <i class="conum" data-value="5"></i><b>(5)</b>
+    return http.build();
+  }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>使用注解 <code>@Configuration</code> 以声明此类为 Spring 配置类，Spring 会依此组装相应的 Bean；</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>声明一个 <code>SecurityWebFilterChain</code> 类型的 Bean，Spring Security 会将其插入至 WebFlux 的过泸链中。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>指明使用 OAuth2 认证机制；</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>声明所有的请求都需经过认证；</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>关闭 CSRF。跨站请求伪造（英语：Cross-site request forgery），也疲穪为 one-click attack 或者 session riding，通常缩写为 CSRF 或者 XSRF，是一种挟制用户在当前已登入的 Web 应用程式上执行非本意的操作的攻击方法。</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>最后，通过 application YAML 配置 Spring Security。</p>
+</div>
+<div class="listingblock">
+<div class="title">application-dev.yml</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="yaml" class="language-yaml hljs">...
+  security:
+    oauth2:
+      client:
+        registration:
+          gateway: <i class="conum" data-value="1"></i><b>(1)</b>
+            provider: uaa <i class="conum" data-value="2"></i><b>(2)</b>
+            client-id: gateway <i class="conum" data-value="3"></i><b>(3)</b>
+            client-secret: secret <i class="conum" data-value="4"></i><b>(4)</b>
+            authorization-grant-type: authorization_code <i class="conum" data-value="5"></i><b>(5)</b>
+            redirect-uri: "http://localhost:9101/login/oauth2/code/{registrationId}" <i class="conum" data-value="6"></i><b>(6)</b>
+            scope: uaa.user,openid,profile,email,catalog.read,catalog.write,inventory.read,inventory.write,order.use,order.operate <i class="conum" data-value="7"></i><b>(7)</b>
+        provider:
+          uaa: <i class="conum" data-value="8"></i><b>(8)</b>
+            authorization-uri: http://localhost:9103/uaa/oauth/authorize <i class="conum" data-value="9"></i><b>(9)</b>
+            token-uri: http://localhost:9103/uaa/oauth/token <i class="conum" data-value="10"></i><b>(10)</b>
+            user-info-uri: http://localhost:9103/uaa/userinfo <i class="conum" data-value="11"></i><b>(11)</b>
+            user-name-attribute: sub
+            jwk-set-uri: http://localhost:9103/uaa/token_keys <i class="conum" data-value="12"></i><b>(12)</b>
+...</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>网关在 OAuth 协议中扮演着 client 的⻆色，所以要定义 client 相关的属性；</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><code>provider</code> 指 authorization server，本例中使用 UAA 实现 authorization server，其具体信息将在独立章节中定义；</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>client 的标识，需与 UAA 中的配置匹配；</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>client 的密钥，用作 client 的身分凭证，需与 UAA 中的配置匹配；</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>OAuth2 定义了四种获取访问令牌的方式：Authorization Code, Implicit, Resource Owner Password Credentials 及 Client Credentials。本例使用 <code>Authorization Code</code> 型的 <code>Authorization Grant</code>。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>当资源所有者在 UAA 完成了认证与授权之后，UAA 将会把授权码传送到这个URI。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Gateway 作为客户所可能申请的所有 Scope，Scope 对应 Spring Security 中的 Authority。比如，Scope catalog.read 对应 Spring Security 中的 Authority <code>SCOPE_catalog.read</code>。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>接着描述授权服务器 <code>uaa</code>。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>当网关发现访问受保护资源的请求未授权时，则会重定向用户代理（一般是浏覧器）至 <code>authorization-uri</code>，以认证资源所有者凭证并要求授权。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="10"></i><b>10</b></td>
+<td>当作为客户的网关得到授权码之后，则会访问 <code>token-uri</code> 从授权服务器获取访问令牌。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="11"></i><b>11</b></td>
+<td>作为客户的网关得到访问令牌之后，可以访问 <code>user-info-uri</code> 从授权服务器获取资源所有者的其它信息。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="12"></i><b>12</b></td>
+<td>当作为用户的网关得到访问令牌后，应使用相应的公钥校验令牌签名以确定其是合法的。</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="资源服务器">资源服务器</h3>
+<div class="paragraph">
+<p>资源服务器需要校验访问令牌，再检验访问令牌是否包含具体资源的授权。</p>
+</div>
+<div class="paragraph">
+<p>以 Catalog 服务为例，首先引入依赖。</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="groovy" class="language-groovy hljs">...
+dependencies {
+	asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security' <i class="conum" data-value="1"></i><b>(1)</b>
+	implementation 'org.springframework.security:spring-security-oauth2-resource-server' <i class="conum" data-value="2"></i><b>(2)</b>
+	implementation 'org.springframework.security:spring-security-oauth2-jose' <i class="conum" data-value="3"></i><b>(3)</b>
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+	testImplementation 'org.springframework.security:spring-security-test' <i class="conum" data-value="4"></i><b>(4)</b>
+}
+...</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>spring-boot-starter-security</code> 引入了 <code>org.springframework.security:spring-security-web</code>、<code>org.springframework.security:spring-security-core</code> 和 <code>org.springframework.security:spring-security-config</code>，其包含了 Spring Security 基础的类及跟 Web 应用集成所需的工具类。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><code>spring-security-oauth2-resource-server</code> 提供了资源服务器所需的实现。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td><code>spring-security-oauth2-jose</code> 提供了对 JWT 令牌的支持。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td><code>spring-security-test</code> 提供测试工具，比如模拟认证用户等。</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>然后，以 Java Config 形式配置 Spring Security。</p>
+</div>
+<div class="listingblock">
+<div class="title">SecurityConfig.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">@Profile("!test") <i class="conum" data-value="1"></i><b>(1)</b>
+@EnableWebSecurity <i class="conum" data-value="2"></i><b>(2)</b>
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true) <i class="conum" data-value="3"></i><b>(3)</b>
+public class SecurityConfig extends WebSecurityConfigurerAdapter { <i class="conum" data-value="4"></i><b>(4)</b>
+
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http
+        .csrf().disable() <i class="conum" data-value="5"></i><b>(5)</b>
+        .authorizeRequests() <i class="conum" data-value="6"></i><b>(6)</b>
+        .anyRequest().authenticated() <i class="conum" data-value="7"></i><b>(7)</b>
+        .and()
+        .oauth2ResourceServer() <i class="conum" data-value="8"></i><b>(8)</b>
+        .jwt(); <i class="conum" data-value="9"></i><b>(9)</b>
+  }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>利用 Spring Boot 的 Profile 特性，在测试场景中不启用安全配置但在其它场景中启用。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>使用注解 <code>@EnableWebSecurity</code> 启用安全机制。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>使用注解 <code>@EnableGlobalMethodSecurity</code> 启用方法层级的安全机制，本服务採用 Spring Data REST 构建 RESTFul 服务，所以在 Repository 方法声明访问控制是最合理的。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>继承 <code>org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter</code> 并覆写方法 <code>configure(HttpSecurity http)</code> 以配置安全措施。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>关闭 CSRF。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>安全措施作用于所有请求。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>所有请求首先必需是认证过的。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>本服务採用 OAuth2 协议且扮演资源服务器的⻆色。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>採用 JWT 类型的令牌。</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>最后，在 Repository 的方法上声明所需的权限。</p>
+</div>
+<div class="listingblock">
+<div class="title">ProductRepository.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">@PreAuthorize("hasAuthority('SCOPE_catalog.read')") <i class="conum" data-value="1"></i><b>(1)</b>
+@RepositoryRestResource(collectionResourceRel = "products", path = "products")
+public interface ProductRepository extends MongoRepository&lt;Product, String&gt; {
+
+  String AUTHORITY_CATALOG_WRITE = "hasAuthority('SCOPE_catalog.write')";
+
+  @PreAuthorize(AUTHORITY_CATALOG_WRITE) <i class="conum" data-value="2"></i><b>(2)</b>
+  @Override
+  &lt;S extends Product&gt; S save(S entity);
+
+  @PreAuthorize(AUTHORITY_CATALOG_WRITE)
+  @Override
+  &lt;S extends Product&gt; List&lt;S&gt; saveAll(Iterable&lt;S&gt; entities);
+
+  @PreAuthorize(AUTHORITY_CATALOG_WRITE)
+  @Override
+  void delete(Product entity);
+
+  @PreAuthorize(AUTHORITY_CATALOG_WRITE)
+  @Override
+  void deleteAll();
+
+  @PreAuthorize(AUTHORITY_CATALOG_WRITE)
+  @Override
+  void deleteAll(Iterable&lt;? extends Product&gt; entities);
+
+  @PreAuthorize(AUTHORITY_CATALOG_WRITE)
+  @Override
+  void deleteById(String s);
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>使用注解 <code>@PreAuthorize</code> 以 Spring-EL 声明必需的权限。<code>@PreAuthorize</code> 可以作用于方法也可作用于整个类。当作用于整个类时，等同于作用于该类所有的方法。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><code>@PreAuthorize</code> 作用于方法，是在类级的 <code>@PreAuthorize</code> 的基础上再附加权限要求。比如，要调用方法`save(S entity)<code>，请求者必须满足 `hasAuthority('SCOPE_catalog.read')</code> 和 <code>hasAuthority('SCOPE_catalog.write')</code>。</td>
+</tr>
+</table>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Spring 表逹式语言（缩写为"SpEL"）是一种强大的，支持运行时查询和编辑对象图的表逹式语言。该语言的语法与 Unified EL 相似但其提供了更多的特性，特殊方法调用和基本的字符串模板化功能。</p>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; Spring Expression language (SpEl)<br>
+<cite>https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions</cite>
+</div>
+</div>
+<div class="paragraph">
+<p>Spring Security 内建一些表逹式，以方便应用开发者检验以 <code>Authentication</code> 对象形式展现的认证与授权信息。</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Common Built-In Expressions</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">表逹式</th>
+<th class="tableblock halign-left valign-top">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">hasRole(String role)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">若当前本人拥有该⻆色则返回 <code>true</code>。</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">hasAnyRole(String&#8230;&#8203; roles)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">若当前本人拥有任一⻆色则返回 <code>true</code>。</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">hasAuthority(String authority)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">若当前本人拥有该职权则返回 <code>true</code>。</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">hasAnyAuthority(String&#8230;&#8203; authorities)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">若当前本人拥有任一⻆色则返回 <code>true</code>。</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">principal</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">直接访问当前本人对象。</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">authentication</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">直接访问当前 <code>authentication</code> 对象。</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">permitAll</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">永远为 <code>true</code> 即允许所有请求。</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">denyAll</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">永远为 <code>false</code> 即拒绝所有请求。</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">isAnonymous()</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">若当前本人是匿名用户则返回 <code>true</code>。</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">isRememberMe()</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">若当前本人是 remember-me 用户则返回 <code>true</code>。</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">isAuthenticated()</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">若当前本人为非匿名用户则返回 <code>true</code>。</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">isFullyAuthenticated()</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">若前前本人非匿名且非 remember-me 则返回 <code>true</code>。</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">hasPermission(Object target, Object permission)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">若该用户拥有某对象的某许可则返回 <code>true</code>。</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">hasPermission(Object targetId, String targetType, Object permission)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">若该用户拥有某对象的某许可则返回 <code>true</code>，对象以对象类与标识的形式指定。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="测试">测试</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="api-测试">API 测试</h3>
+<div class="paragraph">
+<p>包括安全的 API 测试跟普通的 API 测试相似，仅增加了认证用户的模拟。</p>
+</div>
+<div class="paragraph">
+<p>以 Product 的 API 为例，</p>
+</div>
+<div class="listingblock">
+<div class="title">ProductTest</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">@ActiveProfiles("test") <i class="conum" data-value="1"></i><b>(1)</b>
+@Import(RestDocsMockMvcConfiguration.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = CatalogApplication.class)
+@AutoConfigureMockMvc(addFilters = false) <i class="conum" data-value="2"></i><b>(2)</b>
+@AutoConfigureRestDocs
+public class ProductTest {
+
+  private static final String ENDPOINT = "/products";
+  private static final String SCOPE_CATALOG_READ = "SCOPE_catalog.read";
+  private static final String SCOPE_CATALOG_WRITE = "SCOPE_catalog.write";
+
+  @Autowired
+  private MockMvc mvc;
+  @Autowired
+  private ObjectMapper objectMapper;
+  @Autowired
+  private ProductImageRepository imageRepository;
+  @Autowired
+  private ProductRepository productRepository;
+
+  ...
+
+    @Test
+  @WithMockUser(username = "catalog_ops", authorities = {SCOPE_CATALOG_READ, SCOPE_CATALOG_WRITE}) <i class="conum" data-value="3"></i><b>(3)</b>
+  public void testCreateAndGet() throws Exception {
+    final String imageALink = obtainLinkOfImage(imageAId);
+    final String imageBLink = obtainLinkOfImage(imageBId);
+
+    final String title = "New Product";
+    final String ELECTRONICS = "Electronics";
+    final String MOBILE = "Mobile";
+
+    String createResponse = mvc.perform(
+        post(ENDPOINT).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)
+            .content(String.format(
+                "{\"title\":\"%s\",\"tags\":[\"%s\",\"%s\"],\"images\":[\"%s\",\"%s\"]}",
+                title, ELECTRONICS, MOBILE, imageALink, imageBLink)))
+        .andDo(print())
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.title", is(title)))
+        .andExpect(jsonPath("$.createdAt", notNullValue()))
+        .andExpect(jsonPath("$.updatedAt", notNullValue()))
+        .andExpect(jsonPath("$._links.images", notNullValue()))
+        .andDo(document("product/create", links(), requestFields(
+            fieldWithPath("images").type(JsonFieldType.ARRAY)
+                .description("links of referred ProductImage")), responseFields()))
+        .andReturn().getResponse().getContentAsString();
+
+    String productId = Stream
+        .of(objectMapper.readTree(createResponse).at("/_links/self/href").asText().split("/"))
+        .reduce((first, second) -&gt; second).orElse(null);
+
+    mvc.perform(get(ENDPOINT + "/{id}", productId).accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.title", is(title)))
+        .andExpect(jsonPath("$.createdAt", notNullValue()))
+        .andExpect(jsonPath("$.updatedAt", notNullValue()))
+        .andExpect(jsonPath("$._links.images", notNullValue()))
+        .andDo(document("product/getOne", links(),
+            pathParameters(parameterWithName("id").description("catalog's id")), responseFields()));
+
+    mvc.perform(get(ENDPOINT + "/{id}/images", productId).accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.productImages", hasSize(2)))
+        .andDo(document("product/getImages",
+            pathParameters(parameterWithName("id").description("catalog's id"))));
+  }
+
+  ...</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>显式激活 profile test。还记我们声明安全配置 <code>SecurityConfg</code> 祗在非 test profile 时才激活么？安全配置 <code>SecurityConfig</code> 显示指名採用 OAuth2 协议，但模拟兼容 OAuth2 的授权服务器太困难了，所以我们选择在测试中不集成 OAuth2，而是模拟认证用户即 <code>Authentication</code> 对象。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><code>addFilters = false</code> 是在测试中停用安全配置的必要步骤。Spring Security 是以向过泸器链中插入自己的过泸器的方式与 Spring MVC 应用集成的，且一但相关的类出现在 classpath 中就会触发 Spring Security 自动配置。所以，必需要在测试中排除过泸器。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>使用注解 <code>@WithMockUser</code> 在测试方法范围内模拟认证用户即 <code>Authentication</code> 对象。通过 <code>@WithMockUser</code> 可以模拟用户名、⻆色、职权和口令。
+<div class="imageblock">
+<div class="content">
+<img src="../images/WithMockUser.png" alt="WithMockUser" width="267" height="134">
+</div>
+<div class="title">Figure 14. WithMockUser.java</div>
+</div></td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="端到端测试">端到端测试</h3>
+<div class="paragraph">
+<p>将 UAA、Catalog 服务、Eureka 和网关全都运行在同一个环境，执行端到端的测试。</p>
+</div>
+<div class="paragraph">
+<p>首先，创建并启动 UAA Docker 容器；</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">docker run -p 9103:8090 --name=uaa uaa</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>或启动已创建的 UAA Docker 容器：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">docker start uaa</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>然后，启动 Eureka；</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">cd microservices-eureka
+./gradlew bootRun -Dspring.profiles.active=dev</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>再然后，创建并启动 MongoDB Docker 容器；</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">docker run -d --name catalog-mongo -p 27018:27017 -v &lt;LOCAL PATH&gt;/catalog-mongo-data:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret mongo:3.4</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>或启动已创建的 MongoDB Docker 容器；</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">docker start catalog-mongo</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>再然后，启动 Catalog 服务；</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">cd microservices-cata
+./gradlew bootRun -Dspring.profiles.active=dev</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>最后，打开浏覧器访问 <code><a href="http://localhost:9101/catalog/products" class="bare">http://localhost:9101/catalog/products</a></code>。其会重定向至 UAA，输入用户名密码并确认授权。最终应能得到 HAL 格式的响应。</p>
+</div>
+<div class="paragraph">
+<p>观察 HTTP 报文可以发现，</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/diag-d19174fdac63b85430438c52fe01d2df.png" alt="diag d19174fdac63b85430438c52fe01d2df" width="1354" height="1081">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>浏覧器向网关发送 GET /catalog/products 请求；</p>
+</li>
+<li>
+<p>网关发觉当前会话未认证，所以重定向浏覧器至自身的认证URI；</p>
+</li>
+<li>
+<p>浏覧器访问网关的认证URI；</p>
+</li>
+<li>
+<p>网关根据自身配置，将浏覧器重定向至 UAA 进行认证；</p>
+</li>
+<li>
+<p>浏覧器访问 UAA 的认证 URI；</p>
+</li>
+<li>
+<p>UAA 根据授权补助类型 Authorization Code，重定向浏覧器至用户登入页面，引导用户以用户名密码认证；</p>
+</li>
+<li>
+<p>浏覧器访问用户登入页面；</p>
+</li>
+<li>
+<p>浏覧器将用户提供的用户名密码发送给 UAA；</p>
+</li>
+<li>
+<p>UAA 认证用户名密码通过以后，重定向浏覧器至授权确认页面；</p>
+</li>
+<li>
+<p>浏覧器访问授权确认页面；</p>
+</li>
+<li>
+<p>浏覧器将用户的授权确定发送给 UAA；</p>
+</li>
+<li>
+<p>UAA 以重定向回网关的形式将授权码返回；</p>
+</li>
+<li>
+<p>浏覧器以包含授权码的URI访问网关认URI；</p>
+</li>
+<li>
+<p>网关得到授权码后，向 UAA 申请访问令牌；</p>
+</li>
+<li>
+<p>UAA 返回访问令牌、刷新令牌及其它信息；</p>
+</li>
+<li>
+<p>网关向 UAA 请求公钥以校验今牌的签名；</p>
+</li>
+<li>
+<p>UAA 返回校验令牌签名用的公钥；</p>
+</li>
+<li>
+<p>网关向 UAA 请求用户信息；</p>
+</li>
+<li>
+<p>UAA 返回用户名、电邮地址等用户信息；</p>
+</li>
+<li>
+<p>网关将令牌存于当前会话中，返回浏覧器会话标识，并重定向浏覧器至最初的URL；</p>
+</li>
+<li>
+<p>浏覧器访问最初的URL，并在Cookie中提供会话标识；</p>
+</li>
+<li>
+<p>网关从服务注册处发现 Catalog 服务实例，将请求转发给其，并将从会话中恢复的访问令牌以 <code>Authorization</code> 头的形式附上；</p>
+</li>
+<li>
+<p>Catalog 服务从 UAA 处请求公钥以校验访问令牌的签名；</p>
+</li>
+<li>
+<p>UAA 返回公钥给 Catalog 服务；</p>
+</li>
+<li>
+<p>Catalog 服务校验过访问令牌及其包含的职权后，返回受保护的资源给网关；</p>
+</li>
+<li>
+<p>网关把 Catalog 服务的响应转发给浏覧器。</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="总结">总结</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>本章我们了解了认证与授权，OAuth2 协议；使用 Spring Cloud Security 在网关上实现单点登入模式；使用 Spring Security 实现服务端鋻权。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="参考">参考</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://zh.wikipedia.org/wiki/身份认证">身份认证</a></p>
+</li>
+<li>
+<p><a href="https://zh.wikipedia.org/wiki/开放授权">开放授权</a></p>
+</li>
+<li>
+<p><a href="https://oauth.net/2">OAuth 2.0</a></p>
+</li>
+<li>
+<p><a href="https://tools.ietf.org/html/rfc6749">The OAuth 2.0 Authorization Framework</a></p>
+</li>
+<li>
+<p><a href="https://tools.ietf.org/html/rfc6750">The OAuth 2.0 Authorization Framework: Bearer Token Usage</a></p>
+</li>
+<li>
+<p><a href="https://spring.io/guides/topicals/spring-security-architecture">Spring Security Architecture</a></p>
+</li>
+<li>
+<p><a href="https://docs.spring.io/spring-security/site/docs/current/reference/html5/#el-access">Expression-Based Access Control</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 0.0.1<br>
+Last updated 2020-09-26 13:06:15 UTC
+</div>
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+<script>hljs.initHighlighting()</script>
+</body>
+</html>
