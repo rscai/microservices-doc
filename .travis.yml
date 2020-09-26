@@ -14,8 +14,8 @@ script:
   - pyenv global 3.7.1
   - pip install hanziconv
   - python .travis/generate-zh_CN.py -o src/docs/asciidoc/zh_CN -s src/docs/asciidoc/zh_TR
-  - find src/docs/asciidoc/zh_CN/*.adoc -exec sed -i bak 's/\[:commondir: zh_TR\/common\]/[:commondir: zh_CN\/common]/g' {} +
-  - find src/docs/asciidoc/zh_CN/**/*.adoc -exec sed -i bak 's/\[:commondir: zh_TR\/common\]/[:commondir: zh_CN\/common]/g' {} +
+  - "find src/docs/asciidoc/zh_CN/*.adoc -exec sed -i bak 's/\[:commondir: zh_TR\/common\]/[:commondir: zh_CN\/common]/g' {} +"
+  - "find src/docs/asciidoc/zh_CN/**/*.adoc -exec sed -i bak 's/\[:commondir: zh_TR\/common\]/[:commondir: zh_CN\/common]/g' {} +"
   - ./gradlew clean asciidoctor
 deploy:
   provider: pages
