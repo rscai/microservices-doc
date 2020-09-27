@@ -1,8 +1,10 @@
 language: java
+dist: xenial
+os: linux
 jdk:
   - openjdk8
 before_install:
-  - sudo apt-get install graphviz
+  - sudo apt-get install fonts-arphic-ukai graphviz
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
@@ -14,12 +16,10 @@ script:
   - pyenv global 3.7.1
   - pip install hanziconv
   - python .travis/generate-zh_CN.py -o src/docs/asciidoc/zh_CN -s src/docs/asciidoc/zh_TR
-  - "find src/docs/asciidoc/zh_CN/*.adoc -exec sed -i 's|\[:commondir: zh_TR\/common\]|[:commondir: zh_CN\/common]|g' {} +"
-  - "find src/docs/asciidoc/zh_CN/**/*.adoc -exec sed -i 's|\[:commondir: zh_TR\/common\]|[:commondir: zh_CN\/common]|g' {} +"
   - ./gradlew clean asciidoctor
 deploy:
   provider: pages
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN
-  keep-history: true
-  local-dir: build/docs/asciidoc
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN
+  keep_history: true
+  local_dir: build/docs/asciidoc
