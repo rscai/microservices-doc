@@ -437,76 +437,125 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article toc2 toc-left">
+<body class="article">
 <div id="header">
 <h1>设计</h1>
 <div class="details">
 <span id="revnumber">version 0.0.1</span>
 </div>
-<div id="toc" class="toc2">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#架构">架构</a></li>
-<li><a href="#领域模型">领域模型</a>
-<ul class="sectlevel2">
-<li><a href="#catalog-models">Catalog Models</a></li>
-<li><a href="#inventory-models">Inventory Models</a></li>
-<li><a href="#order-models">Order Models</a></li>
-</ul>
-</li>
-</ul>
-</div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="架构">架构</h2>
-<div class="sectionbody">
-<div class="imageblock">
+<div class="paragraph">
+<p>==[:commondir: zh_CN/common]架构</p>
+</div>
+<div class="literalblock">
 <div class="content">
-<img src="../images/diag-ab47f5ff52905e2391bff42b7d28e842.png" alt="diag ab47f5ff52905e2391bff42b7d28e842" width="391" height="402">
+<pre>@sta[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]l
+t[:commondir: zh_CN/common]tle[:commondir: zh_CN/common]M[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]es
+a[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]use[:commondir: zh_CN/common]
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]PC[:commondir: zh_CN/common]{
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]st[:commondir: zh_CN/common][:commondir: zh_CN/common]eF[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]t
+}
+
+b[:commondir: zh_CN/common]u[:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]y[:commondir: zh_CN/common]APIGateway
+
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]{
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]tSe[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e
+}
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]{
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]ySe[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e
+}
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]{
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e
+}
+use[:commondir: zh_CN/common][:commondir: zh_CN/common]-&gt;[:commondir: zh_CN/common]st[:commondir: zh_CN/common][:commondir: zh_CN/common]eF[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]t
+st[:commondir: zh_CN/common][:commondir: zh_CN/common]eF[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common]-&gt;[:commondir: zh_CN/common]APIGateway[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ES[:commondir: zh_CN/common]ful
+APIGateway[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]tSe[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ES[:commondir: zh_CN/common]ful
+APIGateway[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ES[:commondir: zh_CN/common]ful
+p[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]tSe[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]ySe[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ES[:commondir: zh_CN/common]ful
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]ySe[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ES[:commondir: zh_CN/common]ful
+@e[:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]l</pre>
 </div>
 </div>
+<div class="paragraph">
+<p>==[:commondir: zh_CN/common]领域模型</p>
 </div>
+<div class="paragraph">
+<p>===[:commondir: zh_CN/common]Catal[:commondir: zh_CN/common]g[:commondir: zh_CN/common]M[:commondir: zh_CN/common][:commondir: zh_CN/common]els</p>
 </div>
-<div class="sect1">
-<h2 id="领域模型">领域模型</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="catalog-models">Catalog Models</h3>
-<div class="imageblock">
+<div class="literalblock">
 <div class="content">
-<img src="../images/diag-6869ce228364ce9b61b7413ab5e797a4.png" alt="diag 6869ce228364ce9b61b7413ab5e797a4" width="356" height="368">
+<pre>@sta[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]l
+pa[:commondir: zh_CN/common]kage[:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]t[:commondir: zh_CN/common]&lt;&lt;F[:commondir: zh_CN/common]l[:commondir: zh_CN/common]e[:commondir: zh_CN/common]&gt;&gt;[:commondir: zh_CN/common]{
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]lass[:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]t[:commondir: zh_CN/common]&lt;&lt;E[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ty&gt;&gt;
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]lass[:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]tI[:commondir: zh_CN/common]age[:commondir: zh_CN/common]&lt;&lt;E[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ty&gt;&gt;
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]lass[:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]tVa[:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]t[:commondir: zh_CN/common]&lt;&lt;E[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ty&gt;&gt;
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]--[:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]tI[:commondir: zh_CN/common]age
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]--[:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]tVa[:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]t
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]tVa[:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]t[:commondir: zh_CN/common]"0..*"[:commondir: zh_CN/common]-[:commondir: zh_CN/common]"0..*"[:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]tI[:commondir: zh_CN/common]age
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]lass[:commondir: zh_CN/common]C[:commondir: zh_CN/common]lle[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]&lt;&lt;E[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ty&gt;&gt;
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]C[:commondir: zh_CN/common]lle[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]"0..*"[:commondir: zh_CN/common]--[:commondir: zh_CN/common]"0..*"[:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]t
+}
+@e[:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]l</pre>
 </div>
 </div>
-<div class="imageblock">
+<div class="literalblock">
 <div class="content">
-<img src="../images/diag-88402c233e0fd17dd064edf3d89fe343.png" alt="diag 88402c233e0fd17dd064edf3d89fe343" width="371" height="314">
+<pre>@sta[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]l
+[:commondir: zh_CN/common]lass[:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]t[:commondir: zh_CN/common]&lt;&lt;E[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ty&gt;&gt;[:commondir: zh_CN/common]{
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]St[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-t[:commondir: zh_CN/common]tle[:commondir: zh_CN/common][:commondir: zh_CN/common]St[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-[:commondir: zh_CN/common][:commondir: zh_CN/common]eate[:commondir: zh_CN/common]At[:commondir: zh_CN/common][:commondir: zh_CN/common]Date
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-up[:commondir: zh_CN/common]ate[:commondir: zh_CN/common]At[:commondir: zh_CN/common][:commondir: zh_CN/common]Date
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-[:commondir: zh_CN/common][:commondir: zh_CN/common]ages[:commondir: zh_CN/common][:commondir: zh_CN/common]L[:commondir: zh_CN/common]st&lt;P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]tI[:commondir: zh_CN/common]age&gt;
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-va[:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]ts[:commondir: zh_CN/common][:commondir: zh_CN/common]L[:commondir: zh_CN/common]st&lt;P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]tVa[:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]t&gt;
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-tags[:commondir: zh_CN/common][:commondir: zh_CN/common]L[:commondir: zh_CN/common]st&lt;St[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g&gt;
+}
+[:commondir: zh_CN/common]lass[:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]tI[:commondir: zh_CN/common]age[:commondir: zh_CN/common]&lt;&lt;E[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ty&gt;&gt;[:commondir: zh_CN/common]{
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]St[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-s[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]St[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-[:commondir: zh_CN/common][:commondir: zh_CN/common]eate[:commondir: zh_CN/common]At[:commondir: zh_CN/common][:commondir: zh_CN/common]Date
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-up[:commondir: zh_CN/common]ate[:commondir: zh_CN/common]At[:commondir: zh_CN/common][:commondir: zh_CN/common]Date
+}
+[:commondir: zh_CN/common]lass[:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]tVa[:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]t[:commondir: zh_CN/common]&lt;&lt;E[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ty&gt;&gt;[:commondir: zh_CN/common]{
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]St[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-[:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]yIte[:commondir: zh_CN/common]I[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]St[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-[:commondir: zh_CN/common][:commondir: zh_CN/common]ages[:commondir: zh_CN/common][:commondir: zh_CN/common]L[:commondir: zh_CN/common]st&lt;P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]tI[:commondir: zh_CN/common]age&gt;
+}
+@e[:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]l</pre>
 </div>
 </div>
+<div class="paragraph">
+<p>===[:commondir: zh_CN/common]I[:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common]M[:commondir: zh_CN/common][:commondir: zh_CN/common]els</p>
 </div>
-<div class="sect2">
-<h3 id="inventory-models">Inventory Models</h3>
-<div class="imageblock">
+<div class="literalblock">
 <div class="content">
-<img src="../images/diag-a2e684be042a34ec6d758f94ac5afd00.png" alt="diag a2e684be042a34ec6d758f94ac5afd00" width="191" height="140">
+<pre>@sta[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]l
+pa[:commondir: zh_CN/common]kage[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common]&lt;&lt;F[:commondir: zh_CN/common]l[:commondir: zh_CN/common]e[:commondir: zh_CN/common]&gt;&gt;[:commondir: zh_CN/common]{
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]lass[:commondir: zh_CN/common]I[:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]yIte[:commondir: zh_CN/common][:commondir: zh_CN/common]&lt;&lt;E[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ty&gt;&gt;
+}
+@e[:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]l</pre>
 </div>
 </div>
+<div class="paragraph">
+<p>===[:commondir: zh_CN/common]O[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]M[:commondir: zh_CN/common][:commondir: zh_CN/common]els</p>
 </div>
-<div class="sect2">
-<h3 id="order-models">Order Models</h3>
-<div class="imageblock">
+<div class="literalblock">
 <div class="content">
-<img src="../images/diag-c70ae14feec42f73d1706d396a9f9d15.png" alt="diag c70ae14feec42f73d1706d396a9f9d15" width="181" height="254">
-</div>
-</div>
-</div>
+<pre>@sta[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]l
+pa[:commondir: zh_CN/common]kage[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]&lt;&lt;F[:commondir: zh_CN/common]l[:commondir: zh_CN/common]e[:commondir: zh_CN/common]&gt;&gt;[:commondir: zh_CN/common]{
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]lass[:commondir: zh_CN/common]O[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]&lt;&lt;E[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ty&gt;&gt;
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]lass[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]sa[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]&lt;&lt;E[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ty&gt;&gt;
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]O[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]"1"[:commondir: zh_CN/common]--[:commondir: zh_CN/common]"0..*"[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]sa[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]
+}
+@e[:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]l</pre>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1<br>
-Last updated 2020-09-27 05:55:07 UTC
+Last updated 2020-09-27 05:58:13 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>介绍</title>
+<title>Untitled</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,336 +437,296 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article toc2 toc-left">
+<body class="article">
 <div id="header">
-<h1>介绍</h1>
-<div class="details">
-<span id="revnumber">version 0.0.1</span>
-</div>
-<div id="toc" class="toc2">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#概述">概述</a></li>
-<li><a href="#用例">用例</a></li>
-<li><a href="#架构">架构</a>
-<ul class="sectlevel2">
-<li><a href="#微服务">微服务</a></li>
-<li><a href="#api-网关模式">API 网关模式</a></li>
-</ul>
-</li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="概述">概述</h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>本文以线上商店为例，介绍基于 Spring Boot 及 Spring Cloud 开发微服务「Microservices」应用。</p>
+<p>=[:commondir: zh_CN/common]介绍
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]s[:commondir: zh_CN/common][:commondir: zh_CN/common]f[:commondir: zh_CN/common][:commondir: zh_CN/common]t
+[:commondir: zh_CN/common]f[:commondir: zh_CN/common][:commondir: zh_CN/common]ef[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ages[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ages[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ages]</p>
+</div>
+<div class="paragraph">
+<p>==[:commondir: zh_CN/common]概述</p>
+</div>
+<div class="paragraph">
+<p>本文以线上商店为例，介绍基于[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]B[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common]及[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]Cl[:commondir: zh_CN/common]u[:commondir: zh_CN/common][:commondir: zh_CN/common]开发微服务「M[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]es」应用。</p>
 </div>
 <div class="paragraph">
 <p>本文将会囊括技术：</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>Spring Boot</p>
-</li>
-<li>
-<p>Spring Data MongoDB</p>
-</li>
-<li>
-<p>Spring Data JPA</p>
-</li>
-<li>
-<p>Spring Data REST</p>
-</li>
-<li>
-<p>Spring Security</p>
-</li>
-<li>
-<p>Service Registration &amp; Discovery</p>
-</li>
-<li>
-<p>API Gateway Pattern</p>
-</li>
-<li>
-<p>Single Sign On</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>*[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]B[:commondir: zh_CN/common][:commondir: zh_CN/common]t
+*[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]Data[:commondir: zh_CN/common]M[:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]DB
+*[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]Data[:commondir: zh_CN/common]JPA
+*[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]Data[:commondir: zh_CN/common][:commondir: zh_CN/common]ES[:commondir: zh_CN/common]
+*[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]Se[:commondir: zh_CN/common]u[:commondir: zh_CN/common][:commondir: zh_CN/common]ty
+*[:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]eg[:commondir: zh_CN/common]st[:commondir: zh_CN/common]at[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]&amp;[:commondir: zh_CN/common]D[:commondir: zh_CN/common]s[:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]y
+*[:commondir: zh_CN/common]API[:commondir: zh_CN/common]Gateway[:commondir: zh_CN/common]Patte[:commondir: zh_CN/common][:commondir: zh_CN/common]
+*[:commondir: zh_CN/common]S[:commondir: zh_CN/common][:commondir: zh_CN/common]gle[:commondir: zh_CN/common]S[:commondir: zh_CN/common]g[:commondir: zh_CN/common][:commondir: zh_CN/common]O[:commondir: zh_CN/common]</p>
 </div>
+<div class="paragraph">
+<p>==[:commondir: zh_CN/common]用例</p>
 </div>
-</div>
-<div class="sect1">
-<h2 id="用例">用例</h2>
-<div class="sectionbody">
-<div class="imageblock">
+<div class="literalblock">
+<div class="title">use[:commondir: zh_CN/common][:commondir: zh_CN/common]ases</div>
 <div class="content">
-<img src="../images/diag-d1deed0116482a938d7b026427e07bfc.png" alt="diag d1deed0116482a938d7b026427e07bfc" width="527" height="669">
+<pre>@sta[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]l
+left[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]
+a[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]顾客[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common]ust[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+a[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]"商品目录运营"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common]atal[:commondir: zh_CN/common]g[:commondir: zh_CN/common][:commondir: zh_CN/common]ps
+a[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]"仓储运营"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common][:commondir: zh_CN/common]ps
+a[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]"订单运营"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ps
+
+pa[:commondir: zh_CN/common]kage[:commondir: zh_CN/common]"商品目录营运"[:commondir: zh_CN/common]{
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]use[:commondir: zh_CN/common]ase[:commondir: zh_CN/common]"新建商品"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]eate[:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]t
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]use[:commondir: zh_CN/common]ase[:commondir: zh_CN/common]"修改商品"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]ge[:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]t
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]use[:commondir: zh_CN/common]ase[:commondir: zh_CN/common]"删除商品"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common]elete[:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]t
+}
+[:commondir: zh_CN/common]atal[:commondir: zh_CN/common]g[:commondir: zh_CN/common][:commondir: zh_CN/common]ps[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]eate[:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]t
+[:commondir: zh_CN/common]atal[:commondir: zh_CN/common]g[:commondir: zh_CN/common][:commondir: zh_CN/common]ps[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]ge[:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]t
+[:commondir: zh_CN/common]atal[:commondir: zh_CN/common]g[:commondir: zh_CN/common][:commondir: zh_CN/common]ps[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common]elete[:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]t
+
+pa[:commondir: zh_CN/common]kage[:commondir: zh_CN/common]"仓储营运"[:commondir: zh_CN/common]{
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]use[:commondir: zh_CN/common]ase[:commondir: zh_CN/common]"新建仓储项"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]eate[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common][:commondir: zh_CN/common]te[:commondir: zh_CN/common]
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]use[:commondir: zh_CN/common]ase[:commondir: zh_CN/common]"入库"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ease[:commondir: zh_CN/common]qua[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ty
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]use[:commondir: zh_CN/common]ase[:commondir: zh_CN/common]"出库"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]ease[:commondir: zh_CN/common]qua[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ty
+}
+[:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common][:commondir: zh_CN/common]ps[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]eate[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common][:commondir: zh_CN/common]te[:commondir: zh_CN/common]
+[:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common][:commondir: zh_CN/common]ps[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ease[:commondir: zh_CN/common]qua[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ty
+[:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common][:commondir: zh_CN/common]ps[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]ease[:commondir: zh_CN/common]qua[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ty
+
+pa[:commondir: zh_CN/common]kage[:commondir: zh_CN/common]"订单交易"[:commondir: zh_CN/common]{
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]use[:commondir: zh_CN/common]ase[:commondir: zh_CN/common]"新建订单"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]eate[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]use[:commondir: zh_CN/common]ase[:commondir: zh_CN/common]"提交订单"[:commondir: zh_CN/common]as[:commondir: zh_CN/common]sub[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]use[:commondir: zh_CN/common]ase[:commondir: zh_CN/common]"支付订单"[:commondir: zh_CN/common]as[:commondir: zh_CN/common]pay[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]use[:commondir: zh_CN/common]ase[:commondir: zh_CN/common]"取消订单"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common][:commondir: zh_CN/common]el[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]use[:commondir: zh_CN/common]ase[:commondir: zh_CN/common]"发货"[:commondir: zh_CN/common]as[:commondir: zh_CN/common]sta[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]el[:commondir: zh_CN/common]ve[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]use[:commondir: zh_CN/common]ase[:commondir: zh_CN/common]"交货"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]plete[:commondir: zh_CN/common][:commondir: zh_CN/common]el[:commondir: zh_CN/common]ve[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]use[:commondir: zh_CN/common]ase[:commondir: zh_CN/common]"结束订单"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]se[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]ease[:commondir: zh_CN/common]qua[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ty[:commondir: zh_CN/common]&lt;--[:commondir: zh_CN/common]sub[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+}
+[:commondir: zh_CN/common][:commondir: zh_CN/common]eate[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]&lt;--[:commondir: zh_CN/common][:commondir: zh_CN/common]ust[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+sub[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]&lt;--[:commondir: zh_CN/common][:commondir: zh_CN/common]ust[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+pay[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]&lt;--[:commondir: zh_CN/common][:commondir: zh_CN/common]ust[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+[:commondir: zh_CN/common]a[:commondir: zh_CN/common][:commondir: zh_CN/common]el[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]&lt;--[:commondir: zh_CN/common][:commondir: zh_CN/common]ust[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+sta[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]el[:commondir: zh_CN/common]ve[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]&lt;--[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ps
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]plete[:commondir: zh_CN/common][:commondir: zh_CN/common]el[:commondir: zh_CN/common]ve[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]&lt;--[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ps
+[:commondir: zh_CN/common]l[:commondir: zh_CN/common]se[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]&lt;--[:commondir: zh_CN/common][:commondir: zh_CN/common]ust[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+@e[:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]l</pre>
 </div>
-<div class="title">Figure 1. use cases</div>
 </div>
 <div class="paragraph">
 <p>整个业务由三个子业务组成：</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>商品目录营运</p>
-</li>
-<li>
-<p>仓储营运</p>
-</li>
-<li>
-<p>订单交易</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>*[:commondir: zh_CN/common]商品目录营运
+*[:commondir: zh_CN/common]仓储营运
+*[:commondir: zh_CN/common]订单交易</p>
 </div>
 <div class="paragraph">
 <p>业务参与者划分为四个⻆色：</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>商品目录运营</p>
-</li>
-<li>
-<p>仓储运营</p>
-</li>
-<li>
-<p>订单运营</p>
-</li>
-<li>
-<p>顾客</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>*[:commondir: zh_CN/common]商品目录运营
+*[:commondir: zh_CN/common]仓储运营
+*[:commondir: zh_CN/common]订单运营
+*[:commondir: zh_CN/common]顾客</p>
 </div>
 <div class="paragraph">
 <p>在商品目录营运子业务中，商品目录运营参与了三个用例：</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>新建商品。作为商品目录运营，其可以新建商品项。商品拥有名穪、图片等属性；</p>
-</li>
-<li>
-<p>修改商品。作为商品目录运营，其可以修改商品的名穪、图片等属性；</p>
-</li>
-<li>
-<p>删除商品。作为商品目录运营，其可以删除不再销售的商品。</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>*[:commondir: zh_CN/common]新建商品。作为商品目录运营，其可以新建商品项。商品拥有名穪、图片等属性；
+*[:commondir: zh_CN/common]修改商品。作为商品目录运营，其可以修改商品的名穪、图片等属性；
+*[:commondir: zh_CN/common]删除商品。作为商品目录运营，其可以删除不再销售的商品。</p>
 </div>
 <div class="paragraph">
 <p>在仓储营运子业务中，仓储运营参与了三个用例：</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>新建仓储项。作为仓储运营，其可以为每一项商品建立相应的仓储项，仓储项拥有单价、库存量等属性；</p>
-</li>
-<li>
-<p>入库。作为仓储运营，其可以增加任意仓储项的库存量；</p>
-</li>
-<li>
-<p>出库。作为仓储运营，其可以减少任意仓储项的库存量。</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>*[:commondir: zh_CN/common]新建仓储项。作为仓储运营，其可以为每一项商品建立相应的仓储项，仓储项拥有单价、库存量等属性；
+*[:commondir: zh_CN/common]入库。作为仓储运营，其可以增加任意仓储项的库存量；
+*[:commondir: zh_CN/common]出库。作为仓储运营，其可以减少任意仓储项的库存量。</p>
 </div>
 <div class="paragraph">
 <p>在订单交易子业务中，顾客与订单运营共同参与了七个用例：</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>新建订单。作为顾客，其可以新建订单。每个订单都可以包含若干订单项，每项指明了商品及购买数量；</p>
-</li>
-<li>
-<p>提交订单。作为顾客，其可以提交订单。订单一但被提交，将从仓储中消减相应仓储项的库存量；</p>
-</li>
-<li>
-<p>取消订单。作为顾客，其可以取消新建的订单；</p>
-</li>
-<li>
-<p>支付订单。作为顾客，其可以支付已提交的订单；</p>
-</li>
-<li>
-<p>发货。作为订单运营，其可以将已支付的订单标记为「已发货」；</p>
-</li>
-<li>
-<p>交货。作为订单运营，其可以在货物交至顾客手中之后将订单标记为「已交货」；</p>
-</li>
-<li>
-<p>结束订单。作为顾客，其可以在货物送逹后，结束订单。</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>*[:commondir: zh_CN/common]新建订单。作为顾客，其可以新建订单。每个订单都可以包含若干订单项，每项指明了商品及购买数量；
+*[:commondir: zh_CN/common]提交订单。作为顾客，其可以提交订单。订单一但被提交，将从仓储中消减相应仓储项的库存量；
+*[:commondir: zh_CN/common]取消订单。作为顾客，其可以取消新建的订单；
+*[:commondir: zh_CN/common]支付订单。作为顾客，其可以支付已提交的订单；
+*[:commondir: zh_CN/common]发货。作为订单运营，其可以将已支付的订单标记为「已发货」；
+*[:commondir: zh_CN/common]交货。作为订单运营，其可以在货物交至顾客手中之后将订单标记为「已交货」；
+*[:commondir: zh_CN/common]结束订单。作为顾客，其可以在货物送逹后，结束订单。</p>
 </div>
+<div class="paragraph">
+<p>==[:commondir: zh_CN/common]架构</p>
 </div>
-</div>
-<div class="sect1">
-<h2 id="架构">架构</h2>
-<div class="sectionbody">
 <div class="paragraph">
 <p>本应用採用微服务架构，同时应用API网关模式。</p>
 </div>
-<div class="sect2">
-<h3 id="微服务">微服务</h3>
-<div class="quoteblock">
-<blockquote>
 <div class="paragraph">
-<p>微服务（Microservices）是一种软体架构风格，它是以专注于单一责任与功能的小型功能区块（Small Building Blocks）为基础，利用模组化的方式组合出复杂的大型应用程式，各功能区块使用与语言无关（Language-Independent/Language agnostic）的 API 集相互通讯。</p>
+<p>===[:commondir: zh_CN/common]微服务</p>
 </div>
 <div class="paragraph">
-<p>微服务的起源是由 Peter Rodgers 博士于 2005 年度云端运算博览会提出的微 Web 服务（Micro-Web-Service）开始，Juval Löwy 则是与他有类似的前导想法，将类别变成细粒服务（granular services），以作为 Microsoft 下一阶段的软体架构，其核心想法是让服务是由类似 Unix 管道的存取方式使用，而且复杂的服务背后是使用简单 URI 来开放介面，任何服务，任何细粒都能被开放（exposed）。这个设计在 HP 的大田大金验室被实现，具有改变复杂软体系统的强大力量。</p>
+<p>[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]
+微服务（M[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]es）是一种软体架构风格，它是以专注于单一责任与功能的小型功能区块（S[:commondir: zh_CN/common]all[:commondir: zh_CN/common]Bu[:commondir: zh_CN/common]l[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]Bl[:commondir: zh_CN/common][:commondir: zh_CN/common]ks）为基础，利用模组化的方式组合出复杂的大型应用程式，各功能区块使用与语言无关（La[:commondir: zh_CN/common]guage-I[:commondir: zh_CN/common][:commondir: zh_CN/common]epe[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]La[:commondir: zh_CN/common]guage[:commondir: zh_CN/common]ag[:commondir: zh_CN/common][:commondir: zh_CN/common]st[:commondir: zh_CN/common][:commondir: zh_CN/common]）的[:commondir: zh_CN/common]API[:commondir: zh_CN/common]集相互通讯。</p>
 </div>
 <div class="paragraph">
-<p>2014年，Martin Fowler 与 James Lewis 共同提出了微服务的概念，定义了微服务是由以单一应用程式构成的小服务，自己拥有自己的行程与轻量化处理，服务依业务功能设计，以全自动的方式部署，与其他服务使用 HTTP API 通讯。同时服务会使用最小的规模的集中管理（例如 Docker）能力，服务可以用不同的程式语言与货料库等元作实作。</p>
-</div>
-</blockquote>
-<div class="attribution">
-&#8212; 微服务<br>
-<cite>https://zh.wikipedia.org/wiki/微服务</cite>
-</div>
-</div>
-<div class="quoteblock">
-<blockquote>
-<div class="paragraph">
-<p>微服务是一种以业务功能为主的服务设计概念，每一个服务都具有自主运行的业务功能，对外开放不受语言限制的 API（最常用的是 HTTP），应用程式则是由一个或多个微服务组成。</p>
+<p>微服务的起源是由[:commondir: zh_CN/common]Pete[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ge[:commondir: zh_CN/common]s[:commondir: zh_CN/common]博士于[:commondir: zh_CN/common]2005[:commondir: zh_CN/common]年度云端运算博览会提出的微[:commondir: zh_CN/common]Web[:commondir: zh_CN/common]服务（M[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-Web-Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e）开始，Juval[:commondir: zh_CN/common]Löwy[:commondir: zh_CN/common]则是与他有类似的前导想法，将类别变成细粒服务（g[:commondir: zh_CN/common]a[:commondir: zh_CN/common]ula[:commondir: zh_CN/common][:commondir: zh_CN/common]se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]es），以作为[:commondir: zh_CN/common]M[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]s[:commondir: zh_CN/common]ft[:commondir: zh_CN/common]下一阶段的软体架构，其核心想法是让服务是由类似[:commondir: zh_CN/common]U[:commondir: zh_CN/common][:commondir: zh_CN/common]x[:commondir: zh_CN/common]管道的存取方式使用，而且复杂的服务背后是使用简单[:commondir: zh_CN/common]U[:commondir: zh_CN/common]I[:commondir: zh_CN/common]来开放介面，任何服务，任何细粒都能被开放（exp[:commondir: zh_CN/common]se[:commondir: zh_CN/common]）。这个设计在[:commondir: zh_CN/common]HP[:commondir: zh_CN/common]的大田大金验室被实现，具有改变复杂软体系统的强大力量。</p>
 </div>
 <div class="paragraph">
-<p>微服务的另一个对比是单体式应用程式。单体式应用表示一个应用程式内包含了所有需要的业务功能，并且使用像主从式架构（Client/Server）或是多层次架构（N-tier）实作，虽然它也是能以分散式应用程序来实作，但是在单体式应用内，每一个业务功能是不可分割的。若要对单体式应用进行扩展则必须将整个应用程式都放到新的运算资源（如：虚拟机器）内，但事实上应用程式中最吃资源、需要运算资源的仅有某个业务部份（例如跑分析报表或是数学演算法分析），但因为单体式应用无法分割该部份，因此无形中会有大量的资源浪费的现象。</p>
+<p>2014年，Ma[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]F[:commondir: zh_CN/common]wle[:commondir: zh_CN/common][:commondir: zh_CN/common]与[:commondir: zh_CN/common]Ja[:commondir: zh_CN/common]es[:commondir: zh_CN/common]Lew[:commondir: zh_CN/common]s[:commondir: zh_CN/common]共同提出了微服务的概念，定义了微服务是由以单一应用程式构成的小服务，自己拥有自己的行程与轻量化处理，服务依业务功能设计，以全自动的方式部署，与其他服务使用[:commondir: zh_CN/common]H[:commondir: zh_CN/common][:commondir: zh_CN/common]P[:commondir: zh_CN/common]API[:commondir: zh_CN/common]通讯。同时服务会使用最小的规模的集中管理（例如[:commondir: zh_CN/common]D[:commondir: zh_CN/common][:commondir: zh_CN/common]ke[:commondir: zh_CN/common]）能力，服务可以用不同的程式语言与货料库等元作实作。
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]</p>
+</div>
+<div class="paragraph">
+<p>[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]
+微服务是一种以业务功能为主的服务设计概念，每一个服务都具有自主运行的业务功能，对外开放不受语言限制的[:commondir: zh_CN/common]API（最常用的是[:commondir: zh_CN/common]H[:commondir: zh_CN/common][:commondir: zh_CN/common]P），应用程式则是由一个或多个微服务组成。</p>
+</div>
+<div class="paragraph">
+<p>微服务的另一个对比是单体式应用程式。单体式应用表示一个应用程式内包含了所有需要的业务功能，并且使用像主从式架构（Cl[:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]Se[:commondir: zh_CN/common]ve[:commondir: zh_CN/common]）或是多层次架构（N-t[:commondir: zh_CN/common]e[:commondir: zh_CN/common]）实作，虽然它也是能以分散式应用程序来实作，但是在单体式应用内，每一个业务功能是不可分割的。若要对单体式应用进行扩展则必须将整个应用程式都放到新的运算资源（如：虚拟机器）内，但事实上应用程式中最吃资源、需要运算资源的仅有某个业务部份（例如跑分析报表或是数学演算法分析），但因为单体式应用无法分割该部份，因此无形中会有大量的资源浪费的现象。</p>
 </div>
 <div class="paragraph">
 <p>微服务运用了以业务功能的设计概念，应用程式在设计时就能先以业务功能或流程设计先行分割，将各个业务功能都独立实作成一个能自主执行的个体服务，然后再利用相同的协定将所有应用程式需要的服务都组合起来，形成一个应用程式。若需要针对特定业务功能进行扩充时，祗要对该业务功能的服务进行扩展就好，不需要整个应用程式都扩展，同时，由于微服务是以业务功能导向的实作，因此不会受到应用程式的干扰，微服务的管理员可以视运算资源的需要来组态微服务到不同的运算资源内，或是布建新的运算资源并将它组态进去。</p>
 </div>
 <div class="paragraph">
-<p>虽然使用一般的伺服器虚拟化技术就能应用于微服务的管理，但容器技术（Container Technology）如 Docker 会更加地适合发展微服务的运算资源管理技术。</p>
-</div>
-</blockquote>
-<div class="attribution">
-&#8212; 微服务<br>
-<cite>https://zh.wikipedia.org/wiki/微服务</cite>
-</div>
+<p>虽然使用一般的伺服器虚拟化技术就能应用于微服务的管理，但容器技术（C[:commondir: zh_CN/common][:commondir: zh_CN/common]ta[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]gy）如[:commondir: zh_CN/common]D[:commondir: zh_CN/common][:commondir: zh_CN/common]ke[:commondir: zh_CN/common][:commondir: zh_CN/common]会更加地适合发展微服务的运算资源管理技术。
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]</p>
 </div>
 <div class="paragraph">
-<p>总体业务分为三个部份：商品目录营运、仓储营运和订单交易，每部份业务分别实现为一个微服务：Catalog Service, Inventory Service 和 Order Service。</p>
+<p>总体业务分为三个部份：商品目录营运、仓储营运和订单交易，每部份业务分别实现为一个微服务：Catal[:commondir: zh_CN/common]g[:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e,[:commondir: zh_CN/common]I[:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]和[:commondir: zh_CN/common]O[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e。</p>
 </div>
-<div class="imageblock">
+<div class="literalblock">
+<div class="title">Map[:commondir: zh_CN/common]B[:commondir: zh_CN/common]u[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]C[:commondir: zh_CN/common][:commondir: zh_CN/common]text[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e</div>
 <div class="content">
-<img src="../images/diag-a479f935e6973fd643077a4fe5f59b50.png" alt="diag a479f935e6973fd643077a4fe5f59b50" width="337" height="226">
+<pre>@sta[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]l
+left[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]
+f[:commondir: zh_CN/common]a[:commondir: zh_CN/common]e[:commondir: zh_CN/common]"商品目录营运"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common]atal[:commondir: zh_CN/common]gC[:commondir: zh_CN/common][:commondir: zh_CN/common]text[:commondir: zh_CN/common]{
+}
+f[:commondir: zh_CN/common]a[:commondir: zh_CN/common]e[:commondir: zh_CN/common]"仓储营运"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]yC[:commondir: zh_CN/common][:commondir: zh_CN/common]text[:commondir: zh_CN/common]{
+}
+f[:commondir: zh_CN/common]a[:commondir: zh_CN/common]e[:commondir: zh_CN/common]"订单交易"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]C[:commondir: zh_CN/common][:commondir: zh_CN/common]text[:commondir: zh_CN/common]{
+}
+
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]"Catal[:commondir: zh_CN/common]g[:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common]atal[:commondir: zh_CN/common]g
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]"I[:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]"O[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+
+[:commondir: zh_CN/common]atal[:commondir: zh_CN/common]gC[:commondir: zh_CN/common][:commondir: zh_CN/common]text[:commondir: zh_CN/common]--[:commondir: zh_CN/common][:commondir: zh_CN/common]atal[:commondir: zh_CN/common]g
+[:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]yC[:commondir: zh_CN/common][:commondir: zh_CN/common]text[:commondir: zh_CN/common]--[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]C[:commondir: zh_CN/common][:commondir: zh_CN/common]text[:commondir: zh_CN/common]--[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+@e[:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]l</pre>
 </div>
-<div class="title">Figure 2. Map Bounded Context to Service</div>
 </div>
 <div class="paragraph">
-<p>每个微服务有维护独立的数据库。微服务以RESTFul API的形式向外曝露服务，同时微服务与微服务之间也通过 RESTFul API 通信。</p>
+<p>每个微服务有维护独立的数据库。微服务以[:commondir: zh_CN/common]ES[:commondir: zh_CN/common]Ful[:commondir: zh_CN/common]API的形式向外曝露服务，同时微服务与微服务之间也通过[:commondir: zh_CN/common][:commondir: zh_CN/common]ES[:commondir: zh_CN/common]Ful[:commondir: zh_CN/common]API[:commondir: zh_CN/common]通信。</p>
 </div>
-<div class="imageblock">
+<div class="literalblock">
+<div class="title">M[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]es[:commondir: zh_CN/common]A[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]te[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]e</div>
 <div class="content">
-<img src="../images/diag-6bad0d2a286ea1ebb9f7a942a61cd91b.png" alt="diag 6bad0d2a286ea1ebb9f7a942a61cd91b" width="462" height="268">
-</div>
-<div class="title">Figure 3. Microservices Architecture</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="api-网关模式">API 网关模式</h3>
-<div class="quoteblock">
-<blockquote>
-<div class="paragraph">
-<p>使用多个客户端应用来设计和生成基于微服务的大型复杂应用程序时， API 网关是非常不错的方法。这一服务可为某些微服务组提供单一入口点。这类似于面向对象设计的外观模式，但在此情况下，它是分佈式系统的一部份。因为构建时考虑了客户端应用的需求，所以 API 网关模式有时也穪为"用于前端的后端"（BFF）。</p>
-</div>
-<div class="paragraph">
-<p>因此，API 网关位于客户端应用和微服务之间。它充当反向代理，将请求从客户端路由到服务。它还可以提供其他跨领域功能，例如身份验证、SSL 终止和缓存。</p>
-</div>
-</blockquote>
-<div class="attribution">
-&#8212; API 网关模式与客户端到微服务直接通信<br>
-<cite>https://docs.microsoft.com/zh-cn/dotnet/architecture/microservices/architect-microservice-container-applications/direct-client-to-microservice-communication-versus-the-api-gateway-pattern</cite>
-</div>
-</div>
-<div class="quoteblock">
-<blockquote>
-<div class="paragraph">
-<p>API 网关可以提供多个功能。然而，根据产品，它可能提供更丰富或更简单的功能，任何 API 网关最重要和最基本的功能都採用以下设计模式：</p>
-</div>
-<div class="paragraph">
-<p>反向代理或网关路由。API 网关提供一个反向代理将请求（第 7 层路由，通常是 HTTP 请求）重定向或路由到内部微服务的终结点。网关为客户端应用提供单个终结点或 URL，然后将请求映射到一组内部服务。此路由功能有助于将客户端应用从微服务中分离出来；而且在升级整体式 API 服务时，将 API 网关置于整体式 API 服务和客户端应用之间，操作会变得非常方便，然后可以添加新的 API 作为新的微服务，同时仍然可以使用整体式 API 服务，直到将来它拆分成多个微服务为止。由于 API 网关，客户端应用不会注意到所使用 API 是否已实现为内部微服务或整体式 API，更重要的是，当对整体式 API 进行演进并将其重构为微服务时，得益于 API 网关路由，任何 URI 更改土心山一不会对客户端应用造成影响。</p>
-</div>
-<div class="paragraph">
-<p>请求聚合。作为网关模式的一部份，你可以将多个针对多个内部微服务的客户端请求（通常是 HTTP 请求）聚合到单个客户端请求中。如果客户端页面/屏幕需要来算多个微服务的信息，此模式特别方便。通过这种方法，客户端应用向 API 网关发送一个单一请求，该网关向内部微服务发送多个请求，然后聚合结果，并将所有内容发送回客户端应用。这种设计模式的主要优势和目标是减少客户端应用和后端 API 之间的隔阂，这对于微服务所在的数据中心中的远程应用至关重要，如移动应用或来算客户端远程浏览器 Javascript 的 SPA 应用发出的请求。对于在服务器环境中执行请求的常规 Web 应用（如 ASP.NET Core MVC Web 应用），这种模式并不重要，因为延迟时间比远程客户端应用要小得多。</p>
-</div>
-<div class="paragraph">
-<p>跨领域问题或网关卸载。根据每个 API 网关产品提供的功能，你可以将功能从单个微服务转移到网关，从而通过将跨领域问题整合到一个层级中来简化每个微服务的实现。这对于在每个内部微服务中难以正确实现的特殊功能而言特别方便，比如以下功能：</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>身份验证和授权</p>
-</li>
-<li>
-<p>服务发现集成</p>
-</li>
-<li>
-<p>响应缓存</p>
-</li>
-<li>
-<p>重试策略、断路器和 QoS</p>
-</li>
-<li>
-<p>速率限制和遏制</p>
-</li>
-<li>
-<p>负载均衡</p>
-</li>
-<li>
-<p>日志记录、跟踪、相关性</p>
-</li>
-<li>
-<p>标头、查询字符串和声明转换</p>
-</li>
-<li>
-<p>IP 允许列表</p>
-</li>
-</ul>
-</div>
-</blockquote>
-<div class="attribution">
-&#8212; API 网关模式与客户端到微服务直接通信<br>
-<cite>https://docs.microsoft.com/zh-cn/dotnet/architecture/microservices/architect-microservice-container-applications/direct-client-to-microservice-communication-versus-the-api-gateway-pattern</cite>
+<pre>@sta[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]l
+b[:commondir: zh_CN/common]u[:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]y[:commondir: zh_CN/common]"API[:commondir: zh_CN/common]Gateway"[:commondir: zh_CN/common]as[:commondir: zh_CN/common]gateway
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]"Catal[:commondir: zh_CN/common]g[:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common]atal[:commondir: zh_CN/common]g
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]"I[:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]"O[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+[:commondir: zh_CN/common]atabase[:commondir: zh_CN/common]"Catal[:commondir: zh_CN/common]g[:commondir: zh_CN/common]DB"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common]atal[:commondir: zh_CN/common]gDB
+[:commondir: zh_CN/common]atabase[:commondir: zh_CN/common]"I[:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common]DB"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]yDB
+[:commondir: zh_CN/common]atabase[:commondir: zh_CN/common]"O[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]DB"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]DB
+
+gateway[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common]atal[:commondir: zh_CN/common]g
+gateway[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y
+gateway[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]-&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y
+
+[:commondir: zh_CN/common]atal[:commondir: zh_CN/common]g[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common]atal[:commondir: zh_CN/common]gDB
+[:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]yDB
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]DB
+@e[:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]l</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>本应用採用 API 网关模式实现网关路由及身份验证、服务发现集成、负载均衡等跨领域问题。</p>
+<p>===[:commondir: zh_CN/common]API[:commondir: zh_CN/common]网关模式</p>
 </div>
-<div class="imageblock">
+<div class="paragraph">
+<p>[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]
+使用多个客户端应用来设计和生成基于微服务的大型复杂应用程序时，[:commondir: zh_CN/common]API[:commondir: zh_CN/common]网关是非常不错的方法。这一服务可为某些微服务组提供单一入口点。这类似于面向对象设计的外观模式，但在此情况下，它是分佈式系统的一部份。因为构建时考虑了客户端应用的需求，所以[:commondir: zh_CN/common]API[:commondir: zh_CN/common]网关模式有时也穪为"用于前端的后端"（BFF）。</p>
+</div>
+<div class="paragraph">
+<p>因此，API[:commondir: zh_CN/common]网关位于客户端应用和微服务之间。它充当反向代理，将请求从客户端路由到服务。它还可以提供其他跨领域功能，例如身份验证、SSL[:commondir: zh_CN/common]终止和缓存。
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]</p>
+</div>
+<div class="paragraph">
+<p>[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]
+API[:commondir: zh_CN/common]网关可以提供多个功能。然而，根据产品，它可能提供更丰富或更简单的功能，任何[:commondir: zh_CN/common]API[:commondir: zh_CN/common]网关最重要和最基本的功能都採用以下设计模式：</p>
+</div>
+<div class="paragraph">
+<p>反向代理或网关路由。API[:commondir: zh_CN/common]网关提供一个反向代理将请求（第[:commondir: zh_CN/common]7[:commondir: zh_CN/common]层路由，通常是[:commondir: zh_CN/common]H[:commondir: zh_CN/common][:commondir: zh_CN/common]P[:commondir: zh_CN/common]请求）重定向或路由到内部微服务的终结点。网关为客户端应用提供单个终结点或[:commondir: zh_CN/common]U[:commondir: zh_CN/common]L，然后将请求映射到一组内部服务。此路由功能有助于将客户端应用从微服务中分离出来；而且在升级整体式[:commondir: zh_CN/common]API[:commondir: zh_CN/common]服务时，将[:commondir: zh_CN/common]API[:commondir: zh_CN/common]网关置于整体式[:commondir: zh_CN/common]API[:commondir: zh_CN/common]服务和客户端应用之间，操作会变得非常方便，然后可以添加新的[:commondir: zh_CN/common]API[:commondir: zh_CN/common]作为新的微服务，同时仍然可以使用整体式[:commondir: zh_CN/common]API[:commondir: zh_CN/common]服务，直到将来它拆分成多个微服务为止。由于[:commondir: zh_CN/common]API[:commondir: zh_CN/common]网关，客户端应用不会注意到所使用[:commondir: zh_CN/common]API[:commondir: zh_CN/common]是否已实现为内部微服务或整体式[:commondir: zh_CN/common]API，更重要的是，当对整体式[:commondir: zh_CN/common]API[:commondir: zh_CN/common]进行演进并将其重构为微服务时，得益于[:commondir: zh_CN/common]API[:commondir: zh_CN/common]网关路由，任何[:commondir: zh_CN/common]U[:commondir: zh_CN/common]I[:commondir: zh_CN/common]更改土心山一不会对客户端应用造成影响。</p>
+</div>
+<div class="paragraph">
+<p>请求聚合。作为网关模式的一部份，你可以将多个针对多个内部微服务的客户端请求（通常是[:commondir: zh_CN/common]H[:commondir: zh_CN/common][:commondir: zh_CN/common]P[:commondir: zh_CN/common]请求）聚合到单个客户端请求中。如果客户端页面[:commondir: zh_CN/common]屏幕需要来算多个微服务的信息，此模式特别方便。通过这种方法，客户端应用向[:commondir: zh_CN/common]API[:commondir: zh_CN/common]网关发送一个单一请求，该网关向内部微服务发送多个请求，然后聚合结果，并将所有内容发送回客户端应用。这种设计模式的主要优势和目标是减少客户端应用和后端[:commondir: zh_CN/common]API[:commondir: zh_CN/common]之间的隔阂，这对于微服务所在的数据中心中的远程应用至关重要，如移动应用或来算客户端远程浏览器[:commondir: zh_CN/common]Javas[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]pt[:commondir: zh_CN/common]的[:commondir: zh_CN/common]SPA[:commondir: zh_CN/common]应用发出的请求。对于在服务器环境中执行请求的常规[:commondir: zh_CN/common]Web[:commondir: zh_CN/common]应用（如[:commondir: zh_CN/common]ASP.NE[:commondir: zh_CN/common][:commondir: zh_CN/common]C[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]MVC[:commondir: zh_CN/common]Web[:commondir: zh_CN/common]应用），这种模式并不重要，因为延迟时间比远程客户端应用要小得多。</p>
+</div>
+<div class="paragraph">
+<p>跨领域问题或网关卸载。根据每个[:commondir: zh_CN/common]API[:commondir: zh_CN/common]网关产品提供的功能，你可以将功能从单个微服务转移到网关，从而通过将跨领域问题整合到一个层级中来简化每个微服务的实现。这对于在每个内部微服务中难以正确实现的特殊功能而言特别方便，比如以下功能：</p>
+</div>
+<div class="paragraph">
+<p>*[:commondir: zh_CN/common]身份验证和授权
+*[:commondir: zh_CN/common]服务发现集成
+*[:commondir: zh_CN/common]响应缓存
+*[:commondir: zh_CN/common]重试策略、断路器和[:commondir: zh_CN/common]Q[:commondir: zh_CN/common]S
+*[:commondir: zh_CN/common]速率限制和遏制
+*[:commondir: zh_CN/common]负载均衡
+*[:commondir: zh_CN/common]日志记录、跟踪、相关性
+*[:commondir: zh_CN/common]标头、查询字符串和声明转换
+*[:commondir: zh_CN/common]IP[:commondir: zh_CN/common]允许列表
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]</p>
+</div>
+<div class="paragraph">
+<p>本应用採用[:commondir: zh_CN/common]API[:commondir: zh_CN/common]网关模式实现网关路由及身份验证、服务发现集成、负载均衡等跨领域问题。</p>
+</div>
+<div class="literalblock">
+<div class="title">Depl[:commondir: zh_CN/common]y[:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]A[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]te[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]e</div>
 <div class="content">
-<img src="../images/diag-20fe376f836d9a8487e98a89eb84e19e.png" alt="diag 20fe376f836d9a8487e98a89eb84e19e" width="531" height="443">
+<pre>@sta[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]l
+a[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]use[:commondir: zh_CN/common]
+[:commondir: zh_CN/common]l[:commondir: zh_CN/common]u[:commondir: zh_CN/common][:commondir: zh_CN/common]{
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]b[:commondir: zh_CN/common]u[:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]y[:commondir: zh_CN/common]"API[:commondir: zh_CN/common]Gateway"[:commondir: zh_CN/common]as[:commondir: zh_CN/common]gateway
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]"Catal[:commondir: zh_CN/common]g[:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common]atal[:commondir: zh_CN/common]g
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]"I[:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]"O[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]Se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]e"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]atabase[:commondir: zh_CN/common]"Catal[:commondir: zh_CN/common]g[:commondir: zh_CN/common]DB"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common]atal[:commondir: zh_CN/common]gDB
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]atabase[:commondir: zh_CN/common]"I[:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common]DB"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]yDB
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]atabase[:commondir: zh_CN/common]"O[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]DB"[:commondir: zh_CN/common]as[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]DB
+
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]gateway[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common]atal[:commondir: zh_CN/common]g
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]gateway[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]gateway[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]
+
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]-&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y
+
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]atal[:commondir: zh_CN/common]g[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common]atal[:commondir: zh_CN/common]gDB
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]y[:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ve[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]yDB
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]DB
+}
+use[:commondir: zh_CN/common][:commondir: zh_CN/common]--&gt;[:commondir: zh_CN/common]gateway
+@e[:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]l</pre>
 </div>
-<div class="title">Figure 4. Deployment Architecture</div>
 </div>
+<div class="paragraph">
+<p>==[:commondir: zh_CN/common]参考</p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="参考">参考</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p><a href="https://www.omg.org/spec/UML/2.5.1/PDF">OMG® Unified Modeling Language® (OMG UML®)</a></p>
-</li>
-<li>
-<p><a href="https://zh.wikipedia.org/wiki/微服务">微服务</a></p>
-</li>
-</ul>
-</div>
-</div>
+<div class="paragraph">
+<p>*[:commondir: zh_CN/common][:commondir: zh_CN/common]ttps[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]www.[:commondir: zh_CN/common][:commondir: zh_CN/common]g.[:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]spe[:commondir: zh_CN/common][:commondir: zh_CN/common]UML[:commondir: zh_CN/common]2.5.1[:commondir: zh_CN/common]PDF[OMG®[:commondir: zh_CN/common]U[:commondir: zh_CN/common][:commondir: zh_CN/common]f[:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]M[:commondir: zh_CN/common][:commondir: zh_CN/common]el[:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]La[:commondir: zh_CN/common]guage®[:commondir: zh_CN/common](OMG[:commondir: zh_CN/common]UML®)]
+*[:commondir: zh_CN/common][:commondir: zh_CN/common]ttps[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].w[:commondir: zh_CN/common]k[:commondir: zh_CN/common]pe[:commondir: zh_CN/common][:commondir: zh_CN/common]a.[:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]w[:commondir: zh_CN/common]k[:commondir: zh_CN/common][:commondir: zh_CN/common]微服务[微服务]</p>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1<br>
-Last updated 2020-09-27 05:55:07 UTC
+Last updated 2020-09-27 05:58:13 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">

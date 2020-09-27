@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>工具设置</title>
+<title>Untitled</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,518 +437,284 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article toc2 toc-left">
+<body class="article">
 <div id="header">
-<h1>工具设置</h1>
-<div class="details">
-<span id="revnumber">version 0.0.1</span>
-</div>
-<div id="toc" class="toc2">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#概述">概述</a></li>
-<li><a href="#java-development-kit-jdk">Java Development Kit (JDK)</a>
-<ul class="sectlevel2">
-<li><a href="#在-windows-上安装-oracle-jdk">在 Windows 上安装 Oracle JDK</a></li>
-<li><a href="#在-macos-上安装-oracle-jdk">在 macOS 上安装 Oracle JDK</a></li>
-<li><a href="#在-ubuntu-linux-上安装-oracle-jdk">在 Ubuntu Linux 上安装 Oracle JDK</a></li>
-</ul>
-</li>
-<li><a href="#intellij-idea">Intellij IDEA</a>
-<ul class="sectlevel2">
-<li><a href="#在-window-上安装-intellij-idea">在 Window 上安装 IntelliJ IDEA</a></li>
-<li><a href="#在-macos-上安装-intellij-idea">在 MacOS 上安装 IntelliJ IDEA</a></li>
-<li><a href="#在-ubuntu-linux-上安装-intellij-idea">在 Ubuntu Linux 上安装 IntelliJ IDEA</a></li>
-</ul>
-</li>
-<li><a href="#docker">Docker</a>
-<ul class="sectlevel2">
-<li><a href="#在-window-上安装-docker">在 Window 上安装 Docker</a></li>
-<li><a href="#在-macos-上安装-docker">在 MacOS 上安装 Docker</a></li>
-<li><a href="#在-ubuntu-linux-上安装-docker">在 Ubuntu Linux 上安装 Docker</a></li>
-</ul>
-</li>
-<li><a href="#hello-world">Hello World</a></li>
-<li><a href="#参考">参考</a></li>
-</ul>
-</div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="概述">概述</h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>本章介绍在 MacOS, Windows 和 Ubuntu Linux 三个主流操作系统上安装设置开发所需的 SDK 和工具。我们所需的 SDK 和工具包括：</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Java Development Kit (JDK) 1.8 及以上</p>
-</li>
-<li>
-<p>Intellij IDEA</p>
-</li>
-<li>
-<p>Docker</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="java-development-kit-jdk">Java Development Kit (JDK)</h2>
-<div class="sectionbody">
-<div class="quoteblock">
-<blockquote>
-<div class="paragraph">
-<p>Java Development Kit（JDK）是昇阳电脑针对 Java 开发人员发布的免费软体开发套件（SDK，Software development kit）。自从 Java 推出以来，JDK 已经成为使用最广泛的 Java SDK。由于 JDK 的一部份特性採用商业许可证，而非开源。因此，2006年昇阳电脑宣布将发布基于 GPL 的开源 JDK，使 JDK 成为自由软体。在去掉了少量闭源特性之后，昇阳电脑最终促成了 GPL 的 OpenJDK 的发布。</p>
-</div>
-</blockquote>
-<div class="attribution">
-&#8212; JDK<br>
-<cite>https://zh.wikipedia.org/wiki/JDK</cite>
-</div>
-</div>
-<div class="quoteblock">
-<blockquote>
-<div class="paragraph">
-<p>JDK 包含了一批用于 Java 开发的组件，其中包括：</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>javac：编译器，将字尾名为「.java」的原始码编译成字尾名为「.class」的位元组码</p>
-</li>
-<li>
-<p>java：执行工具，执行「.class」的位元组码</p>
-</li>
-<li>
-<p>jar：打包工具，将相关的类档案打包成一个档案</p>
-</li>
-<li>
-<p>javadoc：文件生成器，从原始码注释中提取文件，注释需符合规范</p>
-</li>
-<li>
-<p>jdb debugger：除错工具</p>
-</li>
-<li>
-<p>jps：显示当前 Java 程式执行的行程状态</p>
-</li>
-<li>
-<p>javap：反编译程式</p>
-</li>
-<li>
-<p>appletviewer：执行和除错 applet 程式的工具，不需要使用浏览器</p>
-</li>
-<li>
-<p>javah：从 Java 类别生成 C 标头档和 C 原始档。这些档案提供了连接胶合，使 Java 和 C 代码可进行互动</p>
-</li>
-<li>
-<p>javaws：执行 JNLP 程式</p>
-</li>
-<li>
-<p>extcheck：一个检测 jar 包冲突的工具</p>
-</li>
-<li>
-<p>apt：注释处理工具</p>
-</li>
-<li>
-<p>jhat：Java 堆分析工具</p>
-</li>
-<li>
-<p>jstack：栈跟踪程式</p>
-</li>
-<li>
-<p>jstat：JVM 检测统计工具</p>
-</li>
-<li>
-<p>jstatd：jstat 守护行程</p>
-</li>
-<li>
-<p>jinfo：取得正在执行或崩溃的 Java 程式组态资讯</p>
-</li>
-<li>
-<p>jmap：取得 Java 行程记忆体对映资讯</p>
-</li>
-<li>
-<p>idlj：IDL-to-Java 编释器。将 IDL 语言转化为 Java 档案</p>
-</li>
-<li>
-<p>policytool：一个 GUI 的策略档案建立和管理工具</p>
-</li>
-<li>
-<p>jrunscript：命令行指令码执行</p>
-</li>
-</ul>
+<p>=[:commondir: zh_CN/common]工具设置
+[:commondir: zh_CN/common]f[:commondir: zh_CN/common][:commondir: zh_CN/common]ef[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ages[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ages[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ages]
+[:commondir: zh_CN/common]f[:commondir: zh_CN/common][:commondir: zh_CN/common]ef[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]]</p>
 </div>
 <div class="paragraph">
-<p>JDK 中还包括完整的 JRE（Java Runtime Environment），Java 执行环境，也被穪为 private runtime。包括了用于产品环境的各种库类，如基础类别馆 rt.jar，以及给开发人员使用的补充库，如国际化与在地化的类别馆、IDL 库等等。</p>
+<p>==[:commondir: zh_CN/common]概述</p>
 </div>
 <div class="paragraph">
-<p>JDK 中还包括各种样常式序，用以展示 Java API 中的各部份。</p>
-</div>
-</blockquote>
-<div class="attribution">
-&#8212; JDK<br>
-<cite>https://zh.wikipedia.org/wiki/JDK</cite>
-</div>
+<p>本章介绍在[:commondir: zh_CN/common]Ma[:commondir: zh_CN/common]OS,[:commondir: zh_CN/common]W[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ws[:commondir: zh_CN/common]和[:commondir: zh_CN/common]Ubu[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]L[:commondir: zh_CN/common][:commondir: zh_CN/common]ux[:commondir: zh_CN/common]三个主流操作系统上安装设置开发所需的[:commondir: zh_CN/common]SDK[:commondir: zh_CN/common]和工具。我们所需的[:commondir: zh_CN/common]SDK[:commondir: zh_CN/common]和工具包括：</p>
 </div>
 <div class="paragraph">
-<p>当前市面上主流的 JDK 实现有 Oracle JDK 和 OpenJDK。两者皆源自昇阳电脑「Sun Microsustems」。Oracle JDK并非完全开源，Oracle公司通过收购获得其所有权。OpenJDK是採用 GPL 的完全开源实现。本文使用 Oracle JDK。</p>
-</div>
-<div class="quoteblock">
-<blockquote>
-<div class="paragraph">
-<p>Java 语这自 JDK 1.0 版本以来经历了许多次更新，也在基本程式库中增加了大量的类别和套件。从 J2SE 1.4 开始，Java 语这的变动由 Java Community Process（JCP）管理，JCP 使用 Java 规范请求（Java Specification Requests，JSRs）来建议和定义对 Java 平台内容的新增和修改。Java 语言由 Java 语言规范（Java Language Specification，JLS）定义，对 JLS 的更改则根据 JSR 901 管理。</p>
+<p>*[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]Devel[:commondir: zh_CN/common]p[:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]K[:commondir: zh_CN/common]t[:commondir: zh_CN/common](JDK)[:commondir: zh_CN/common]1.8[:commondir: zh_CN/common]及以上
+*[:commondir: zh_CN/common]I[:commondir: zh_CN/common]tell[:commondir: zh_CN/common]j[:commondir: zh_CN/common]IDEA[:commondir: zh_CN/common]
+*[:commondir: zh_CN/common]D[:commondir: zh_CN/common][:commondir: zh_CN/common]ke[:commondir: zh_CN/common]</p>
 </div>
 <div class="paragraph">
-<p>除了语言上的变化，多年来 Java 标准库（JCL）发生了巨大的变化，从 JDK 1.0 中的几百个类暴增到 J2SE 5 中的三千多个类。Swing、Java2D 等全新 API 被加入其中，而许多原本 JDK 1.0 的类和方法已被弃用。当然，仍然有一些程式可以将 Java 程式从新版本的 Java 平台转换为较旧版本（例如 Java 5.0 降转到 1.4）。</p>
+<p>==[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]Devel[:commondir: zh_CN/common]p[:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]K[:commondir: zh_CN/common]t[:commondir: zh_CN/common](JDK)</p>
 </div>
 <div class="paragraph">
-<p>Java 7 发布后，Oracle 承诺回到以前每两年发布一次的发布週期。但在2013年时，Oracle 却宣布他们将 Java 8 延迟一年发表，官方表示是为了修复 Java 的安全漏洞。</p>
+<p>[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]
+Java[:commondir: zh_CN/common]Devel[:commondir: zh_CN/common]p[:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]K[:commondir: zh_CN/common]t（JDK）是昇阳电脑针对[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]开发人员发布的免费软体开发套件（SDK，S[:commondir: zh_CN/common]ftwa[:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]evel[:commondir: zh_CN/common]p[:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]k[:commondir: zh_CN/common]t）。自从[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]推出以来，JDK[:commondir: zh_CN/common]已经成为使用最广泛的[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]SDK。由于[:commondir: zh_CN/common]JDK[:commondir: zh_CN/common]的一部份特性採用商业许可证，而非开源。因此，2006年昇阳电脑宣布将发布基于[:commondir: zh_CN/common]GPL[:commondir: zh_CN/common]的开源[:commondir: zh_CN/common]JDK，使[:commondir: zh_CN/common]JDK[:commondir: zh_CN/common]成为自由软体。在去掉了少量闭源特性之后，昇阳电脑最终促成了[:commondir: zh_CN/common]GPL[:commondir: zh_CN/common]的[:commondir: zh_CN/common]Ope[:commondir: zh_CN/common]JDK[:commondir: zh_CN/common]的发布。
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]</p>
 </div>
 <div class="paragraph">
-<p>2017年9月，Java 平台的主架构师 Mark Reinhold 发出提议，要求将 Java 的功能更新週期从之前的每两年一个新版本缩减到每六个月一个新版本。该提议获得了通过，并在提出后不久生效。</p>
+<p>[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]
+JDK[:commondir: zh_CN/common]包含了一批用于[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]开发的组件，其中包括：</p>
 </div>
 <div class="paragraph">
-<p>Java 8 与 Java 11 为目前提供支援的 LTS（长期支援）版本；Java 10 是上一个快速发布版本，且不再被支援。2018年9月，随着 Java 11 的发布，Java 10 自当日起不再被支援。Oracle 将在2019年1月前为商业用途的 Java 8 长期支援，而针对非商用的更新将继续提供，直至2020年12月；此外，AdpotOpenJDK 也为 Java 8 提供免费更新。针对 Java 11 的长期支援将不再由 Oracle 提供，而是改由 OpenJDK 社区的 AdoptOpenJDK 提供。</p>
-</div>
-</blockquote>
-<div class="attribution">
-&#8212; Java 版本历史<br>
-<cite>https://zh.wikipedia.org/wiki/Java版本历史</cite>
-</div>
-</div>
-<div class="paragraph">
-<p>综合考量特性和支援，本文选用最后一个由 Oracle 提供长期支持的 Java 8。</p>
-</div>
-<div class="sect2">
-<h3 id="在-windows-上安装-oracle-jdk">在 Windows 上安装 Oracle JDK</h3>
-<div class="paragraph">
-<p>TBD</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="在-macos-上安装-oracle-jdk">在 macOS 上安装 Oracle JDK</h3>
-<div class="paragraph">
-<p>TBD</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="在-ubuntu-linux-上安装-oracle-jdk">在 Ubuntu Linux 上安装 Oracle JDK</h3>
-<div class="paragraph">
-<p>TBD</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="intellij-idea">Intellij IDEA</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>IntellJ IDEA 是一种商业化销售的 Java 整合式开发环境（Integrated Development Environment，IDE）工具软体，由 JetBrains 软体公司（前穪 IntellijJ）开发，提供 Apache 2.0 开放式授权的社区版本以及专有软体的商业版本，开发者可选择其所需来下载使用。</p>
+<p>*[:commondir: zh_CN/common]java[:commondir: zh_CN/common]：编译器，将字尾名为「.java」的原始码编译成字尾名为「.[:commondir: zh_CN/common]lass」的位元组码
+*[:commondir: zh_CN/common]java：执行工具，执行「.[:commondir: zh_CN/common]lass」的位元组码
+*[:commondir: zh_CN/common]ja[:commondir: zh_CN/common]：打包工具，将相关的类档案打包成一个档案
+*[:commondir: zh_CN/common]java[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]：文件生成器，从原始码注释中提取文件，注释需符合规范
+*[:commondir: zh_CN/common]j[:commondir: zh_CN/common]b[:commondir: zh_CN/common][:commondir: zh_CN/common]ebugge[:commondir: zh_CN/common]：除错工具
+*[:commondir: zh_CN/common]jps：显示当前[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]程式执行的行程状态
+*[:commondir: zh_CN/common]javap：反编译程式
+*[:commondir: zh_CN/common]appletv[:commondir: zh_CN/common]ewe[:commondir: zh_CN/common]：执行和除错[:commondir: zh_CN/common]applet[:commondir: zh_CN/common]程式的工具，不需要使用浏览器
+*[:commondir: zh_CN/common]java[:commondir: zh_CN/common]：从[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]类别生成[:commondir: zh_CN/common]C[:commondir: zh_CN/common]标头档和[:commondir: zh_CN/common]C[:commondir: zh_CN/common]原始档。这些档案提供了连接胶合，使[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]和[:commondir: zh_CN/common]C[:commondir: zh_CN/common]代码可进行互动
+*[:commondir: zh_CN/common]javaws：执行[:commondir: zh_CN/common]JNLP[:commondir: zh_CN/common]程式
+*[:commondir: zh_CN/common]ext[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]k：一个检测[:commondir: zh_CN/common]ja[:commondir: zh_CN/common][:commondir: zh_CN/common]包冲突的工具
+*[:commondir: zh_CN/common]apt：注释处理工具
+*[:commondir: zh_CN/common]j[:commondir: zh_CN/common]at：Java[:commondir: zh_CN/common]堆分析工具
+*[:commondir: zh_CN/common]jsta[:commondir: zh_CN/common]k：栈跟踪程式
+*[:commondir: zh_CN/common]jstat：JVM[:commondir: zh_CN/common]检测统计工具
+*[:commondir: zh_CN/common]jstat[:commondir: zh_CN/common]：jstat[:commondir: zh_CN/common]守护行程
+*[:commondir: zh_CN/common]j[:commondir: zh_CN/common][:commondir: zh_CN/common]f[:commondir: zh_CN/common]：取得正在执行或崩溃的[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]程式组态资讯
+*[:commondir: zh_CN/common]j[:commondir: zh_CN/common]ap：取得[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]行程记忆体对映资讯
+*[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]lj：IDL-t[:commondir: zh_CN/common]-Java[:commondir: zh_CN/common]编释器。将[:commondir: zh_CN/common]IDL[:commondir: zh_CN/common]语言转化为[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]档案
+*[:commondir: zh_CN/common]p[:commondir: zh_CN/common]l[:commondir: zh_CN/common][:commondir: zh_CN/common]yt[:commondir: zh_CN/common][:commondir: zh_CN/common]l：一个[:commondir: zh_CN/common]GUI[:commondir: zh_CN/common]的策略档案建立和管理工具
+*[:commondir: zh_CN/common]j[:commondir: zh_CN/common]u[:commondir: zh_CN/common]s[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]pt：命令行指令码执行</p>
 </div>
 <div class="paragraph">
-<p>IntelliJ IDEA 针对应用开发，集成了衆多功能，如智能补全、链式补全、静态成员补全、数据流分析、语言注入、跨语言重构、检测重复项、检查与快速修复等。有些功能是收费的 Ultimate 版才享有，但其免费的 Community 版所包含的功能已足够丰富，足以满足大多数开发者的需求。</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>若想了解更多 IntelliJ IDEA 功能特性及版本差异，请参阅 <a href="https://www.jetbrains.com/zh-cn/idea/features" class="bare">https://www.jetbrains.com/zh-cn/idea/features</a>。</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="sect2">
-<h3 id="在-window-上安装-intellij-idea">在 Window 上安装 IntelliJ IDEA</h3>
-<div class="paragraph">
-<p>TBD</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="在-macos-上安装-intellij-idea">在 MacOS 上安装 IntelliJ IDEA</h3>
-<div class="paragraph">
-<p>TBD</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="在-ubuntu-linux-上安装-intellij-idea">在 Ubuntu Linux 上安装 IntelliJ IDEA</h3>
-<div class="paragraph">
-<p>TBD</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="docker">Docker</h2>
-<div class="sectionbody">
-<div class="quoteblock">
-<blockquote>
-<div class="paragraph">
-<p>Docker 是一个开放原始码软体，是一个开放平台，用于开发应用、交付（shipping）应用、执行应用。Docker 允许用户将基础设施（Infrastructure）中的应用单独分割出来，形成更小的颗粒（容器），从而提高交付软体的速度。</p>
+<p>JDK[:commondir: zh_CN/common]中还包括完整的[:commondir: zh_CN/common]J[:commondir: zh_CN/common]E（Java[:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]E[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t），Java[:commondir: zh_CN/common]执行环境，也被穪为[:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]vate[:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]e。包括了用于产品环境的各种库类，如基础类别馆[:commondir: zh_CN/common][:commondir: zh_CN/common]t.ja[:commondir: zh_CN/common]，以及给开发人员使用的补充库，如国际化与在地化的类别馆、IDL[:commondir: zh_CN/common]库等等。</p>
 </div>
 <div class="paragraph">
-<p>Docker 容器与虚拟机器类似，但原理上，容器是将作业系统层虚拟化，虚拟机器则是虚拟硬体，因此容器更具有可携式性、高效地利用伺服器。容器更多地用于表示软体的一个标准化单元。由于容器的标准化，因此它可以无视基础设施（Infrastructure）的差异，部署到任何一个地方。另外，Docker 也为容器提供更强的业界的隔离相容。</p>
+<p>JDK[:commondir: zh_CN/common]中还包括各种样常式序，用以展示[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]API[:commondir: zh_CN/common]中的各部份。
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]</p>
 </div>
 <div class="paragraph">
-<p>Docker 利用 Linux 核心中的资源分离机制，例如 cgroups，以及 Linux 核心命名空间（namespaces），来建立独立的容器（containers）。这可以在单一 Linux 实体下运作，避免启动一个虚拟机器造成的额外负担。Linux 核心对命名空间的支援完全隔离了工作环境中应用程式的视野，包括行程树、网路、用户 ID 与挂载档案系统，而核心的 cgroups 提供资源隔离，包括 CPU、记忆体、block I/O 与网路。</p>
-</div>
-</blockquote>
-<div class="attribution">
-&#8212; Docker<br>
-<cite>https://zh.wikipedia.org/wiki/Docker</cite>
-</div>
+<p>当前市面上主流的[:commondir: zh_CN/common]JDK[:commondir: zh_CN/common]实现有[:commondir: zh_CN/common]O[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]JDK[:commondir: zh_CN/common]和[:commondir: zh_CN/common]Ope[:commondir: zh_CN/common]JDK。两者皆源自昇阳电脑「Su[:commondir: zh_CN/common][:commondir: zh_CN/common]M[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]suste[:commondir: zh_CN/common]s」。O[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]JDK并非完全开源，O[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le公司通过收购获得其所有权。Ope[:commondir: zh_CN/common]JDK是採用[:commondir: zh_CN/common]GPL[:commondir: zh_CN/common]的完全开源实现。本文使用[:commondir: zh_CN/common]O[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]JDK。</p>
 </div>
 <div class="paragraph">
-<p>服务端软件如数据库、消息服务等，一般安装与配置都较复杂。借由 Docker 技术，应用提供者可以将复杂的依赖、配置与软件本身打包成镜像。使用者袛需从镜像实例化出容器就可以方便快速地创建服务端软件实例了。在应用开发过程中，常常需要与数据库或消息服务等中间件集成调试。供由 Docker 技术，开发者就可以快速方便地在本地创建运行各种所需服务。</p>
-</div>
-<div class="sect2">
-<h3 id="在-window-上安装-docker">在 Window 上安装 Docker</h3>
-<div class="paragraph">
-<p>TBD</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="在-macos-上安装-docker">在 MacOS 上安装 Docker</h3>
-<div class="paragraph">
-<p>TBD</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="在-ubuntu-linux-上安装-docker">在 Ubuntu Linux 上安装 Docker</h3>
-<div class="paragraph">
-<p>TBD</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="hello-world">Hello World</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>我们以实作一个 Hello World Spring Boot 应用来检验 JDK 和 IntelliJ IDEA 安装配置是否正确。</p>
+<p>[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]
+Java[:commondir: zh_CN/common]语这自[:commondir: zh_CN/common]JDK[:commondir: zh_CN/common]1.0[:commondir: zh_CN/common]版本以来经历了许多次更新，也在基本程式库中增加了大量的类别和套件。从[:commondir: zh_CN/common]J2SE[:commondir: zh_CN/common]1.4[:commondir: zh_CN/common]开始，Java[:commondir: zh_CN/common]语这的变动由[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]C[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common][:commondir: zh_CN/common]ty[:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ess（JCP）管理，JCP[:commondir: zh_CN/common]使用[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]规范请求（Java[:commondir: zh_CN/common]Spe[:commondir: zh_CN/common][:commondir: zh_CN/common]f[:commondir: zh_CN/common][:commondir: zh_CN/common]at[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]equests，JS[:commondir: zh_CN/common]s）来建议和定义对[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]平台内容的新增和修改。Java[:commondir: zh_CN/common]语言由[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]语言规范（Java[:commondir: zh_CN/common]La[:commondir: zh_CN/common]guage[:commondir: zh_CN/common]Spe[:commondir: zh_CN/common][:commondir: zh_CN/common]f[:commondir: zh_CN/common][:commondir: zh_CN/common]at[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]，JLS）定义，对[:commondir: zh_CN/common]JLS[:commondir: zh_CN/common]的更改则根据[:commondir: zh_CN/common]JS[:commondir: zh_CN/common][:commondir: zh_CN/common]901[:commondir: zh_CN/common]管理。</p>
 </div>
 <div class="paragraph">
-<p>最简单的创建一个新的 Spring Boot 应用方法是使用 <a href="https://start.spring.io">Spring Initializr</a>。使用浏览器访问 <a href="https://start.spring.io" class="bare">https://start.spring.io</a> :</p>
+<p>除了语言上的变化，多年来[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]标准库（JCL）发生了巨大的变化，从[:commondir: zh_CN/common]JDK[:commondir: zh_CN/common]1.0[:commondir: zh_CN/common]中的几百个类暴增到[:commondir: zh_CN/common]J2SE[:commondir: zh_CN/common]5[:commondir: zh_CN/common]中的三千多个类。Sw[:commondir: zh_CN/common][:commondir: zh_CN/common]g、Java2D[:commondir: zh_CN/common]等全新[:commondir: zh_CN/common]API[:commondir: zh_CN/common]被加入其中，而许多原本[:commondir: zh_CN/common]JDK[:commondir: zh_CN/common]1.0[:commondir: zh_CN/common]的类和方法已被弃用。当然，仍然有一些程式可以将[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]程式从新版本的[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]平台转换为较旧版本（例如[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]5.0[:commondir: zh_CN/common]降转到[:commondir: zh_CN/common]1.4）。</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>Project 选择 Gradle Project，使用 Gradle 构建我们的项目；</p>
-</li>
-<li>
-<p>Language 选择 Java；</p>
-</li>
-<li>
-<p>Spring Boot 撰择 2.2.7 或其它 2.2.x 版本，最新版（讫今为止）的 Spring Cloud Hoxton 兼容 Spring Boot 2.2.x；</p>
-</li>
-<li>
-<p>Project Metadata 部份，Group 填 <code>io.github.rscai.microservices</code>，Artifact 填 <code>helloworld</code>，Name 填 <code>helloworld</code>，Packaging 撰 Jar，Java 撰择版本 8；</p>
-</li>
-<li>
-<p>Dependencies 仅需选定 Spring Web 即可。</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>Java[:commondir: zh_CN/common]7[:commondir: zh_CN/common]发布后，O[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]承诺回到以前每两年发布一次的发布週期。但在2013年时，O[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]却宣布他们将[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]8[:commondir: zh_CN/common]延迟一年发表，官方表示是为了修复[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]的安全漏洞。</p>
 </div>
-<div class="imageblock">
+<div class="paragraph">
+<p>2017年9月，Java[:commondir: zh_CN/common]平台的主架构师[:commondir: zh_CN/common]Ma[:commondir: zh_CN/common]k[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common][:commondir: zh_CN/common]发出提议，要求将[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]的功能更新週期从之前的每两年一个新版本缩减到每六个月一个新版本。该提议获得了通过，并在提出后不久生效。</p>
+</div>
+<div class="paragraph">
+<p>Java[:commondir: zh_CN/common]8[:commondir: zh_CN/common]与[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]11[:commondir: zh_CN/common]为目前提供支援的[:commondir: zh_CN/common]L[:commondir: zh_CN/common]S（长期支援）版本；Java[:commondir: zh_CN/common]10[:commondir: zh_CN/common]是上一个快速发布版本，且不再被支援。2018年9月，随着[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]11[:commondir: zh_CN/common]的发布，Java[:commondir: zh_CN/common]10[:commondir: zh_CN/common]自当日起不再被支援。O[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]将在2019年1月前为商业用途的[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]8[:commondir: zh_CN/common]长期支援，而针对非商用的更新将继续提供，直至2020年12月；此外，A[:commondir: zh_CN/common]p[:commondir: zh_CN/common]tOpe[:commondir: zh_CN/common]JDK[:commondir: zh_CN/common]也为[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]8[:commondir: zh_CN/common]提供免费更新。针对[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]11[:commondir: zh_CN/common]的长期支援将不再由[:commondir: zh_CN/common]O[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]提供，而是改由[:commondir: zh_CN/common]Ope[:commondir: zh_CN/common]JDK[:commondir: zh_CN/common]社区的[:commondir: zh_CN/common]A[:commondir: zh_CN/common][:commondir: zh_CN/common]ptOpe[:commondir: zh_CN/common]JDK[:commondir: zh_CN/common]提供。
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]</p>
+</div>
+<div class="paragraph">
+<p>综合考量特性和支援，本文选用最后一个由[:commondir: zh_CN/common]O[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]提供长期支持的[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]8。</p>
+</div>
+<div class="paragraph">
+<p>===[:commondir: zh_CN/common]在[:commondir: zh_CN/common]W[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ws[:commondir: zh_CN/common]上安装[:commondir: zh_CN/common]O[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]JDK</p>
+</div>
+<div class="paragraph">
+<p>[:commondir: zh_CN/common]BD</p>
+</div>
+<div class="paragraph">
+<p>===[:commondir: zh_CN/common]在[:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]OS[:commondir: zh_CN/common]上安装[:commondir: zh_CN/common]O[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]JDK</p>
+</div>
+<div class="paragraph">
+<p>[:commondir: zh_CN/common]BD</p>
+</div>
+<div class="paragraph">
+<p>===[:commondir: zh_CN/common]在[:commondir: zh_CN/common]Ubu[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]L[:commondir: zh_CN/common][:commondir: zh_CN/common]ux[:commondir: zh_CN/common]上安装[:commondir: zh_CN/common]O[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]JDK</p>
+</div>
+<div class="paragraph">
+<p>[:commondir: zh_CN/common]BD</p>
+</div>
+<div class="paragraph">
+<p>==[:commondir: zh_CN/common]I[:commondir: zh_CN/common]tell[:commondir: zh_CN/common]j[:commondir: zh_CN/common]IDEA</p>
+</div>
+<div class="paragraph">
+<p>I[:commondir: zh_CN/common]tellJ[:commondir: zh_CN/common]IDEA[:commondir: zh_CN/common]是一种商业化销售的[:commondir: zh_CN/common]Java[:commondir: zh_CN/common]整合式开发环境（I[:commondir: zh_CN/common]teg[:commondir: zh_CN/common]ate[:commondir: zh_CN/common][:commondir: zh_CN/common]Devel[:commondir: zh_CN/common]p[:commondir: zh_CN/common]e[:commondir: zh_CN/common]t[:commondir: zh_CN/common]E[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]t，IDE）工具软体，由[:commondir: zh_CN/common]JetB[:commondir: zh_CN/common]a[:commondir: zh_CN/common][:commondir: zh_CN/common]s[:commondir: zh_CN/common]软体公司（前穪[:commondir: zh_CN/common]I[:commondir: zh_CN/common]tell[:commondir: zh_CN/common]jJ）开发，提供[:commondir: zh_CN/common]Apa[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]2.0[:commondir: zh_CN/common]开放式授权的社区版本以及专有软体的商业版本，开发者可选择其所需来下载使用。</p>
+</div>
+<div class="paragraph">
+<p>I[:commondir: zh_CN/common]tell[:commondir: zh_CN/common]J[:commondir: zh_CN/common]IDEA[:commondir: zh_CN/common]针对应用开发，集成了衆多功能，如智能补全、链式补全、静态成员补全、数据流分析、语言注入、跨语言重构、检测重复项、检查与快速修复等。有些功能是收费的[:commondir: zh_CN/common]Ult[:commondir: zh_CN/common][:commondir: zh_CN/common]ate[:commondir: zh_CN/common]版才享有，但其免费的[:commondir: zh_CN/common]C[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]u[:commondir: zh_CN/common][:commondir: zh_CN/common]ty[:commondir: zh_CN/common]版所包含的功能已足够丰富，足以满足大多数开发者的需求。</p>
+</div>
+<div class="exampleblock">
 <div class="content">
-<img src="../images/01-Tools-Setup/generate-helloworld-by-spring-initializr.png" alt="generate helloworld by spring initializr">
+<div class="paragraph">
+<p>若想了解更多[:commondir: zh_CN/common]I[:commondir: zh_CN/common]tell[:commondir: zh_CN/common]J[:commondir: zh_CN/common]IDEA[:commondir: zh_CN/common]功能特性及版本差异，请参阅[:commondir: zh_CN/common][:commondir: zh_CN/common]ttps[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]www.jetb[:commondir: zh_CN/common]a[:commondir: zh_CN/common][:commondir: zh_CN/common]s.[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]-[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ea[:commondir: zh_CN/common]featu[:commondir: zh_CN/common]es[]。</p>
+</div>
 </div>
 </div>
 <div class="paragraph">
-<p>单击<strong>GENERATE</strong>，Spring initializr 就会生成 ZIP 格式的项目文件。</p>
+<p>===[:commondir: zh_CN/common]在[:commondir: zh_CN/common]W[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]w[:commondir: zh_CN/common]上安装[:commondir: zh_CN/common]I[:commondir: zh_CN/common]tell[:commondir: zh_CN/common]J[:commondir: zh_CN/common]IDEA</p>
 </div>
 <div class="paragraph">
-<p>将 <code>helloworld.zip</code> 解压后得到一个 Spring Boot 项目。其中：</p>
+<p>[:commondir: zh_CN/common]BD</p>
+</div>
+<div class="paragraph">
+<p>===[:commondir: zh_CN/common]在[:commondir: zh_CN/common]Ma[:commondir: zh_CN/common]OS[:commondir: zh_CN/common]上安装[:commondir: zh_CN/common]I[:commondir: zh_CN/common]tell[:commondir: zh_CN/common]J[:commondir: zh_CN/common]IDEA</p>
+</div>
+<div class="paragraph">
+<p>[:commondir: zh_CN/common]BD</p>
+</div>
+<div class="paragraph">
+<p>===[:commondir: zh_CN/common]在[:commondir: zh_CN/common]Ubu[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]L[:commondir: zh_CN/common][:commondir: zh_CN/common]ux[:commondir: zh_CN/common]上安装[:commondir: zh_CN/common]I[:commondir: zh_CN/common]tell[:commondir: zh_CN/common]J[:commondir: zh_CN/common]IDEA</p>
+</div>
+<div class="paragraph">
+<p>[:commondir: zh_CN/common]BD</p>
+</div>
+<div class="paragraph">
+<p>==[:commondir: zh_CN/common]D[:commondir: zh_CN/common][:commondir: zh_CN/common]ke[:commondir: zh_CN/common]</p>
+</div>
+<div class="paragraph">
+<p>[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]
+D[:commondir: zh_CN/common][:commondir: zh_CN/common]ke[:commondir: zh_CN/common][:commondir: zh_CN/common]是一个开放原始码软体，是一个开放平台，用于开发应用、交付（s[:commondir: zh_CN/common][:commondir: zh_CN/common]pp[:commondir: zh_CN/common][:commondir: zh_CN/common]g）应用、执行应用。D[:commondir: zh_CN/common][:commondir: zh_CN/common]ke[:commondir: zh_CN/common][:commondir: zh_CN/common]允许用户将基础设施（I[:commondir: zh_CN/common]f[:commondir: zh_CN/common]ast[:commondir: zh_CN/common]u[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]e）中的应用单独分割出来，形成更小的颗粒（容器），从而提高交付软体的速度。</p>
+</div>
+<div class="paragraph">
+<p>D[:commondir: zh_CN/common][:commondir: zh_CN/common]ke[:commondir: zh_CN/common][:commondir: zh_CN/common]容器与虚拟机器类似，但原理上，容器是将作业系统层虚拟化，虚拟机器则是虚拟硬体，因此容器更具有可携式性、高效地利用伺服器。容器更多地用于表示软体的一个标准化单元。由于容器的标准化，因此它可以无视基础设施（I[:commondir: zh_CN/common]f[:commondir: zh_CN/common]ast[:commondir: zh_CN/common]u[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]e）的差异，部署到任何一个地方。另外，D[:commondir: zh_CN/common][:commondir: zh_CN/common]ke[:commondir: zh_CN/common][:commondir: zh_CN/common]也为容器提供更强的业界的隔离相容。</p>
+</div>
+<div class="paragraph">
+<p>D[:commondir: zh_CN/common][:commondir: zh_CN/common]ke[:commondir: zh_CN/common][:commondir: zh_CN/common]利用[:commondir: zh_CN/common]L[:commondir: zh_CN/common][:commondir: zh_CN/common]ux[:commondir: zh_CN/common]核心中的资源分离机制，例如[:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common][:commondir: zh_CN/common]ups，以及[:commondir: zh_CN/common]L[:commondir: zh_CN/common][:commondir: zh_CN/common]ux[:commondir: zh_CN/common]核心命名空间（[:commondir: zh_CN/common]a[:commondir: zh_CN/common]espa[:commondir: zh_CN/common]es），来建立独立的容器（[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ta[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common]s）。这可以在单一[:commondir: zh_CN/common]L[:commondir: zh_CN/common][:commondir: zh_CN/common]ux[:commondir: zh_CN/common]实体下运作，避免启动一个虚拟机器造成的额外负担。L[:commondir: zh_CN/common][:commondir: zh_CN/common]ux[:commondir: zh_CN/common]核心对命名空间的支援完全隔离了工作环境中应用程式的视野，包括行程树、网路、用户[:commondir: zh_CN/common]ID[:commondir: zh_CN/common]与挂载档案系统，而核心的[:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common][:commondir: zh_CN/common]ups[:commondir: zh_CN/common]提供资源隔离，包括[:commondir: zh_CN/common]CPU、记忆体、bl[:commondir: zh_CN/common][:commondir: zh_CN/common]k[:commondir: zh_CN/common]I[:commondir: zh_CN/common]O[:commondir: zh_CN/common]与网路。
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]</p>
+</div>
+<div class="paragraph">
+<p>服务端软件如数据库、消息服务等，一般安装与配置都较复杂。借由[:commondir: zh_CN/common]D[:commondir: zh_CN/common][:commondir: zh_CN/common]ke[:commondir: zh_CN/common][:commondir: zh_CN/common]技术，应用提供者可以将复杂的依赖、配置与软件本身打包成镜像。使用者袛需从镜像实例化出容器就可以方便快速地创建服务端软件实例了。在应用开发过程中，常常需要与数据库或消息服务等中间件集成调试。供由[:commondir: zh_CN/common]D[:commondir: zh_CN/common][:commondir: zh_CN/common]ke[:commondir: zh_CN/common][:commondir: zh_CN/common]技术，开发者就可以快速方便地在本地创建运行各种所需服务。</p>
+</div>
+<div class="paragraph">
+<p>===[:commondir: zh_CN/common]在[:commondir: zh_CN/common]W[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]w[:commondir: zh_CN/common]上安装[:commondir: zh_CN/common]D[:commondir: zh_CN/common][:commondir: zh_CN/common]ke[:commondir: zh_CN/common]</p>
+</div>
+<div class="paragraph">
+<p>[:commondir: zh_CN/common]BD</p>
+</div>
+<div class="paragraph">
+<p>===[:commondir: zh_CN/common]在[:commondir: zh_CN/common]Ma[:commondir: zh_CN/common]OS[:commondir: zh_CN/common]上安装[:commondir: zh_CN/common]D[:commondir: zh_CN/common][:commondir: zh_CN/common]ke[:commondir: zh_CN/common]</p>
+</div>
+<div class="paragraph">
+<p>[:commondir: zh_CN/common]BD</p>
+</div>
+<div class="paragraph">
+<p>===[:commondir: zh_CN/common]在[:commondir: zh_CN/common]Ubu[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]L[:commondir: zh_CN/common][:commondir: zh_CN/common]ux[:commondir: zh_CN/common]上安装[:commondir: zh_CN/common]D[:commondir: zh_CN/common][:commondir: zh_CN/common]ke[:commondir: zh_CN/common]</p>
+</div>
+<div class="paragraph">
+<p>[:commondir: zh_CN/common]BD</p>
+</div>
+<div class="paragraph">
+<p>==[:commondir: zh_CN/common]Hell[:commondir: zh_CN/common][:commondir: zh_CN/common]W[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]</p>
+</div>
+<div class="paragraph">
+<p>我们以实作一个[:commondir: zh_CN/common]Hell[:commondir: zh_CN/common][:commondir: zh_CN/common]W[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common][:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]B[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common]应用来检验[:commondir: zh_CN/common]JDK[:commondir: zh_CN/common]和[:commondir: zh_CN/common]I[:commondir: zh_CN/common]tell[:commondir: zh_CN/common]J[:commondir: zh_CN/common]IDEA[:commondir: zh_CN/common]安装配置是否正确。</p>
+</div>
+<div class="paragraph">
+<p>最简单的创建一个新的[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]B[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common]应用方法是使用[:commondir: zh_CN/common][:commondir: zh_CN/common]ttps[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]sta[:commondir: zh_CN/common]t.sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g.[:commondir: zh_CN/common][:commondir: zh_CN/common][Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]I[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common]al[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]]。使用浏览器访问[:commondir: zh_CN/common][:commondir: zh_CN/common]ttps[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]sta[:commondir: zh_CN/common]t.sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g.[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]</p>
+</div>
+<div class="paragraph">
+<p>*[:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common]je[:commondir: zh_CN/common]t[:commondir: zh_CN/common]选择[:commondir: zh_CN/common]G[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common]je[:commondir: zh_CN/common]t，使用[:commondir: zh_CN/common]G[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]构建我们的项目；
+*[:commondir: zh_CN/common]La[:commondir: zh_CN/common]guage[:commondir: zh_CN/common]选择[:commondir: zh_CN/common]Java；
+*[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]B[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common]撰择[:commondir: zh_CN/common]2.2.7[:commondir: zh_CN/common]或其它[:commondir: zh_CN/common]2.2.x[:commondir: zh_CN/common]版本，最新版（讫今为止）的[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]Cl[:commondir: zh_CN/common]u[:commondir: zh_CN/common][:commondir: zh_CN/common]H[:commondir: zh_CN/common]xt[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]兼容[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]B[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common]2.2.x；
+*[:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common]je[:commondir: zh_CN/common]t[:commondir: zh_CN/common]Meta[:commondir: zh_CN/common]ata[:commondir: zh_CN/common]部份，G[:commondir: zh_CN/common][:commondir: zh_CN/common]up[:commondir: zh_CN/common]填[:commondir: zh_CN/common]<code>[:commondir: zh_CN/common][:commondir: zh_CN/common].g[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ub.[:commondir: zh_CN/common]s[:commondir: zh_CN/common]a[:commondir: zh_CN/common].[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]es</code>，A[:commondir: zh_CN/common]t[:commondir: zh_CN/common]fa[:commondir: zh_CN/common]t[:commondir: zh_CN/common]填[:commondir: zh_CN/common]<code>[:commondir: zh_CN/common]ell[:commondir: zh_CN/common]w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]</code>，Na[:commondir: zh_CN/common]e[:commondir: zh_CN/common]填[:commondir: zh_CN/common]<code>[:commondir: zh_CN/common]ell[:commondir: zh_CN/common]w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]</code>，Pa[:commondir: zh_CN/common]kag[:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]撰[:commondir: zh_CN/common]Ja[:commondir: zh_CN/common]，Java[:commondir: zh_CN/common]撰择版本[:commondir: zh_CN/common]8；
+*[:commondir: zh_CN/common]Depe[:commondir: zh_CN/common][:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]es[:commondir: zh_CN/common]仅需选定[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]Web[:commondir: zh_CN/common]即可。</p>
+</div>
+<div class="paragraph">
+<p>[:commondir: zh_CN/common][:commondir: zh_CN/common]age[:commondir: zh_CN/common][:commondir: zh_CN/common]01-[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ls-Setup[:commondir: zh_CN/common]ge[:commondir: zh_CN/common]e[:commondir: zh_CN/common]ate-[:commondir: zh_CN/common]ell[:commondir: zh_CN/common]w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]-by-sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g-[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common]al[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].p[:commondir: zh_CN/common]g[]</p>
+</div>
+<div class="paragraph">
+<p>单击<strong>GENE[:commondir: zh_CN/common]A[:commondir: zh_CN/common]E</strong>，Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common]al[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]就会生成[:commondir: zh_CN/common]ZIP[:commondir: zh_CN/common]格式的项目文件。</p>
+</div>
+<div class="paragraph">
+<p>将[:commondir: zh_CN/common]<code>[:commondir: zh_CN/common]ell[:commondir: zh_CN/common]w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common].[:commondir: zh_CN/common][:commondir: zh_CN/common]p</code>[:commondir: zh_CN/common]解压后得到一个[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]B[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common]项目。其中：</p>
+</div>
+<div class="paragraph">
+<p>[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]lu[:commondir: zh_CN/common]e[:commondir: zh_CN/common][:commondir: zh_CN/common]{[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]}[:commondir: zh_CN/common]g[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le-p[:commondir: zh_CN/common][:commondir: zh_CN/common]je[:commondir: zh_CN/common]t-st[:commondir: zh_CN/common]u[:commondir: zh_CN/common]tu[:commondir: zh_CN/common]e-bas[:commondir: zh_CN/common][:commondir: zh_CN/common].a[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][]</p>
+</div>
+<div class="paragraph">
+<p>将[:commondir: zh_CN/common][:commondir: zh_CN/common]ell[:commondir: zh_CN/common]w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common][:commondir: zh_CN/common]项目导入[:commondir: zh_CN/common]I[:commondir: zh_CN/common]tell[:commondir: zh_CN/common]J[:commondir: zh_CN/common]IDEA。首先，打开[:commondir: zh_CN/common]I[:commondir: zh_CN/common]tell[:commondir: zh_CN/common]j[:commondir: zh_CN/common]IDEA，然后，单系[:commondir: zh_CN/common]I[:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common]P[:commondir: zh_CN/common][:commondir: zh_CN/common]je[:commondir: zh_CN/common]t，选定[:commondir: zh_CN/common][:commondir: zh_CN/common]ell[:commondir: zh_CN/common]w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common][:commondir: zh_CN/common]项目目录，再然后选择以[:commondir: zh_CN/common]G[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]项目形式导入。I[:commondir: zh_CN/common]tell[:commondir: zh_CN/common]J[:commondir: zh_CN/common]IDEA[:commondir: zh_CN/common]会自动初始执行[:commondir: zh_CN/common]G[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]配置，下载[:commondir: zh_CN/common]<code>[:commondir: zh_CN/common]g[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le[:commondir: zh_CN/common]w[:commondir: zh_CN/common]appe[:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le-w[:commondir: zh_CN/common]appe[:commondir: zh_CN/common].p[:commondir: zh_CN/common][:commondir: zh_CN/common]pe[:commondir: zh_CN/common]t[:commondir: zh_CN/common]es</code>[:commondir: zh_CN/common]中指定版本的[:commondir: zh_CN/common]G[:commondir: zh_CN/common]a[:commondir: zh_CN/common]le。</p>
+</div>
+<div class="paragraph">
+<p>[:commondir: zh_CN/common][:commondir: zh_CN/common]age[:commondir: zh_CN/common][:commondir: zh_CN/common]01-[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]ls-Setup[:commondir: zh_CN/common]Hell[:commondir: zh_CN/common]w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]-[:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]t.g[:commondir: zh_CN/common]f[]</p>
 </div>
 <div class="listingblock">
+<div class="title">[:commondir: zh_CN/common]s[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]java[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ub[:commondir: zh_CN/common][:commondir: zh_CN/common]s[:commondir: zh_CN/common]a[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]es[:commondir: zh_CN/common][:commondir: zh_CN/common]ell[:commondir: zh_CN/common]w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common][:commondir: zh_CN/common]Hell[:commondir: zh_CN/common]W[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]Appl[:commondir: zh_CN/common][:commondir: zh_CN/common]at[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].java</div>
 <div class="content">
-<pre>.
-├── .gitignore
-├── HELP.md
-├── build.gradle
-├── gradle
-│   └── wrapper
-│       ├── gradle-wrapper.jar
-│       └── gradle-wrapper.properties
-├── gradlew
-├── gradlew.bat
-├── settings.gradle
-└── src
-    ├── main
-    │   ├── java
-    │   └── resources
-    └── test
-        └── java
-        └── resources</pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>.gitignore</code>, 罗列了应被 GIT 忽略的文件和目录。自动生成及临时文件及目录不应被纳入版本控制；</p>
-</li>
-<li>
-<p><code>build.gradle</code>，Gradle 项目文件，定义了项结构及构建过程；</p>
-</li>
-<li>
-<p><code>gradle/wrapper/</code> 包含所有 Gradle Wrapper 相关的文件；</p>
-</li>
-<li>
-<p><code>gradlew</code> 是 UNIX-like 平台版本的 Gradle 命令包装；</p>
-</li>
-<li>
-<p><code>gradlew.bat</code> 是 Windows 平台版本的 Gradle 命令包装；</p>
-</li>
-<li>
-<p><code>HELP.md</code> 顾名思义是帮助文档，与 README 类似；</p>
-</li>
-<li>
-<p><code>setting.gradle</code> Gradle 的属性文件；</p>
-</li>
-<li>
-<p><code>src/</code> 包含所有源代码和资源文件：</p>
-</li>
-<li>
-<p><code>src/main/</code> 包含所有部署至运行环境的源代码文件（以编译后的目标代码形式被部署至运行环境）和资源文件：</p>
-</li>
-<li>
-<p><code>src/main/java/</code> 包含所有部署至运行环境的 Java 源代码文件：</p>
-</li>
-<li>
-<p><code>src/main/resources/</code> 包含所有部署至运行环境的资源文件；</p>
-</li>
-<li>
-<p><code>src/test</code> 包含所有用于测试的源代码和资源文件；</p>
-</li>
-<li>
-<p><code>src/test/java/</code> 包含所有用于测试的 Java 源代码文件；</p>
-</li>
-<li>
-<p><code>src/test/resource/</code> 包含所有用于测试的资源文件。</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>将 helloworld 项目导入 IntelliJ IDEA。首先，打开 Intellij IDEA，然后，单系 Import Project，选定 helloworld 项目目录，再然后选择以 Gradle 项目形式导入。IntelliJ IDEA 会自动初始执行 Gradle 配置，下载 <code>/gradle/wrapper/gradle-wrapper.properties</code> 中指定版本的 Gradle。</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="../images/01-Tools-Setup/Helloworld-import.gif" alt="Helloworld import">
-</div>
-</div>
-<div class="listingblock">
-<div class="title">/src/main/java/io/github/rscai/microservices/helloworld/HelloWorldApplication.java</div>
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package io.github.rscai.microservices.helloworld;
+<pre>pa[:commondir: zh_CN/common]kage[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].g[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ub.[:commondir: zh_CN/common]s[:commondir: zh_CN/common]a[:commondir: zh_CN/common].[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]es.[:commondir: zh_CN/common]ell[:commondir: zh_CN/common]w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common];
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+[:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g.sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]gf[:commondir: zh_CN/common]a[:commondir: zh_CN/common]ew[:commondir: zh_CN/common][:commondir: zh_CN/common]k.b[:commondir: zh_CN/common][:commondir: zh_CN/common]t.Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]gAppl[:commondir: zh_CN/common][:commondir: zh_CN/common]at[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common];
+[:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g.sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]gf[:commondir: zh_CN/common]a[:commondir: zh_CN/common]ew[:commondir: zh_CN/common][:commondir: zh_CN/common]k.b[:commondir: zh_CN/common][:commondir: zh_CN/common]t.aut[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]f[:commondir: zh_CN/common]gu[:commondir: zh_CN/common]e.Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]gB[:commondir: zh_CN/common][:commondir: zh_CN/common]tAppl[:commondir: zh_CN/common][:commondir: zh_CN/common]at[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common];
 
-@SpringBootApplication <i class="conum" data-value="1"></i><b>(1)</b>
-public class HelloWorldApplication {
+@Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]gB[:commondir: zh_CN/common][:commondir: zh_CN/common]tAppl[:commondir: zh_CN/common][:commondir: zh_CN/common]at[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]<i class="conum" data-value="1"></i><b>(1)</b>
+publ[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]lass[:commondir: zh_CN/common]Hell[:commondir: zh_CN/common]W[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]Appl[:commondir: zh_CN/common][:commondir: zh_CN/common]at[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]{
 
-	public static void main(String[] args) {
-		SpringApplication.run(HelloWorldApplication.class, args); <i class="conum" data-value="2"></i><b>(2)</b>
+	publ[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]stat[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common][:commondir: zh_CN/common](St[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[][:commondir: zh_CN/common]a[:commondir: zh_CN/common]gs)[:commondir: zh_CN/common]{
+		Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]gAppl[:commondir: zh_CN/common][:commondir: zh_CN/common]at[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].[:commondir: zh_CN/common]u[:commondir: zh_CN/common](Hell[:commondir: zh_CN/common]W[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]Appl[:commondir: zh_CN/common][:commondir: zh_CN/common]at[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].[:commondir: zh_CN/common]lass,[:commondir: zh_CN/common]a[:commondir: zh_CN/common]gs);[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]<i class="conum" data-value="2"></i><b>(2)</b>
 	}
 
-}</code></pre>
-</div>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>使用注解 <code>@SpringBootApplication</code> 声明 Spring Boot 应用；</p>
-</li>
-<li>
-<p>将 Spring Boot 应用类传递给 <code>SpringApplication.run</code>，其会扫描 Spring Boot 应用类中相关的声明及 classpath 中的声明（注解和指标类），装配并初始化 Spring Bean。</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>创建 controller，并添加请求处理方法。</p>
-</div>
-<div class="literalblock">
-<div class="title">src/main/java/io/github/rscai/microservices/helloworld/controller/HelloWorldController.java</div>
-<div class="content">
-<pre>package io.github.rscai.microservices.helloworld.controller;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController <i class="conum" data-value="1"></i><b>(1)</b>
-@RequestMapping("helloworld") <i class="conum" data-value="2"></i><b>(2)</b>
-public class HelloWorldController {
-
-  @GetMapping("sayHello") <i class="conum" data-value="3"></i><b>(3)</b>
-  public String sayHello(@RequestParam(value = "name", defaultValue = "World") String name) { <i class="conum" data-value="4"></i><b>(4)</b>
-    return String.format("Hello %s!", name);
-  }
 }</pre>
 </div>
 </div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>使用注解 <code>@RestController</code> 声明此 Controller 乃 RESTFul 风格的 Controller。RESTFul 风格的 Controller：</p>
-<div class="ulist">
-<ul>
-<li>
-<p>方法返回值应被直接编码为响应体，编码格式由请求头 <code>Accept</code> 逐请求指定</p>
-</li>
-</ul>
+<div class="paragraph">
+<div class="title">[:commondir: zh_CN/common]将[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]B[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common]应用类传递给[:commondir: zh_CN/common]<code>Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]gAppl[:commondir: zh_CN/common][:commondir: zh_CN/common]at[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].[:commondir: zh_CN/common]u[:commondir: zh_CN/common]</code>，其会扫描[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]B[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common]应用类中相关的声明及[:commondir: zh_CN/common][:commondir: zh_CN/common]lasspat[:commondir: zh_CN/common][:commondir: zh_CN/common]中的声明（注解和指标类），装配并初始化[:commondir: zh_CN/common]Sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]Bea[:commondir: zh_CN/common]。</div>
+<p>创建[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]lle[:commondir: zh_CN/common]，并添加请求处理方法。</p>
 </div>
-</li>
-<li>
-<p>使用注解 <code>@RequestMapping</code> 将此 Controller 中所有的处理方法都映射至 URL <code>/helloworld</code> 以下；</p>
-</li>
-<li>
-<p>使用注解 <code>@GetMapping</code> 将针对 URL <code>/helloworld/sayHello</code> 的 GET 请求映射至方法 <code>sayHello</code>；</p>
-</li>
-<li>
-<p>使用注解 <code>@RequestParam</code> 将请求参数 <code>name</code> 的值以参数 <code>name</code> 的形式传递给方法 <code>sayHello</code>，若请求中未提供参数 <code>name</code> 则传递默认值 <code>world</code>。</p>
-</li>
-</ol>
+<div class="literalblock">
+<div class="title">s[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]java[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ub[:commondir: zh_CN/common][:commondir: zh_CN/common]s[:commondir: zh_CN/common]a[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]es[:commondir: zh_CN/common][:commondir: zh_CN/common]ell[:commondir: zh_CN/common]w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]lle[:commondir: zh_CN/common][:commondir: zh_CN/common]Hell[:commondir: zh_CN/common]W[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]C[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]lle[:commondir: zh_CN/common].java</div>
+<div class="content">
+<pre>pa[:commondir: zh_CN/common]kage[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].g[:commondir: zh_CN/common]t[:commondir: zh_CN/common]ub.[:commondir: zh_CN/common]s[:commondir: zh_CN/common]a[:commondir: zh_CN/common].[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]se[:commondir: zh_CN/common]v[:commondir: zh_CN/common][:commondir: zh_CN/common]es.[:commondir: zh_CN/common]ell[:commondir: zh_CN/common]w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common].[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]lle[:commondir: zh_CN/common];
+
+[:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g.sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]gf[:commondir: zh_CN/common]a[:commondir: zh_CN/common]ew[:commondir: zh_CN/common][:commondir: zh_CN/common]k.web.b[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].a[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]tat[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].GetMapp[:commondir: zh_CN/common][:commondir: zh_CN/common]g;
+[:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g.sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]gf[:commondir: zh_CN/common]a[:commondir: zh_CN/common]ew[:commondir: zh_CN/common][:commondir: zh_CN/common]k.web.b[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].a[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]tat[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].[:commondir: zh_CN/common]equestMapp[:commondir: zh_CN/common][:commondir: zh_CN/common]g;
+[:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g.sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]gf[:commondir: zh_CN/common]a[:commondir: zh_CN/common]ew[:commondir: zh_CN/common][:commondir: zh_CN/common]k.web.b[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].a[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]tat[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].[:commondir: zh_CN/common]equestPa[:commondir: zh_CN/common]a[:commondir: zh_CN/common];
+[:commondir: zh_CN/common][:commondir: zh_CN/common]p[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g.sp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]gf[:commondir: zh_CN/common]a[:commondir: zh_CN/common]ew[:commondir: zh_CN/common][:commondir: zh_CN/common]k.web.b[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].a[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]tat[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].[:commondir: zh_CN/common]estC[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]lle[:commondir: zh_CN/common];
+
+@[:commondir: zh_CN/common]estC[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]lle[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]<i class="conum" data-value="1"></i><b>(1)</b>
+@[:commondir: zh_CN/common]equestMapp[:commondir: zh_CN/common][:commondir: zh_CN/common]g("[:commondir: zh_CN/common]ell[:commondir: zh_CN/common]w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]")[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]<i class="conum" data-value="2"></i><b>(2)</b>
+publ[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]lass[:commondir: zh_CN/common]Hell[:commondir: zh_CN/common]W[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]C[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]lle[:commondir: zh_CN/common][:commondir: zh_CN/common]{
+
+[:commondir: zh_CN/common][:commondir: zh_CN/common]@GetMapp[:commondir: zh_CN/common][:commondir: zh_CN/common]g("sayHell[:commondir: zh_CN/common]")[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]<i class="conum" data-value="3"></i><b>(3)</b>
+[:commondir: zh_CN/common][:commondir: zh_CN/common]publ[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]St[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]sayHell[:commondir: zh_CN/common](@[:commondir: zh_CN/common]equestPa[:commondir: zh_CN/common]a[:commondir: zh_CN/common](value[:commondir: zh_CN/common]=[:commondir: zh_CN/common]"[:commondir: zh_CN/common]a[:commondir: zh_CN/common]e",[:commondir: zh_CN/common][:commondir: zh_CN/common]efaultValue[:commondir: zh_CN/common]=[:commondir: zh_CN/common]"W[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]")[:commondir: zh_CN/common]St[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]e)[:commondir: zh_CN/common]{[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]<i class="conum" data-value="4"></i><b>(4)</b>
+[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]etu[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]St[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]g.f[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]at("Hell[:commondir: zh_CN/common][:commondir: zh_CN/common]%s!",[:commondir: zh_CN/common][:commondir: zh_CN/common]a[:commondir: zh_CN/common]e);
+[:commondir: zh_CN/common][:commondir: zh_CN/common]}
+}</pre>
+</div>
 </div>
 <div class="paragraph">
-<p>在终端中，进入到项目根目录，执行 <code>./gradlew bootRun</code>。
-打开 Web 浏览器，在地址栏中输入 <code><a href="http://localhost:8080/helloworld/sayHello?name=Mike" class="bare">http://localhost:8080/helloworld/sayHello?name=Mike</a></code>，敲系回车，应显示：</p>
+<div class="title">[:commondir: zh_CN/common]使用注解[:commondir: zh_CN/common]<code>@[:commondir: zh_CN/common]estC[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]lle[:commondir: zh_CN/common]</code>[:commondir: zh_CN/common]声明此[:commondir: zh_CN/common]C[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]lle[:commondir: zh_CN/common][:commondir: zh_CN/common]乃[:commondir: zh_CN/common][:commondir: zh_CN/common]ES[:commondir: zh_CN/common]Ful[:commondir: zh_CN/common]风格的[:commondir: zh_CN/common]C[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]lle[:commondir: zh_CN/common]。[:commondir: zh_CN/common]ES[:commondir: zh_CN/common]Ful[:commondir: zh_CN/common]风格的[:commondir: zh_CN/common]C[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]lle[:commondir: zh_CN/common]：</div>
+<p>+
+*[:commondir: zh_CN/common]方法返回值应被直接编码为响应体，编码格式由请求头[:commondir: zh_CN/common]<code>A[:commondir: zh_CN/common][:commondir: zh_CN/common]ept</code>[:commondir: zh_CN/common]逐请求指定
+.[:commondir: zh_CN/common]使用注解[:commondir: zh_CN/common]<code>@[:commondir: zh_CN/common]equestMapp[:commondir: zh_CN/common][:commondir: zh_CN/common]g</code>[:commondir: zh_CN/common]将此[:commondir: zh_CN/common]C[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common][:commondir: zh_CN/common]lle[:commondir: zh_CN/common][:commondir: zh_CN/common]中所有的处理方法都映射至[:commondir: zh_CN/common]U[:commondir: zh_CN/common]L[:commondir: zh_CN/common]<code>[:commondir: zh_CN/common][:commondir: zh_CN/common]ell[:commondir: zh_CN/common]w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]</code>[:commondir: zh_CN/common]以下；
+.[:commondir: zh_CN/common]使用注解[:commondir: zh_CN/common]<code>@GetMapp[:commondir: zh_CN/common][:commondir: zh_CN/common]g</code>[:commondir: zh_CN/common]将针对[:commondir: zh_CN/common]U[:commondir: zh_CN/common]L[:commondir: zh_CN/common]<code>[:commondir: zh_CN/common][:commondir: zh_CN/common]ell[:commondir: zh_CN/common]w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common][:commondir: zh_CN/common]sayHell[:commondir: zh_CN/common]</code>[:commondir: zh_CN/common]的[:commondir: zh_CN/common]GE[:commondir: zh_CN/common][:commondir: zh_CN/common]请求映射至方法[:commondir: zh_CN/common]<code>sayHell[:commondir: zh_CN/common]</code>；
+.[:commondir: zh_CN/common]使用注解[:commondir: zh_CN/common]<code>@[:commondir: zh_CN/common]equestPa[:commondir: zh_CN/common]a[:commondir: zh_CN/common]</code>[:commondir: zh_CN/common]将请求参数[:commondir: zh_CN/common]<code>[:commondir: zh_CN/common]a[:commondir: zh_CN/common]e</code>[:commondir: zh_CN/common]的值以参数[:commondir: zh_CN/common]<code>[:commondir: zh_CN/common]a[:commondir: zh_CN/common]e</code>[:commondir: zh_CN/common]的形式传递给方法[:commondir: zh_CN/common]<code>sayHell[:commondir: zh_CN/common]</code>，若请求中未提供参数[:commondir: zh_CN/common]<code>[:commondir: zh_CN/common]a[:commondir: zh_CN/common]e</code>[:commondir: zh_CN/common]则传递默认值[:commondir: zh_CN/common]<code>w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common]</code>。</p>
+</div>
+<div class="paragraph">
+<p>在终端中，进入到项目根目录，执行[:commondir: zh_CN/common]<code>.[:commondir: zh_CN/common]g[:commondir: zh_CN/common]a[:commondir: zh_CN/common]lew[:commondir: zh_CN/common]b[:commondir: zh_CN/common][:commondir: zh_CN/common]t[:commondir: zh_CN/common]u[:commondir: zh_CN/common]</code>。
+打开[:commondir: zh_CN/common]Web[:commondir: zh_CN/common]浏览器，在地址栏中输入[:commondir: zh_CN/common]<code>[:commondir: zh_CN/common]ttp[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common][:commondir: zh_CN/common]al[:commondir: zh_CN/common][:commondir: zh_CN/common]st[:commondir: zh_CN/common]8080[:commondir: zh_CN/common][:commondir: zh_CN/common]ell[:commondir: zh_CN/common]w[:commondir: zh_CN/common][:commondir: zh_CN/common]l[:commondir: zh_CN/common][:commondir: zh_CN/common]sayHell[:commondir: zh_CN/common]?[:commondir: zh_CN/common]a[:commondir: zh_CN/common]e=M[:commondir: zh_CN/common]ke</code>，敲系回车，应显示：</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>Hello Mike!</pre>
+<pre>Hell[:commondir: zh_CN/common][:commondir: zh_CN/common]M[:commondir: zh_CN/common]ke!</pre>
 </div>
 </div>
+<div class="paragraph">
+<p>==[:commondir: zh_CN/common]参考</p>
 </div>
-</div>
-<div class="sect1">
-<h2 id="参考">参考</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p><a href="https://zh.wikipedia.org/wiki/JDK">JDK</a></p>
-</li>
-<li>
-<p><a href="https://zh.wikipedia.org/wiki/OpenJDK">OpenJDK</a></p>
-</li>
-</ul>
-</div>
-</div>
+<div class="paragraph">
+<p>*[:commondir: zh_CN/common][:commondir: zh_CN/common]ttps[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].w[:commondir: zh_CN/common]k[:commondir: zh_CN/common]pe[:commondir: zh_CN/common][:commondir: zh_CN/common]a.[:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]w[:commondir: zh_CN/common]k[:commondir: zh_CN/common][:commondir: zh_CN/common]JDK[JDK]
+*[:commondir: zh_CN/common][:commondir: zh_CN/common]ttps[:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common][:commondir: zh_CN/common].w[:commondir: zh_CN/common]k[:commondir: zh_CN/common]pe[:commondir: zh_CN/common][:commondir: zh_CN/common]a.[:commondir: zh_CN/common][:commondir: zh_CN/common]g[:commondir: zh_CN/common]w[:commondir: zh_CN/common]k[:commondir: zh_CN/common][:commondir: zh_CN/common]Ope[:commondir: zh_CN/common]JDK[Ope[:commondir: zh_CN/common]JDK]</p>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1<br>
-Last updated 2020-09-27 05:55:07 UTC
+Last updated 2020-09-27 05:58:13 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
